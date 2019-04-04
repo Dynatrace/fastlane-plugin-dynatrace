@@ -14,7 +14,7 @@ fastlane add_plugin dynatrace
 
 This plugin allows you to decode and upload symbolication files to Dynatrace. You can also use it to first download your latest dSym files from AppStore Connect if you use Bitcode.
 
-Action: `dynatrace`
+Action: `dynatrace_process_symbols`
 
 | Supported Platforms | ios, android |
 |---------------------|--------------|
@@ -51,7 +51,7 @@ In your *fastfile*
 ### Supplying all parameters locally
 
 ```ruby
-dynatrace(
+dynatrace_process_symbols(
 	dtxDssClientPath:"<path>/DTXDssClient",
 	appId: "your DT appID",
 	apitoken: "your DT API token",
@@ -78,7 +78,7 @@ apple_id("user@email.com") # Your Apple email address
 #### Fastfile
 
 ```ruby
-dynatrace(
+dynatrace_process_symbols(
 	downloadDsyms: true,
 	dtxDssClientPath:"<path>/DTXDssClient",
 	appId: "your DT appID",
@@ -104,7 +104,7 @@ apple_id("user@email.com") # Your Apple email address
 #### Fastfile
 
 ```ruby
-dynatrace(	
+dynatrace_process_symbols(	
 	action = "decode",
 	downloadDsyms: true,
 	dtxDssClientPath:"<path>/DTXDssClient",
