@@ -11,7 +11,7 @@ Gem::Specification.new do |spec|
   spec.email         = 'mohamedanassar@gmail.com'
 
   spec.summary       = 'This action processes and uploads your symbol files to Dynatrace'
-  # spec.homepage      = "https://github.com/<GITHUB_USERNAME>/fastlane-plugin-dynatrace"
+  spec.homepage      = "https://github.com/MANassar/fastlane-plugin-dynatrace"
   spec.license       = "MIT"
 
   spec.files         = Dir["lib/**/*"] + %w(README.md LICENSE)
