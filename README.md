@@ -52,17 +52,17 @@ In your *fastfile*
 
 ```ruby
 dynatrace(
-		dtxDssClientPath:"<path>/DTXDssClient",
-       		appId: "your DT appID",
-       		apitoken: "your DT API token",
-       		os: "<ios> or <android>",
-       		bundleId: "com.yourcompany.yourApp",
-       		bundleName: "MyApp",
-       		versionStr: "1.0",
-       		version: "1",
-       		symbolsfile: "<path to my app>.app.dSYM",
-       		server: "https://<environmentID.live.dynatrace.com",
-       		debugMode: true)
+	dtxDssClientPath:"<path>/DTXDssClient",
+	appId: "your DT appID",
+	apitoken: "your DT API token",
+	os: "<ios> or <android>",
+	bundleId: "com.yourcompany.yourApp",
+	bundleName: "MyApp",
+	versionStr: "1.0",
+	version: "1",
+	symbolsfile: "<path to my app>.app.dSYM",
+	server: "https://<environmentID.live.dynatrace.com",
+	debugMode: true)
 
 ```
 
@@ -79,16 +79,16 @@ apple_id("user@email.com") # Your Apple email address
 
 ```ruby
 dynatrace(
-			downloadDsyms: true,
-			dtxDssClientPath:"<path>/DTXDssClient",
-	       		appId: "your DT appID",
-	       		apitoken: "your DT API token",
-	       		os: "<ios> or <android>",
-	       		bundleName: "MyApp",
-	       		versionStr: "1.0",
-	       		version: "1",
-	       		server: "https://<environmentID.live.dynatrace.com",
-	       		debugMode: true)
+	downloadDsyms: true,
+	dtxDssClientPath:"<path>/DTXDssClient",
+	appId: "your DT appID",
+	apitoken: "your DT API token",
+	os: "<ios> or <android>",
+	bundleName: "MyApp",
+	versionStr: "1.0",
+	version: "1",
+	server: "https://<environmentID.live.dynatrace.com",
+	debugMode: true)
 
 ```
 
@@ -104,18 +104,18 @@ apple_id("user@email.com") # Your Apple email address
 #### Fastfile
 
 ```ruby
-dynatrace(
-			action = "decode",
-			downloadDsyms: true,
-			dtxDssClientPath:"<path>/DTXDssClient",
-	       		appId: "your DT appID",
-	       		apitoken: "your DT API token",
-	       		os: "<ios> or <android>",
-	       		bundleName: "MyApp",
-	       		versionStr: "1.0",
-	       		version: "1",
-	       		server: "https://dynatrace-managed.com/e/environmentID",
-	       		debugMode: true)
+dynatrace(	
+	action = "decode",
+	downloadDsyms: true,
+	dtxDssClientPath:"<path>/DTXDssClient",
+	appId: "your DT appID",
+	apitoken: "your DT API token",
+	os: "<ios> or <android>",
+	bundleName: "MyApp",
+	versionStr: "1.0",
+	version: "1",
+	server: "https://dynatrace-managed.com/e/environmentID",
+	debugMode: true)
 
 ```
 
