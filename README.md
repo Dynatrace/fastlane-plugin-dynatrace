@@ -14,7 +14,7 @@ fastlane add_plugin dynatrace
 
 This plugin allows you to decode and upload symbolication files to Dynatrace. You can also use it to first download your latest dSym files from AppStore Connect if you use Bitcode.
 
-Action: `dynatrace_process_symbols`
+## Action: `dynatrace_process_symbols`
 
 | Supported Platforms | ios, android |
 |---------------------|--------------|
