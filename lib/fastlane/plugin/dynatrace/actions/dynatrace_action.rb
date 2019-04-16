@@ -15,14 +15,6 @@ module Fastlane
         UI.message "Version: #{params[:version]}"
         UI.message "Server URL: #{params[:server]}"
 
-        UI.message("Checking AppFile for possible username/AppleID")
-        username = CredentialsManager::AppfileConfig.try_fetch_value(:apple_id)
-        UI.message("Using #{username} from your AppFile")
-
-        if !(username)
-          UI.message "Username: #{params[:username]}"
-        end
-
         UI.message("Checking AppFile for possible AppID")
         bundleId = CredentialsManager::AppfileConfig.try_fetch_value(:app_identifier)
         UI.message("Using #{bundleId} from your AppFile")
@@ -43,6 +35,14 @@ module Fastlane
             end
 
             if (params[:downloadDsyms] == true)
+                UI.message("Checking AppFile for possible username/AppleID")
+                username = CredentialsManager::AppfileConfig.try_fetch_value(:apple_id)
+                UI.message("Using #{username} from your AppFile")
+
+                if !(username)
+                  UI.message "Username: #{params[:username]}"
+                end
+                
                 UI.message("Downloading Dsyms from AppStore Connect")
                 Fastlane::Actions::DownloadDsymsAction.run(app_identifier: bundleId,
                                                        username: username,
