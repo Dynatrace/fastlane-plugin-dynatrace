@@ -42,7 +42,7 @@ module Fastlane
                 if !(username)
                   UI.message "Username: #{params[:username]}"
                 end
-                
+
                 UI.message("Downloading Dsyms from AppStore Connect")
                 Fastlane::Actions::DownloadDsymsAction.run(app_identifier: bundleId,
                                                        username: username,
@@ -70,6 +70,9 @@ module Fastlane
       if (dsym_paths.count == 0)
         UI.message "Symbol file path: #{params[:symbolsfile]}" #Ask the user for the symbolFiles path
         dsym_paths = params[:symbolsfile]
+        symbolFilesCommandSnippet = "symbolsfile=\"#{dsym_paths}\""
+      else
+        symbolFilesCommandSnippet = "symbolsfile=\"#{dsym_paths[0]}\""
       end
 
         #Start constructing the command that will trigger the DTXDssClient
@@ -83,8 +86,8 @@ module Fastlane
         command << "bundleName=\"#{params[:bundleName]}\""
         command << "versionStr=\"#{version}\""
         command << "version=\"#{params[:version]}\""
-        command << "symbolsfile=\"#{dsym_paths[0]}\""
-        command << "server=\"#{params[:server]}\"" #https://qmd19846.dev.dynatracelabs.com/api/config/v1
+        command << symbolFilesCommandSnippet
+        command << "server=\"#{params[:server]}\""
         command << "DTXLogLevel=ALL -verbose" if params[:debugMode] == true
         command << "forced=1" #So that we do not waste time with errors if the file already exists
 
@@ -92,8 +95,8 @@ module Fastlane
         shell_command = command.join(' ')
 
 
-        UI.message("Dsym paths: #{dsym_paths}")
-        # UI.message("#{shell_command}")
+        UI.message("Dsym paths: #{dsym_paths[0]}")
+        UI.message("#{shell_command}")
 
         # Execute the shell command
          sh "#{shell_command}"
