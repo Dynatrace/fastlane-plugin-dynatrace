@@ -10,7 +10,6 @@ module Fastlane
         UI.message "DTXDssClientPath: #{params[:dtxDssClientPath]}"
         UI.message "Parameter API Token: #{params[:apitoken]}"
         UI.message "OS: #{params[:os]}"
-        UI.message "Bundle name: #{params[:bundleName]}" if params[:os] == "ios"
         UI.message "Version string: #{params[:versionStr]}"
         UI.message "Version: #{params[:version]}"
         UI.message "Server URL: #{params[:server]}"
@@ -83,7 +82,6 @@ module Fastlane
         command << "apitoken=\"#{params[:apitoken]}\""
         command << "os=#{params[:os]}"
         command << "bundleId=\"#{bundleId}\""
-        command << "bundleName=\"#{params[:bundleName]}\""
         command << "versionStr=\"#{version}\""
         command << "version=\"#{params[:version]}\""
         command << symbolFilesCommandSnippet
@@ -183,14 +181,6 @@ module Fastlane
                                        # is_string: true # true: verifies the input is a string, false: every kind of value
                                        # default_value: false) # the default value if the user didn't provide one
                                      end),
-
-         FastlaneCore::ConfigItem.new(key: :bundleName,
-                                      env_name: "FL_UPLOAD_TO_DYNATRACE_BUNDLE_NAME",
-                                      description: "The CFBundleName of the Application (iOS only)",
-                                      sensitive: false,
-                                      verify_block: proc do |value|
-                                         UI.user_error!("Please provide the bundleName for your app. Pass using `bundleName: 'bundleName'`") unless (value and not value.empty?)
-                                    end),
 
           FastlaneCore::ConfigItem.new(key: :versionStr,
                                        env_name: "FL_UPLOAD_TO_DYNATRACE_VERSION_STRING",
