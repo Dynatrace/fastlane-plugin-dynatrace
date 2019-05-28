@@ -10,6 +10,8 @@ This project is a [_fastlane_](https://github.com/fastlane/fastlane) plugin. To 
 fastlane add_plugin dynatrace
 ```
 
+Make sure you have the latest version of the DSS client (bundled with the agent). You can download it here [Latest iOS Agent](https://downloads.dynatrace.com/clientservices/agent?version=latest&techtype=ios)
+
 ## About dynatrace
 
 This plugin allows you to decode and upload symbolication files to Dynatrace. You can also use it to first download your latest dSym files from AppStore Connect if you use Bitcode.
