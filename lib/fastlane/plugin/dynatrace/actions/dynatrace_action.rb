@@ -24,6 +24,7 @@ module Fastlane
 
 
         dsym_paths = []
+        symbolFilesKey = "symbolsfile" #default to iOS
 
         if (params[:os] == "ios")
           begin
@@ -63,15 +64,16 @@ module Fastlane
 
       else #android
          dsym_paths << params[:symbolsfile] if params[:symbolsfile]
+         symbolFilesKey = "file"
       end
 
       #check if we have dsyms to proceed with
       if (dsym_paths.count == 0)
         UI.message "Symbol file path: #{params[:symbolsfile]}" #Ask the user for the symbolFiles path
         dsym_paths = params[:symbolsfile]
-        symbolFilesCommandSnippet = "symbolsfile=\"#{dsym_paths}\""
+        symbolFilesCommandSnippet = "#{symbolFilesKey}=\"#{dsym_paths}\""
       else
-        symbolFilesCommandSnippet = "symbolsfile=\"#{dsym_paths[0]}\""
+        symbolFilesCommandSnippet = "#{symbolFilesKey}=\"#{dsym_paths[0]}\""
       end
 
         #Start constructing the command that will trigger the DTXDssClient
@@ -82,7 +84,11 @@ module Fastlane
         command << "apitoken=\"#{params[:apitoken]}\""
         command << "os=#{params[:os]}"
         command << "bundleId=\"#{bundleId}\""
-        command << "versionStr=\"#{version}\""
+        if params[:os] == "ios"
+          command << "versionStr=\"#{version}\""
+        else
+          command << "versionStr=\"#{params[:versionStr]}\""
+        end
         command << "version=\"#{params[:version]}\""
         command << symbolFilesCommandSnippet
         command << "server=\"#{params[:server]}\""
