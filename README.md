@@ -10,7 +10,9 @@ This project is a [_fastlane_](https://github.com/fastlane/fastlane) plugin. To 
 fastlane add_plugin dynatrace
 ```
 
-Make sure you have the latest version of the DSS client, which is bundled with the agent. You can download it from here [Latest iOS Agent](https://downloads.dynatrace.com/clientservices/agent?version=latest&techtype=ios)
+Make sure you have the latest version of the DSS client, which is bundled with the agent. You can download it from here [Latest iOS Agent](https://downloads.dynatrace.com/clientservices/agent?version=latest&techtype=ios).
+
+> Please note that sometimes the latest version of the DSS client may not be compatble with your environment if you have a managed cluster on an older version. In this case, please contact Dynatrace Support to obtain the correct version.
 
 ## About the Dynatrace fastlane plugin
 
