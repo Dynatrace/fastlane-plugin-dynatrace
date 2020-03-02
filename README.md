@@ -104,7 +104,7 @@ dynatrace_process_symbols(
 
 ## Example
 
-Check out the [example `Fastfile`](fastlane/Fastfile) to see how to use this plugin. Try it by cloning the repo, running `fastlane install_plugins` and `bundle exec fastlane test`.
+Try it by cloning the repo, running `fastlane install_plugins` and `bundle exec fastlane test`.
 
 
 ## Issues and Feedback
