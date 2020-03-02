@@ -57,7 +57,7 @@ dynatrace_process_symbols(
 	bundleName: "MyApp",
 	versionStr: "1.0",
 	version: "1",
-	server: "https://<environmentID.live.dynatrace.com",
+	server: "<your dynatrace environment URL>",
 	debugMode: true)
 
 ```
@@ -77,7 +77,7 @@ dynatrace_process_symbols(
 	versionStr: "1.0",
 	version: "1",
 	symbolsfile: "<path to my app>.app.dSYM",
-	server: "https://<environmentID.live.dynatrace.com">,
+	server: "<your dynatrace environment URL>",
 	debugMode: true)
 
 ```
