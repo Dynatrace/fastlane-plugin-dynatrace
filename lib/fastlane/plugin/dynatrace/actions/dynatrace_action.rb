@@ -44,9 +44,13 @@ module Fastlane
                 end
 
                 UI.message("Downloading Dsyms from AppStore Connect")
-                Fastlane::Actions::DownloadDsymsAction.run(app_identifier: bundleId,
-                                                       username: username,
-                                                       version: version)
+                Actions::DownloadDsymsAction.run(wait_for_dsym_processing: true,
+																									wait_timeout: 1800,
+																									app_identifier: bundleId,
+                                                	username: username,
+                                                	version: version,
+																									build_number: :versionStr,
+																						 		)
                 dsym_paths += Actions.lane_context[SharedValues::DSYM_PATHS] if Actions.lane_context[SharedValues::DSYM_PATHS]
 
                 if dsym_paths.count > 0
@@ -136,6 +140,13 @@ module Fastlane
                                        default_value: false,
                                        is_string: false,
                                        description: "Boolean variable that enables downloading the Dsyms from AppStore Connect (iOS only)", # a short description of this parameter
+                                      ),
+
+					FastlaneCore::ConfigItem.new(key: :dsym_waiting_timeout,
+                                       env_name: "FL_UPLOAD_TO_DYNATRACE_DOWNLOAD_DSYMS_WAIT_TIMEOUT", # The name of the environment variable
+                                       default_value: 900,
+                                       is_string: false,
+                                       description: "The timeout in milliseconds to wait for processing of dSYMs", # a short description of this parameter
                                       ),
 
           FastlaneCore::ConfigItem.new(key: :username,
