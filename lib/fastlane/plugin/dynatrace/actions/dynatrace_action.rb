@@ -44,7 +44,7 @@ module Fastlane
                 end
 
                 UI.message("Downloading Dsyms from AppStore Connect")
-                Actions::DownloadDsymsAction.run(wait_for_dsym_processing: true,
+                Actions::DownloadDsymsAction.run(	wait_for_dsym_processing: true,
 																									wait_timeout: 1800,
 																									app_identifier: bundleId,
                                                 	username: username,
