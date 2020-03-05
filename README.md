@@ -53,33 +53,31 @@ apple_id("user@email.com") # Your Apple email address
 
 lane :downloadAndProcessBitcodeSymbols do
 		
-		# Define variables
-		version = <the version on AppStoreConnect (CFBundleShortVersionString)>
-		build = <your uploaded build number (CFBundleVersion)>
-		symbols_wait_timeout = 1800
-		
-		# Get Bitcode dsyms from AppStoreConnect and store locally
-		download_dsyms(
-			wait_for_dsym_processing: true,
-			wait_timeout: symbols_wait_timeout,
-			app_identifier: "<your application bundle id (CFBundleIdentifier)>",
-	    		version: version,
-			build_number: build
-		)
+	# Define variables
+	version = <the version on AppStoreConnect (CFBundleShortVersionString)>
+	build = <your uploaded build number (CFBundleVersion)>
+	symbols_wait_timeout = 1800
 
-		#Pass the dsyms to Dynatrace for processing
-		dynatrace_process_symbols(
-			symbolsfile: lane_context[SharedValues::DSYM_PATHS][0],
-	    		dtxDssClientPath:"<path>/DTXDssClient",
-			appId: "<your Dynatrace application ID>",
-	   		apitoken: "<your Dynatrace API token>",
-	    		os: "ios",
-	    		versionStr: build,
-	    		version: version,
-	    		server: "<your dynatrace environment URL>",
-			)
-	end
+	# Get Bitcode dsyms from AppStoreConnect and store locally
+	download_dsyms(
+		wait_for_dsym_processing: true,
+		wait_timeout: symbols_wait_timeout,
+		app_identifier: "<your application bundle id (CFBundleIdentifier)>",
+		version: version,
+		build_number: build
+	)
 
+	#Pass the dsyms to Dynatrace for processing
+	dynatrace_process_symbols(
+		symbolsfile: lane_context[SharedValues::DSYM_PATHS][0],
+		dtxDssClientPath:"<path>/DTXDssClient",
+		appId: "<your Dynatrace application ID>",
+		apitoken: "<your Dynatrace API token>",
+		os: "ios",
+		versionStr: build,
+		version: version,
+		server: "<your dynatrace environment URL>",
+	)
 end
 
 ```
