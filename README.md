@@ -63,21 +63,21 @@ lane :downloadAndProcessBitcodeSymbols do
 			wait_for_dsym_processing: true,
 			wait_timeout: symbols_wait_timeout,
 			app_identifier: "<your application bundle id (CFBundleIdentifier)>",
-	    	version: version,
+	    		version: version,
 			build_number: build
 		)
 
 		#Pass the dsyms to Dynatrace for processing
 		dynatrace_process_symbols(
 			symbolsfile: lane_context[SharedValues::DSYM_PATHS][0],
-	    	dtxDssClientPath:"<path>/DTXDssClient",
+	    		dtxDssClientPath:"<path>/DTXDssClient",
 			appId: "<your Dynatrace application ID>",
 	   		apitoken: "<your Dynatrace API token>",
-	    	os: "ios",
-	    	versionStr: build,
-	    	version: version,
-	    	server: "<your dynatrace environment URL>",
-		)
+	    		os: "ios",
+	    		versionStr: build,
+	    		version: version,
+	    		server: "<your dynatrace environment URL>",
+			)
 	end
 
 end
