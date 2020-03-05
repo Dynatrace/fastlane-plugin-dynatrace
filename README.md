@@ -1,4 +1,4 @@
-# dynatrace plugin
+# Dynatrace Fastlane plugin
 
 [![fastlane Plugin Badge](https://rawcdn.githack.com/fastlane/fastlane/master/fastlane/assets/plugin-badge.svg)](https://rubygems.org/gems/fastlane-plugin-dynatrace)
 
@@ -34,7 +34,9 @@ If your app is bitcode enabled, then the dSYMs that are generated during the Xco
 
 ### Important
 
-There is a time gap between the application being uploaded to AppStore Connect and the dSYM files to be ready. So **_you have to introduce some "sleep" or "wait" time in your CI to accomodate for this._** Unfortunately, Apple does not specify how long this time is. But the recommended minimum is 300 seconds (5 minutes). 
+There is a time gap between the application being uploaded to AppStore Connect and the dSYM files to be ready. So **_you have to introduce some "wait" time in your CI to accomodate for this._** Unfortunately, Apple does not specify how long this time is. But the minimum is 600 seconds (10 minutes). However, we recommend 1800 seconds (30 mins) as this ensures the symbols are ready for download. You can however increase this timeout if needed. 
+
+> Notice that this timeout is only the maximum waiting time. If the symbol files are processed and are ready sooner, it will execute sooner and will not wait for the whole duration of the timeout.
 
 ### Automatically downloading dSYMs and using AppFile for authentication
 
@@ -48,19 +50,40 @@ apple_id("user@email.com") # Your Apple email address
 #### Fastfile
 
 ```ruby
-dynatrace_process_symbols(
-	downloadDsyms: true,
-	dtxDssClientPath:"<path>/DTXDssClient",
-	appId: "your DT appID",
-	apitoken: "your DT API token",
-	os: "<ios> or <android>",
-	bundleName: "MyApp",
-	versionStr: "1.0",
-	version: "1",
-	server: "<your dynatrace environment URL>",
-	debugMode: true)
+
+lane :downloadAndProcessBitcodeSymbols do
+		
+		# Define variables
+		version = <the version on AppStoreConnect (CFBundleShortVersionString)>
+		build = <your uploaded build number (CFBundleVersion)>
+		symbols_wait_timeout = 1800
+		
+		# Get Bitcode dsyms from AppStoreConnect and store locally
+		download_dsyms(
+			wait_for_dsym_processing: true,
+			wait_timeout: symbols_wait_timeout,
+			app_identifier: "<your application bundle id (CFBundleIdentifier)>",
+	    	version: version,
+			build_number: build
+		)
+
+		#Pass the dsyms to Dynatrace for processing
+		dynatrace_process_symbols(
+			symbolsfile: lane_context[SharedValues::DSYM_PATHS][0],
+	    	dtxDssClientPath:"<path>/DTXDssClient",
+			appId: "<your Dynatrace application ID>",
+	   		apitoken: "<your Dynatrace API token>",
+	    	os: "ios",
+	    	versionStr: build,
+	    	version: version,
+	    	server: "<your dynatrace environment URL>",
+		)
+	end
+
+end
 
 ```
+
 
 ## If you are NOT using Bitcode, or if you have already downloaded your new symbols from AppStore Connect manually.
 
@@ -86,7 +109,6 @@ dynatrace_process_symbols(
 
 | Key              | Description                                                                                                                                                                                                                           | default value  |
 |------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|----------------|
-| downloadDsyms    | Boolean variable that enables downloading the dSYMs from AppStore Connect (iOS only)                                                                                                                                                  | false          |
 | username         | The username or the AppleID to use to download the dSYMs. You can also store this in your AppFile as "apple_id and it will be automatically retrieved."                                                                               |                |
 | dtxDssClientPath | The full path to your DTXDssClient.  For example, it could be `./ios/agent/DTXDssClient`                                                                                                                                              | `./DTXDssClient` |
 | action           | The action to perform. upload/decode                                                                                                                                                                                                  | `upload`         |
