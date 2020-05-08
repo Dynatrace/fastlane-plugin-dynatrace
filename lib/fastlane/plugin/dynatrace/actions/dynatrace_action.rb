@@ -14,13 +14,13 @@ module Fastlane
         UI.message "Version: #{params[:version]}"
         UI.message "Server URL: #{params[:server]}"
 
-        bundleId = params[:bundleId]
+        UI.message "Checking AppFile for possible AppID"
+        bundleId = CredentialsManager::AppfileConfig.try_fetch_value(:app_identifier)
         if (bundleId)
-          UI.message "BundleID: #{bundleId}"
-        else
-          UI.message "Checking AppFile for possible AppID"
-          bundleId = CredentialsManager::AppfileConfig.try_fetch_value(:app_identifier)
           UI.message "Using #{bundleId} from your AppFile"
+        else
+          bundleId = params[:bundleId]
+          UI.message "BundleID: #{bundleId}"
         end
 
 
