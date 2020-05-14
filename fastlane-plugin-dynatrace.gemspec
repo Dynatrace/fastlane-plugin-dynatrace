@@ -8,7 +8,7 @@ Gem::Specification.new do |spec|
   spec.name          = 'fastlane-plugin-dynatrace'
   spec.version       = Fastlane::Dynatrace::VERSION
   spec.author        = 'Dynatrace LLC'
-  spec.email         = 'mohamed.nassar@dynatrace.com'
+  spec.email         = 'mobile.agent@dynatrace.com'
 
   spec.summary       = 'This action processes and uploads your symbol files to Dynatrace'
   spec.homepage      = "https://github.com/Dynatrace/fastlane-plugin-dynatrace"
