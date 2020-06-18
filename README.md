@@ -10,9 +10,11 @@ This project is a [_fastlane_](https://github.com/fastlane/fastlane) plugin. To 
 fastlane add_plugin dynatrace
 ```
 
-Make sure you have the latest version of the DSS client, which is bundled with the agent. You can download it from here [Latest iOS Agent](https://downloads.dynatrace.com/clientservices/agent?version=latest&techtype=ios).
+### Dynatrace SaaS
+Make sure you have the latest version of the [Symbolication Client](https://api.mobileagent.downloads.dynatrace.com/latest-dss-client) to preprocess and upload the dSYM files as this is the best combination when using Dynatrace SaaS.
 
-> Please note that sometimes the latest version of the DSS client may not be compatble with your environment if you have a managed cluster on an older version. In this case, please contact Dynatrace Support to obtain the correct version.
+### Dynatrace Managed
+If your Dynatrace Managed installation is not on the latest released version, it might not be compatible with the latest version of the Symbolication Client. To ensure compatibility fetch the matching Symbolication Client version with this link [https://api.mobileagent.downloads.dynatrace.com/sprint-latest-dss-client/xyz](https://api.mobileagent.downloads.dynatrace.com/sprint-latest-dss-client/xyz) by replacing `xyz` with the 3-digit sprint version of your Dynatrace Managed installation
 
 ## About the Dynatrace fastlane plugin
 
@@ -29,8 +31,7 @@ This plugin allows you to decode and upload symbolication files to Dynatrace. Yo
 
 > Only applies for apps distributed via the AppStore or TestFlight.
 
-
-If your app is bitcode enabled, then the dSYMs that are generated during the Xcode build are **_not_** the dSYMs you want to upload to Dynatrace. This is because Apple recompiles your application on their servers, generating new dSYM files in the process. These newly generated dSYM files need to be downloaded from *AppStore Connect*, then processed and uploaded to Dynatrace.
+If your app is bitcode enabled, then the dSYMs that are generated during the Xcode build are **_not_** the dSYMs you want to upload to Dynatrace. This is because Apple recompiles the application on their servers, generating new dSYM files in the process. These newly generated dSYM files need to be downloaded from *AppStore Connect*, then processed and uploaded to Dynatrace.
 
 ### Important
 
