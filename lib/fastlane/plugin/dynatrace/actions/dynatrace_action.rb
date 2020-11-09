@@ -1,4 +1,8 @@
 require 'fastlane/action'
+require 'net/http'
+require 'open-uri'
+require 'zip'
+require "fileutils"
 require_relative '../helper/dynatrace_helper'
 
 module Fastlane
@@ -23,6 +27,50 @@ module Fastlane
           UI.message "BundleID: #{bundleId}"
         end
 
+        # get correct DTXDssClient
+        dynatraceDir = "dynatrace"
+        versionFile = "version"
+        dtxDssClientBin = "DTXDssClient"
+        dtxDssClientPath = "#{dynatraceDir}/#{dtxDssClientBin}"
+        if (params.all_keys.include? :dtxDssClientPath and not params[:dtxDssClientPath].nil?)
+          UI.message "DEPRECATION WARNING: DTXDssClientPath doesn't need to be specified anymore, the DTXDssClient is downloaded and updated automatically."
+          dtxDssClientPath = params[:dtxDssClientPath]
+        else
+          clientUri = URI("#{params[:server]}/api/config/v1/symfiles/dtxdss-download?Api-Token=#{params[:apitoken]}")
+          response = Net::HTTP.get_response(clientUri)
+
+          if not response.kind_of? Net::HTTPSuccess
+            raise "Can't connect to server, invalid response #{response.message} (#{response.code}) for URL: #{clientUri}"
+          end
+
+          remoteClientUrl = JSON.parse(response.body)["dssClientUrl"]
+          UI.message "Remote client URL: #{remoteClientUrl}"
+
+          if (!File.directory?(dynatraceDir))
+            Dir.mkdir(dynatraceDir) 
+          end
+
+          if (!File.exists?("#{dynatraceDir}/#{versionFile}") or
+              !File.exists?("#{dynatraceDir}/#{dtxDssClientBin}") or 
+              File.read("#{dynatraceDir}/#{versionFile}") != remoteClientUrl)
+            UI.message "Found a different remote DTXDssClient client. Updating local version."
+            File.delete("#{dynatraceDir}/#{versionFile}") if File.exist?("#{dynatraceDir}/#{versionFile}")
+            File.delete("#{dynatraceDir}/#{dtxDssClientBin}") if File.exist?("#{dynatraceDir}/#{dtxDssClientBin}")
+
+            File.write("#{dynatraceDir}/#{versionFile}", remoteClientUrl)
+
+            # get client from served archive
+            open(remoteClientUrl) do |zipped|
+              Zip::InputStream.open(zipped) do |unzipped|
+                entry = unzipped.get_next_entry
+                if (entry.name == dtxDssClientBin)
+                  IO.copy_stream(entry.get_input_stream, "#{dynatraceDir}/#{dtxDssClientBin}")
+                  FileUtils.chmod("+x", "#{dynatraceDir}/#{dtxDssClientBin}")
+                end
+              end
+            end
+          end
+        end
 
         dsym_paths = []
         symbolFilesKey = "symbolsfile" #default to iOS
@@ -83,7 +131,7 @@ module Fastlane
 
         #Start constructing the command that will trigger the DTXDssClient
         command = []
-        command << "#{params[:dtxDssClientPath]}"
+        command << "#{dtxDssClientPath}"
         command << "-#{params[:action]}"  #"-upload"
         command << "appid=\"#{params[:appId]}\""
         command << "apitoken=\"#{params[:apitoken]}\""
@@ -175,12 +223,8 @@ module Fastlane
           FastlaneCore::ConfigItem.new(key: :dtxDssClientPath,
                                        env_name: "FL_UPLOAD_TO_DYNATRACE_DTXDssClientPath",
                                        description: "The path to your DTXDssClient",
-                                       default_value: "./DTXDssClient",
-                                       verify_block: proc do |value|
-                                          UI.user_error!("We need the path to the DTXDssClient in your iOS agent folder. For example . Pass using `dtxDssClientPath: 'path'`") unless (value and not value.empty?)
-                                       # is_string: true # true: verifies the input is a string, false: every kind of value
-                                       # default_value: false) # the default value if the user didn't provide one
-                                     end),
+                                       optional: true,
+                                        ),
 
          FastlaneCore::ConfigItem.new(key: :appId,
                                       env_name: "FL_UPLOAD_TO_DYNATRACE_APP_ID",
