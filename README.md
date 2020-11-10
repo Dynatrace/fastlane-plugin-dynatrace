@@ -14,11 +14,8 @@ This project is a [_fastlane_](https://github.com/fastlane/fastlane) plugin. To 
 fastlane add_plugin dynatrace
 ```
 
-### Dynatrace SaaS
-Make sure you have the latest version of the [Symbolication Client](https://api.mobileagent.downloads.dynatrace.com/latest-dss-client) to preprocess and upload the dSYM files as this is the best combination when using Dynatrace SaaS.
-
 ### Dynatrace Managed
-If your Dynatrace Managed installation is not on the latest released version, it might not be compatible with the latest version of the Symbolication Client. To ensure compatibility fetch the matching Symbolication Client version with this link [https://api.mobileagent.downloads.dynatrace.com/sprint-latest-dss-client/xyz](https://api.mobileagent.downloads.dynatrace.com/sprint-latest-dss-client/xyz) by replacing `xyz` with the 3-digit sprint version of your Dynatrace Managed installation
+If the installation is on sprint version 195 or earlier the Symbolication Client has to be manually download and specified (`dtxDssClientPath`), else it's fetched and updated automatically. A matching version can be downloaded manually with this link [https://api.mobileagent.downloads.dynatrace.com/sprint-latest-dss-client/xyz](https://api.mobileagent.downloads.dynatrace.com/sprint-latest-dss-client/xyz) by replacing `xyz` with the 3-digit sprint version of your Dynatrace Managed installation.
 
 ## About the Dynatrace fastlane plugin
 
@@ -75,7 +72,6 @@ lane :downloadAndProcessBitcodeSymbols do
 	#Pass the dsyms to Dynatrace for processing
 	dynatrace_process_symbols(
 		symbolsfile: lane_context[SharedValues::DSYM_PATHS][0],
-		dtxDssClientPath:"<path>/DTXDssClient",
 		appId: "<your Dynatrace application ID>",
 		apitoken: "<your Dynatrace API token>",
 		os: "ios",
@@ -94,7 +90,6 @@ end
 
 ```ruby
 dynatrace_process_symbols(
-	dtxDssClientPath:"<path>/DTXDssClient",
 	appId: "your DT appID",
 	apitoken: "your DT API token",
 	os: "<ios> or <android>",
@@ -113,7 +108,7 @@ dynatrace_process_symbols(
 | Key              | Description                                                                                                                                                                                                                           | default value  |
 |------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|----------------|
 | username         | The username or the AppleID to use to download the dSYMs. You can also store this in your AppFile as "apple_id and it will be automatically retrieved."                                                                               |                |
-| dtxDssClientPath | The full path to your DTXDssClient.  For example, it could be `./ios/agent/DTXDssClient`                                                                                                                                              | `./DTXDssClient` |
+| dtxDssClientPath | **DEPRECATED** The full path to your DTXDssClient. For example, it could be `./ios/agent/DTXDssClient`. The DTXDssClient is downloaded and updated automatically, unless this key is set.                                                                                                                                          |  |
 | action           | The action to perform. upload/decode                                                                                                                                                                                                  | `upload`         |
 | appID            | The app ID you get from your Dynatrace WebUI                                                                                                                                                                                          |                |
 | os               | The OperatingSystem of the symbol files. Either "ios" or "android"                                                                                                                                                                    |                |
