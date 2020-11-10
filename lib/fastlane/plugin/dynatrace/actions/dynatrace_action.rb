@@ -1,4 +1,8 @@
 require 'fastlane/action'
+require 'net/http'
+require 'open-uri'
+require 'zip'
+require "fileutils"
 require_relative '../helper/dynatrace_helper'
 
 module Fastlane
@@ -23,6 +27,7 @@ module Fastlane
           UI.message "BundleID: #{bundleId}"
         end
 
+        dtxDssClientPath = Helper::DynatraceHelper.get_dss_client(params)
 
         dsym_paths = []
         symbolFilesKey = "symbolsfile" #default to iOS
@@ -83,7 +88,7 @@ module Fastlane
 
         #Start constructing the command that will trigger the DTXDssClient
         command = []
-        command << "#{params[:dtxDssClientPath]}"
+        command << "#{dtxDssClientPath}"
         command << "-#{params[:action]}"  #"-upload"
         command << "appid=\"#{params[:appId]}\""
         command << "apitoken=\"#{params[:apitoken]}\""
@@ -96,7 +101,7 @@ module Fastlane
         end
         command << "version=\"#{params[:version]}\""
         command << symbolFilesCommandSnippet
-        command << "server=\"#{params[:server]}\""
+        command << "server=\"#{Helper::DynatraceHelper.get_server_base_url(params)}\""
         command << "DTXLogLevel=ALL -verbose" if params[:debugMode] == true
         command << "forced=1" #So that we do not waste time with errors if the file already exists
 
@@ -175,12 +180,8 @@ module Fastlane
           FastlaneCore::ConfigItem.new(key: :dtxDssClientPath,
                                        env_name: "FL_UPLOAD_TO_DYNATRACE_DTXDssClientPath",
                                        description: "The path to your DTXDssClient",
-                                       default_value: "./DTXDssClient",
-                                       verify_block: proc do |value|
-                                          UI.user_error!("We need the path to the DTXDssClient in your iOS agent folder. For example . Pass using `dtxDssClientPath: 'path'`") unless (value and not value.empty?)
-                                       # is_string: true # true: verifies the input is a string, false: every kind of value
-                                       # default_value: false) # the default value if the user didn't provide one
-                                     end),
+                                       optional: true,
+                                        ),
 
          FastlaneCore::ConfigItem.new(key: :appId,
                                       env_name: "FL_UPLOAD_TO_DYNATRACE_APP_ID",
