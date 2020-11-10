@@ -15,7 +15,7 @@ fastlane add_plugin dynatrace
 ```
 
 ### Dynatrace Managed
-If the installation is on sprint version 195 or earlier the Symbolication Client has to be manually download and specified (`dtxDssClientPath`), else it's fetched and updated automatically. A matching version can be downloaded manually with this link [https://api.mobileagent.downloads.dynatrace.com/sprint-latest-dss-client/xyz](https://api.mobileagent.downloads.dynatrace.com/sprint-latest-dss-client/xyz) by replacing `xyz` with the 3-digit sprint version of your Dynatrace Managed installation.
+If the installation is on version 1.195 or earlier the Symbolication Client has to be manually download and specified (`dtxDssClientPath`), else it's fetched and updated automatically. A matching version can be downloaded manually with this link [https://api.mobileagent.downloads.dynatrace.com/sprint-latest-dss-client/xyz](https://api.mobileagent.downloads.dynatrace.com/sprint-latest-dss-client/xyz) by replacing `xyz` with the 3-digit sprint version of your Dynatrace Managed installation.
 
 ## About the Dynatrace fastlane plugin
 
