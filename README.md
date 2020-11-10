@@ -19,14 +19,12 @@ If the installation is on version 1.195 or earlier the Symbolication Client has 
 
 ## About the Dynatrace fastlane plugin
 
-This plugin allows you to decode and upload symbolication files to Dynatrace. You can also use it to first download your latest dSYM files from AppStore Connect if you use Bitcode.
+This plugin allows you to decode and upload symbol files (iOS) or just upload obfuscation mapping files (Android) to Dynatrace. You can also use it to first download your latest dSYM files from AppStore Connect if you use Bitcode.
 
 ## Action: `dynatrace_process_symbols`
 
 | Supported Platforms | ios, android |
 |---------------------|--------------|
-| Author              | @MANassar    |
-
 
 ## Is your app Bitcode enabled?
 
@@ -126,10 +124,9 @@ dynatrace_process_symbols(
 
 Try it by cloning the repo, running `fastlane install_plugins` and `bundle exec fastlane test`.
 
-
 ## Issues and Feedback
 
-For any other issues and feedback about this plugin, please submit it to this repository or contact Dynatrace Support.
+For any other issues and feedback about this plugin, please submit it to this repository or contact [Dynatrace Support](https://support.dynatrace.com).
 
 ## Troubleshooting
 
