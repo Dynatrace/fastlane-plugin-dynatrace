@@ -16,7 +16,7 @@ module Fastlane
           dtxDssClientPath = params[:dtxDssClientPath]
         else
           # get latest version info
-          clientUri = URI("#{params[:server]}/api/config/v1/symfiles/dtxdss-download?Api-Token=#{params[:apitoken]}")
+          clientUri = URI("#{self.get_server_base_url(params)}/api/config/v1/symfiles/dtxdss-download?Api-Token=#{params[:apitoken]}")
           response = Net::HTTP.get_response(clientUri)
 
           if not response.kind_of? Net::HTTPSuccess
@@ -54,6 +54,14 @@ module Fastlane
           end
         end
         return dtxDssClientPath
+      end
+
+      def self.get_server_base_url(params)
+        if params[:server][-1] == '/'
+          return params[:server][0..-2]
+        else
+          return params[:server]
+        end
       end
     end
   end
