@@ -46,7 +46,8 @@ module Fastlane
                 UI.message("Using #{username} from your AppFile")
 
                 if !(username)
-                  UI.message "Username: #{params[:username]}"
+                  UI.message "Didn't find a username in AppFile, using passed username: #{params[:username]}"
+                  username = params[:username]
                 end
 
                 UI.message("Downloading Dsyms from AppStore Connect")
