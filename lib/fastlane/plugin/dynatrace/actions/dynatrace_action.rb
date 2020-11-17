@@ -108,12 +108,18 @@ module Fastlane
         # Create the full shell command to trigger the DTXDssClient
         shell_command = command.join(' ')
 
-
         UI.message("Dsym paths: #{dsym_paths[0]}")
         UI.message("#{shell_command}")
 
-        # Execute the shell command
-         sh "#{shell_command}"
+        sh("#{shell_command}", error_callback: ->(result) {
+          # ShAction doesn't return any reference to the return value -> parse it from the output
+          result_groups = result.match /(?:ERROR: Execution failed, rc=)(\d*)(?:\sreason=)(.*)/
+          if result_groups[1] == "413" 
+            UI.user_error!("#{result_groups[2]} See https://www.dynatrace.com/support/help/shortlink/mobile-symbolication#manage-the-uploaded-symbol-files for more information.")
+          else
+            UI.user_error!("#{result_groups[2]}")
+          end
+        })
 
         UI.message("Cleaning build artifacts")
         Fastlane::Actions::CleanBuildArtifactsAction.run(exclude_pattern: nil)
