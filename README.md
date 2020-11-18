@@ -92,7 +92,6 @@ dynatrace_process_symbols(
 	apitoken: "your DT API token",
 	os: "<ios> or <android>",
 	bundleId: "com.yourcompany.yourApp",
-	bundleName: "MyApp",
 	versionStr: "1.0",
 	version: "1",
 	symbolsfile: "<path to my app>.app.dSYM",
@@ -112,7 +111,6 @@ dynatrace_process_symbols(
 | os               | The OperatingSystem of the symbol files. Either "ios" or "android"                                                                                                                                                                    |                |
 | apitoken         | The Dynatrace API token. It should have the correct permissions.                                                                                                                                                                      |                |
 | bundleId         | The CFBundlebundleId (iOS) / package (Android) of the Application. Usually in reverse com notation. Ex. com.your_company.your_app. This can also be stored in the AppFile as "app_identifier" and it will be automatically retrieved. |                |
-| bundleName       | The CFBundleName of the Application (iOS only)                                                                                                                                                                                        |                |
 | versionStr       | The CFBundleShortVersionString (iOS) / versionName (Android                                                                                                                                                                           |                |
 | version          | The CFBundleVersion (iOS) / versionCode (Android). This will also be used for dSYM download.                                                                                                                                          |                |
 | symbolsfile      | The path to a local symbol files to be processed and uploaded. You do not need to specify that if you use downloadDsyms.                                                                                                              |                |
