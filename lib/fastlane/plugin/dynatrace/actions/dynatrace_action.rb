@@ -49,7 +49,7 @@ module Fastlane
                   username = params[:username]
                 end
 
-                UI.message("Downloading dSYMs from AppStore Connect")
+                UI.message("Downloading dSYMs from App Store Connect")
                 Actions::DownloadDsymsAction.run(wait_for_dsym_processing: true,
                                                 wait_timeout: 1800,
                                                 app_identifier: bundleId,
@@ -134,97 +134,96 @@ module Fastlane
         [
           FastlaneCore::ConfigItem.new(key: :action,
                                        env_name: "FL_UPLOAD_TO_DYNATRACE_ACTION",
-                                       description: "The action you need to perform. For example upload/decode",
+                                       description: "(iOS only) Action to be performed by DTXDssClient (\"upload\" or \"decode\").",
                                        default_value: "upload",
                                        is_string: true,
                                        verify_block: proc do |value|
-                                          UI.user_error!("Action needs to either be upload or decode") unless (value and value == "upload" or value == "decode")
+                                          UI.user_error!("Action needs to either be \"upload\" or \"decode\".") unless (value and value == "upload" or value == "decode")
                                        end),
 
           FastlaneCore::ConfigItem.new(key: :downloadDsyms,
                                        env_name: "FL_UPLOAD_TO_DYNATRACE_DOWNLOAD_DSYMS",
                                        default_value: false,
                                        is_string: false,
-                                       description: "Boolean variable that enables downloading the dSYMs from AppStore Connect (iOS only)"),
+                                       description: "(iOS only) Download the dSYMs from App Store Connect."),
 
           FastlaneCore::ConfigItem.new(key: :dsym_waiting_timeout,
                                        env_name: "FL_UPLOAD_TO_DYNATRACE_DOWNLOAD_DSYMS_WAIT_TIMEOUT",
-                                       default_value: 900,
+                                       default_value: 1800,
                                        is_string: false,
-                                       description: "The timeout in milliseconds to wait for processing of dSYMs",
-                                      ),
+                                       description: "(iOS only) Timeout in milliseconds to wait for the dSYMs be downloadable."),
 
           FastlaneCore::ConfigItem.new(key: :username,
                                        env_name: "FL_UPLOAD_TO_DYNATRACE_DOWNLOAD_DSYMS_USERNAME",
-                                       description: "The username or the AppleID to use to download the dSYMs",
-                                      ),
+                                       description: "(iOS only) The username/AppleID to use to download the dSYMs."),
 
          FastlaneCore::ConfigItem.new(key: :os,
                                       env_name: "FL_UPLOAD_TO_DYNATRACE_OS",
-                                      description: "The type of the symbol files, either \"ios\" or \"android\"",
+                                      description: "The type of the symbol files, either \"ios\" or \"android\".",
                                       sensitive: false,
                                       optional: false,
                                       verify_block: proc do |value|
-                                         UI.user_error!("Please specify the type of the symbol files. Possible values are \"ios\" or \"android\"") unless (value and not value.empty? and (value == "ios" || value =="android"))
+                                         UI.user_error!("Please specify the type of the symbol files. Possible values are \"ios\" or \"android\".") unless (value and not value.empty? and (value == "ios" || value =="android"))
                                       end),
 
           FastlaneCore::ConfigItem.new(key: :apitoken,
                                        env_name: "FL_UPLOAD_TO_DYNATRACE_apitoken",
-                                       description: "The Dynatrace API token",
+                                       description: "Dynatrace API token with mobile symbolication permissions.",
                                        verify_block: proc do |value|
-                                          UI.user_error!("No API token for UploadToDynatraceAction given, pass using `apitoken: 'token'`") unless (value and not value.empty?)
+                                          UI.user_error!("No Dynatrade API token for specified, pass using `apitoken: 'token'`") unless (value and not value.empty?)
                                        end),
 
           FastlaneCore::ConfigItem.new(key: :dtxDssClientPath,
                                        env_name: "FL_UPLOAD_TO_DYNATRACE_DTXDssClientPath",
-                                       description: "(DEPRECATED) The path to your DTXDssClient. Set automatically if empty.",
+                                       description: "(DEPRECATED) The path to your DTXDssClient. The DTXDssClient is downloaded and updated automatically, unless this key is set.",
                                        optional: true),
 
          FastlaneCore::ConfigItem.new(key: :appId,
                                       env_name: "FL_UPLOAD_TO_DYNATRACE_APP_ID",
-                                      description: "The app ID you get from your Dynatrace WebUI",
+                                      description: "The app ID you get from your Dynatrace environment.",
                                       verify_block: proc do |value|
-                                         UI.user_error!("Please provide the appID for your app. Pass using `appId: 'appId'`") unless (value and not value.empty?)
+                                         UI.user_error!("Please provide the appID for your application. Pass using `appId: 'appId'`") unless (value and not value.empty?)
                                       end),
 
           FastlaneCore::ConfigItem.new(key: :bundleId,
                                        env_name: "FL_UPLOAD_TO_DYNATRACE_BUNDLE_ID",
-                                       description: "The CFBundlebundleId (iOS) / package (Android) of the Application.",
+                                       description: "The CFBundlebundleId (iOS) / package (Android) of the application.",
                                        verify_block: proc do |value|
                                           UI.user_error!("Please provide the BundleID for your app. Pass using `bundleId: 'bundleId'`") unless (value and not value.empty?)
                                       end),
 
           FastlaneCore::ConfigItem.new(key: :versionStr,
                                        env_name: "FL_UPLOAD_TO_DYNATRACE_VERSION_STRING",
-                                       description: "The CFBundleShortVersionString (iOS) / versionName (Android)",
+                                       description: "The CFBundleShortVersionString (iOS) / versionName (Android).",
                                        verify_block: proc do |value|
                                           UI.user_error!("Please provide the CFBundleShortVersionString for your app. Pass using `versionStr: 'versionStr'`") unless (value and not value.empty?)
                                       end),
 
          FastlaneCore::ConfigItem.new(key: :version,
                                       env_name: "FL_UPLOAD_TO_DYNATRACE_VERSION",
-                                      description: "The CFBundleVersion (iOS) / versionCode (Android)",
+                                      description: "The CFBundleVersion (iOS) / versionCode (Android). Is also used for the dSYM download.",
                                       verify_block: proc do |value|
                                          UI.user_error!("Please provide the version for your app. Pass using `version: 'version'`") unless (value and not value.empty?)
                                       end),
 
           FastlaneCore::ConfigItem.new(key: :symbolsfile,
                                        env_name: "FL_UPLOAD_TO_DYNATRACE_SYM_FILE_PATH",
-                                       description: "The path of the Xcode iOS archive or iOS dSYM containing the symbol mappings",
+                                       description: "Path to the dSYM file to be processed. If downloadDsyms is set, this is only a fallback.",
                                        verify_block: proc do |value|
                                           UI.user_error!("Please provide a value for the symbol files. Pass using `symbolsfile: 'symbolsfile'`") unless (value and not value.empty?)
                                       end),
 
          FastlaneCore::ConfigItem.new(key: :server,
                                       env_name: "FL_UPLOAD_TO_DYNATRACE_SERVER_URL",
-                                      description: "The API endpoint for the Dynatrace environment. For example https://<environmentID>.live.dynatrace.com/api/config/v1",
+                                      description: "The API endpoint for the Dynatrace environment (e.g. https://environmentID.live.dynatrace.com or https://dynatrace-managed.com/e/environmentID).",
                                       verify_block: proc do |value|
                                          UI.user_error!("Please provide your environment API endpoint. Pass using `server: 'server'`") unless (value and not value.empty?)
                                       end),
 
           FastlaneCore::ConfigItem.new(key: :debugMode,
                                        env_name: "FL_UPLOAD_TO_DYNATRACE_DEBUG_MODE",
-                                       description: "Debug logging enabled",
+                                       description: "Enable debug logging.",
+                                       default_value: false,
                                        is_string: false,
                                        optional: true)
         ]
