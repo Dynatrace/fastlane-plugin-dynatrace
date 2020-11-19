@@ -29,7 +29,7 @@ module Fastlane
         dtxDssClientPath = Helper::DynatraceHelper.get_dss_client(params)
 
         dsym_paths = []
-        symbolFilesKey = "symbolsfile" #default to iOS
+        symbolFilesKey = "symbolsfile" # default to iOS
 
         if (params[:os] == "ios")
           begin
@@ -127,7 +127,7 @@ module Fastlane
       end
 
       def self.details
-        "This action allows you to process and upload symbol files to Dynatrace. If you use Bitcode you can also use it to download the latest DSYM files from App Store Connect."
+        "This action allows you to process and upload symbol files to Dynatrace. If you use Bitcode you can also use it to download the latest dSYM files from App Store Connect."
       end
 
       def self.available_options
@@ -145,7 +145,7 @@ module Fastlane
                                        env_name: "FL_UPLOAD_TO_DYNATRACE_DOWNLOAD_DSYMS",
                                        default_value: false,
                                        is_string: false,
-                                       description: "Boolean variable that enables downloading the Dsyms from AppStore Connect (iOS only)"),
+                                       description: "Boolean variable that enables downloading the dSYMs from AppStore Connect (iOS only)"),
 
           FastlaneCore::ConfigItem.new(key: :dsym_waiting_timeout,
                                        env_name: "FL_UPLOAD_TO_DYNATRACE_DOWNLOAD_DSYMS_WAIT_TIMEOUT",
@@ -156,16 +156,16 @@ module Fastlane
 
           FastlaneCore::ConfigItem.new(key: :username,
                                        env_name: "FL_UPLOAD_TO_DYNATRACE_DOWNLOAD_DSYMS_USERNAME",
-                                       description: "The username or the AppleID to use to download the Dsyms",
+                                       description: "The username or the AppleID to use to download the dSYMs",
                                       ),
 
          FastlaneCore::ConfigItem.new(key: :os,
                                       env_name: "FL_UPLOAD_TO_DYNATRACE_OS",
-                                      description: "The OperatingSystem of the symbol files. Either \"ios\" or \"android\"",
+                                      description: "The type of the symbol files, either \"ios\" or \"android\"",
                                       sensitive: false,
                                       optional: false,
                                       verify_block: proc do |value|
-                                         UI.user_error!("Please specify the OperatingSystem of the symbol files. Possible values are \"ios\" or \"android\"") unless (value and not value.empty? and (value == "ios" || value =="android"))
+                                         UI.user_error!("Please specify the type of the symbol files. Possible values are \"ios\" or \"android\"") unless (value and not value.empty? and (value == "ios" || value =="android"))
                                       end),
 
           FastlaneCore::ConfigItem.new(key: :apitoken,
@@ -177,7 +177,7 @@ module Fastlane
 
           FastlaneCore::ConfigItem.new(key: :dtxDssClientPath,
                                        env_name: "FL_UPLOAD_TO_DYNATRACE_DTXDssClientPath",
-                                       description: "The path to your DTXDssClient",
+                                       description: "(DEPRECATED) The path to your DTXDssClient. Set automatically if empty.",
                                        optional: true),
 
          FastlaneCore::ConfigItem.new(key: :appId,
@@ -189,7 +189,7 @@ module Fastlane
 
           FastlaneCore::ConfigItem.new(key: :bundleId,
                                        env_name: "FL_UPLOAD_TO_DYNATRACE_BUNDLE_ID",
-                                       description: "The CFBundlebundleId (iOS) / package (Android) of the Application. Usually in reverse com notation. Ex. com.your_company.your_app",
+                                       description: "The CFBundlebundleId (iOS) / package (Android) of the Application.",
                                        verify_block: proc do |value|
                                           UI.user_error!("Please provide the BundleID for your app. Pass using `bundleId: 'bundleId'`") unless (value and not value.empty?)
                                       end),
@@ -210,14 +210,14 @@ module Fastlane
 
           FastlaneCore::ConfigItem.new(key: :symbolsfile,
                                        env_name: "FL_UPLOAD_TO_DYNATRACE_SYM_FILE_PATH",
-                                       description: "The filename/path of the XCode iOS archive or iOS dSYM containing the symbol mappings",
+                                       description: "The path of the Xcode iOS archive or iOS dSYM containing the symbol mappings",
                                        verify_block: proc do |value|
-                                          UI.user_error!("Please provide a value for the symbolFiles. Pass using `symbolsfile: 'symbolsfile'`") unless (value and not value.empty?)
+                                          UI.user_error!("Please provide a value for the symbol files. Pass using `symbolsfile: 'symbolsfile'`") unless (value and not value.empty?)
                                       end),
 
          FastlaneCore::ConfigItem.new(key: :server,
                                       env_name: "FL_UPLOAD_TO_DYNATRACE_SERVER_URL",
-                                      description: "The API endpoint for the Dynatrace environment. For example https://<environmentID.live.dynatrace.com/api/config/v1",
+                                      description: "The API endpoint for the Dynatrace environment. For example https://<environmentID>.live.dynatrace.com/api/config/v1",
                                       verify_block: proc do |value|
                                          UI.user_error!("Please provide your environment API endpoint. Pass using `server: 'server'`") unless (value and not value.empty?)
                                       end),
@@ -230,12 +230,7 @@ module Fastlane
         ]
       end
 
-      def self.return_value
-        # If your method provides a return value, you can describe here what it does
-      end
-
       def self.authors
-        # So no one will ever forget your contribution to fastlane :) You are awesome btw!
         ["MANassar/@MohamedANassar", "cynicer"]
       end
 
