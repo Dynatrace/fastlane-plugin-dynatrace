@@ -45,8 +45,9 @@ dynatrace_process_symbols(
 	appId: "<Dynatrace application ID>",
 	apitoken: "<Dynatrace API token>",
 	os: "ios",
-	versionStr: <Build Number (CFBundleVersion)>,
-	version: <App Version (CFBundleShortVersionString)>,
+	bundleId: "<CFBundlebundleId (iOS) / package (Android)>",
+	versionStr: "<Build Number (CFBundleVersion)>",
+	version: "<App Version (CFBundleShortVersionString)>",
 	server: "<Dynatrace Environment URL>",
 	downloadDsyms: true
 )
@@ -64,8 +65,8 @@ dynatrace_process_symbols(
 	bundleId: "<CFBundlebundleId (iOS) / package (Android)>",
 	versionStr: "<CFBundleShortVersionString (iOS) / versionName (Android)>",
 	version: "<CFBundleVersion (iOS) / versionCode (Android)>",
-	symbolsfile: "<Symbols File Path>",
-	server: "<Dynatrace Environment URL>"
+	server: "<Dynatrace Environment URL>",
+	symbolsfile: "<Symbols File Path>"
 )
 ```
 
@@ -74,7 +75,7 @@ dynatrace_process_symbols(
 |----------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------|----------------|
 | action               | *(iOS only)* Action to be performed by DTXDssClient (`upload` or `decode`).                                                                                             | `upload`       |
 | downloadDsyms        | *(iOS only)* Download the dSYMs from App Store Connect.                                                                                                                 | `false`        |
-| dsym_waiting_timeout | *(iOS only)* Timeout in milliseconds to wait for the dSYMs be downloadable.                                                                                             | `1800`         |
+| downloadDsymsTimeout | *(iOS only)* Timeout in milliseconds to wait for the dSYMs be downloadable.                                                                                             | `1800`         |
 | username             | *(iOS only)* The username/AppleID to use to download the dSYMs. Alternatively you can specify this in your AppFile as `apple_id`.                                       |                |
 | os                   | The type of the symbol files, either `ios` or `android`.                                                                                                              |                |
 | apitoken             | Dynatrace API token with mobile symbolication permissions.                                                                                                            |                |
