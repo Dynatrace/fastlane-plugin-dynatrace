@@ -47,23 +47,26 @@ module Fastlane
 
             # it takes a couple of minutes until the new build is available through the API
             #  -> retry until available
-            while !lane_context[SharedValues::DSYM_PATHS] and (Time.now - startTime) < params[:downloadDsymsTimeout]
-              Actions::DownloadDsymsAction.run(wait_for_dsym_processing: true,
-                                              wait_timeout: (params[:downloadDsymsTimeout] - (Time.now - startTime)).round(0), # remaining timeout
+            while params[:waitForDsymProcessing] and # wait is active
+                  !lane_context[SharedValues::DSYM_PATHS] and # has dsym path
+                  (Time.now - startTime) < params[:waitForDsymProcessingTimeout] # is in time
+                   
+              Actions::DownloadDsymsAction.run(wait_for_dsym_processing: params[:waitForDsymProcessing],
+                                              wait_timeout: (params[:waitForDsymProcessingTimeout] - (Time.now - startTime)).round(0), # remaining timeout
                                               app_identifier: bundleId,
                                               username: username,
                                               version: params[:version],
                                               build_number: params[:versionStr],
                                               platform: :ios) # should be optional (Hint: it's not)
 
-              if !lane_context[SharedValues::DSYM_PATHS] and (Time.now - startTime) < params[:downloadDsymsTimeout]
-                UI.message "Version #{params[:version]} (Build #{params[:versionStr]}) isn't listed yet, retrying in 60 seconds (timeout in #{(params[:downloadDsymsTimeout] - (Time.now - startTime)).round(0)} seconds)."
+              if !lane_context[SharedValues::DSYM_PATHS] and (Time.now - startTime) < params[:waitForDsymProcessingTimeout]
+                UI.message "Version #{params[:version]} (Build #{params[:versionStr]}) isn't listed yet, retrying in 60 seconds (timeout in #{(params[:waitForDsymProcessingTimeout] - (Time.now - startTime)).round(0)} seconds)."
                 sleep(60)
               end
             end
 
-            if (Time.now - startTime) > params[:downloadDsymsTimeout]
-              UI.user_error!("Timeout during dSYM download. Try increasing :downloadDsymsTimeout.")
+            if (Time.now - startTime) > params[:waitForDsymProcessingTimeout]
+              UI.user_error!("Timeout during dSYM download. Try increasing :waitForDsymProcessingTimeout.")
             end
 
             dsym_paths += Actions.lane_context[SharedValues::DSYM_PATHS] if Actions.lane_context[SharedValues::DSYM_PATHS]
@@ -152,11 +155,17 @@ module Fastlane
                                        is_string: false,
                                        description: "(iOS only) Download the dSYMs from App Store Connect"),
 
-          FastlaneCore::ConfigItem.new(key: :downloadDsymsTimeout,
+          FastlaneCore::ConfigItem.new(key: :waitForDsymProcessing,
+                                       env_name: "FL_UPLOAD_TO_DYNATRACE_DOWNLOAD_DSYMS_WAIT_PROCESSING",
+                                       default_value: true,
+                                       is_string: false,
+                                       description: "(iOS only) Wait for dSYM processing to be finished"),
+
+          FastlaneCore::ConfigItem.new(key: :waitForDsymProcessingTimeout,
                                        env_name: "FL_UPLOAD_TO_DYNATRACE_DOWNLOAD_DSYMS_WAIT_TIMEOUT",
                                        default_value: 1800,
                                        is_string: false,
-                                       description: "(iOS only) Timeout in milliseconds to wait for the dSYMs be downloadable"),
+                                       description: "(iOS only) Timeout in seconds to wait for the dSYMs be downloadable"),
 
           FastlaneCore::ConfigItem.new(key: :username,
                                        env_name: "FL_UPLOAD_TO_DYNATRACE_DOWNLOAD_DSYMS_USERNAME",
