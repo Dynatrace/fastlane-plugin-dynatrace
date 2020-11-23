@@ -118,11 +118,15 @@ module Fastlane
 
         sh("#{shell_command}", error_callback: ->(result) {
           # ShAction doesn't return any reference to the return value -> parse it from the output
-          result_groups = result.match /(?:ERROR: Execution failed, rc=)(\d*)(?:\sreason=)(.*)/
-          if result_groups[1] == "413" 
-            UI.user_error!("#{result_groups[2]} See https://www.dynatrace.com/support/help/shortlink/mobile-symbolication#manage-the-uploaded-symbol-files for more information.")
+          result_groups = result.match /(?:ERROR: Execution failed, rc=)(-?\d*)(?:\sreason=)(.*)/
+          if result_groups and result_groups.length() >= 2
+            if result_groups[1] == "413" 
+              UI.user_error!("DTXDssClient: #{result_groups[2]} See https://www.dynatrace.com/support/help/shortlink/mobile-symbolication#manage-the-uploaded-symbol-files for more information.")
+            else
+              UI.user_error!("DTXDssClient: #{result_groups[2]}")
+            end
           else
-            UI.user_error!("#{result_groups[2]}")
+            UI.user_error!("DTXDssClient finished with errors.")
           end
         })
 
