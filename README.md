@@ -75,7 +75,7 @@ dynatrace_process_symbols(
 |------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------|----------------|
 | action                       | *(iOS only)* Action to be performed by DTXDssClient (`upload` or `decode`).                                                                                           | `upload`       |
 | downloadDsyms                | *(iOS only)* Download the dSYMs from App Store Connect.                                                                                                               | `false`        |
-| waitForDsymProcessing        | *(iOS only)* Wait for dSYM processing to be finished                                                                                                                  | `true`         |
+| waitForDsymProcessing        | *(iOS only)* Wait for dSYM processing to be finished.                                                                                                                  | `true`         |
 | waitForDsymProcessingTimeout | *(iOS only)* Timeout in seconds to wait for the dSYMs be downloadable.                                                                                                | `1800`         |
 | username                     | *(iOS only)* The username/AppleID to use to download the dSYMs. Alternatively you can specify this in your AppFile as `apple_id`.                                     |                |
 | os                           | The type of the symbol files, either `ios` or `android`.                                                                                                              |                |

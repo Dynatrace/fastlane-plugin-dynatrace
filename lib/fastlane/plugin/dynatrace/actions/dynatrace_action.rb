@@ -50,7 +50,7 @@ module Fastlane
             while params[:waitForDsymProcessing] and # wait is active
                   !lane_context[SharedValues::DSYM_PATHS] and # has dsym path
                   (Time.now - startTime) < params[:waitForDsymProcessingTimeout] # is in time
-                   
+
               Actions::DownloadDsymsAction.run(wait_for_dsym_processing: params[:waitForDsymProcessing],
                                               wait_timeout: (params[:waitForDsymProcessingTimeout] - (Time.now - startTime)).round(0), # remaining timeout
                                               app_identifier: bundleId,
