@@ -20,7 +20,14 @@ module Fastlane
           response = Net::HTTP.get_response(clientUri)
 
           if not response.kind_of? Net::HTTPSuccess
-            raise "Can't connect to server, invalid response #{response.message} (#{response.code}) for URL: #{clientUri}"
+            base_error = "Couldn't update DTXDssClient (invalid response: #{response.message} (#{response.code})) for URL: #{clientUri})"
+            if File.exists?("#{dynatraceDir}/#{dtxDssClientBin}")
+              UI.important base_error
+              UI.important "Using cached DTXDssClient: #{dynatraceDir}/#{dtxDssClientBin}"
+              return dtxDssClientPath
+            else
+              UI.user_error! base_error
+            end
           end
 
           remoteClientUrl = JSON.parse(response.body)["dssClientUrl"]
