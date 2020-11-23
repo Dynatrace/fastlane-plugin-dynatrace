@@ -175,14 +175,14 @@ module Fastlane
                                        env_name: "FL_UPLOAD_TO_DYNATRACE_DOWNLOAD_DSYMS_USERNAME",
                                        description: "(iOS only) The username/AppleID to use to download the dSYMs"),
 
-         FastlaneCore::ConfigItem.new(key: :os,
-                                      env_name: "FL_UPLOAD_TO_DYNATRACE_OS",
-                                      description: "The type of the symbol files, either \"ios\" or \"android\"",
-                                      sensitive: false,
-                                      optional: false,
-                                      verify_block: proc do |value|
-                                         UI.user_error!("Please specify the type of the symbol files. Possible values are \"ios\" or \"android\".") unless (value and not value.empty? and (value == "ios" || value =="android"))
-                                      end),
+          FastlaneCore::ConfigItem.new(key: :os,
+                                       env_name: "FL_UPLOAD_TO_DYNATRACE_OS",
+                                       description: "The type of the symbol files, either \"ios\" or \"android\"",
+                                       sensitive: false,
+                                       optional: false,
+                                       verify_block: proc do |value|
+                                          UI.user_error!("Please specify the type of the symbol files. Possible values are \"ios\" or \"android\".") unless (value and not value.empty? and (value == "ios" || value =="android"))
+                                       end),
 
           FastlaneCore::ConfigItem.new(key: :apitoken,
                                        env_name: "FL_UPLOAD_TO_DYNATRACE_apitoken",
@@ -196,12 +196,12 @@ module Fastlane
                                        description: "(DEPRECATED) The path to your DTXDssClient. The DTXDssClient is downloaded and updated automatically, unless this key is set",
                                        optional: true),
 
-         FastlaneCore::ConfigItem.new(key: :appId,
-                                      env_name: "FL_UPLOAD_TO_DYNATRACE_APP_ID",
-                                      description: "The app ID you get from your Dynatrace environment",
-                                      verify_block: proc do |value|
-                                         UI.user_error!("Please provide the appID for your application. Pass using `appId: 'appId'`") unless (value and not value.empty?)
-                                      end),
+          FastlaneCore::ConfigItem.new(key: :appId,
+                                       env_name: "FL_UPLOAD_TO_DYNATRACE_APP_ID",
+                                       description: "The app ID you get from your Dynatrace environment",
+                                       verify_block: proc do |value|
+                                          UI.user_error!("Please provide the appID for your application. Pass using `appId: 'appId'`") unless (value and not value.empty?)
+                                       end),
 
           FastlaneCore::ConfigItem.new(key: :bundleId,
                                        env_name: "FL_UPLOAD_TO_DYNATRACE_BUNDLE_ID",
@@ -217,12 +217,12 @@ module Fastlane
                                           UI.user_error!("Please provide the CFBundleShortVersionString for your app. Pass using `versionStr: 'versionStr'`") unless (value and not value.empty?)
                                       end),
 
-         FastlaneCore::ConfigItem.new(key: :version,
-                                      env_name: "FL_UPLOAD_TO_DYNATRACE_VERSION",
-                                      description: "The CFBundleVersion (iOS) / versionCode (Android). Is also used for the dSYM download",
-                                      verify_block: proc do |value|
-                                         UI.user_error!("Please provide the version for your app. Pass using `version: 'version'`") unless (value and not value.empty?)
-                                      end),
+          FastlaneCore::ConfigItem.new(key: :version,
+                                       env_name: "FL_UPLOAD_TO_DYNATRACE_VERSION",
+                                       description: "The CFBundleVersion (iOS) / versionCode (Android). Is also used for the dSYM download",
+                                       verify_block: proc do |value|
+                                          UI.user_error!("Please provide the version for your app. Pass using `version: 'version'`") unless (value and not value.empty?)
+                                       end),
 
           FastlaneCore::ConfigItem.new(key: :symbolsfile,
                                        env_name: "FL_UPLOAD_TO_DYNATRACE_SYM_FILE_PATH",
@@ -231,12 +231,12 @@ module Fastlane
                                           UI.user_error!("Please provide a value for the symbol files. Pass using `symbolsfile: 'symbolsfile'`") unless (value and not value.empty?)
                                       end),
 
-         FastlaneCore::ConfigItem.new(key: :server,
-                                      env_name: "FL_UPLOAD_TO_DYNATRACE_SERVER_URL",
-                                      description: "The API endpoint for the Dynatrace environment (e.g. https://environmentID.live.dynatrace.com or https://dynatrace-managed.com/e/environmentID)",
-                                      verify_block: proc do |value|
-                                         UI.user_error!("Please provide your environment API endpoint. Pass using `server: 'server'`") unless (value and not value.empty?)
-                                      end),
+          FastlaneCore::ConfigItem.new(key: :server,
+                                       env_name: "FL_UPLOAD_TO_DYNATRACE_SERVER_URL",
+                                       description: "The API endpoint for the Dynatrace environment (e.g. https://environmentID.live.dynatrace.com or https://dynatrace-managed.com/e/environmentID)",
+                                       verify_block: proc do |value|
+                                          UI.user_error!("Please provide your environment API endpoint. Pass using `server: 'server'`") unless (value and not value.empty?)
+                                       end),
 
           FastlaneCore::ConfigItem.new(key: :debugMode,
                                        env_name: "FL_UPLOAD_TO_DYNATRACE_DEBUG_MODE",
