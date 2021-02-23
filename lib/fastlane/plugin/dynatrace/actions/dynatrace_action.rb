@@ -26,15 +26,6 @@ module Fastlane
           UI.message "BundleID: #{bundleId}"
         end
 
-        UI.message "Checking AppFile for possible username/AppleID" 
-        username = CredentialsManager::AppfileConfig.try_fetch_value(:apple_id)
-        if username
-          UI.message "Using #{username} from your AppFile" 
-        else
-          username = params[:username]
-          UI.message "Didn't find a username in AppFile, using passed username parameter: #{params[:username]}"
-        end
-
         dtxDssClientPath = Helper::DynatraceHelper.get_dss_client(params)
 
         dsym_paths = []
@@ -44,6 +35,15 @@ module Fastlane
           if params[:downloadDsyms] == true         
             UI.message "Downloading dSYMs from App Store Connect"
             startTime = Time.now
+
+            UI.message "Checking AppFile for possible username/AppleID" 
+            username = CredentialsManager::AppfileConfig.try_fetch_value(:apple_id)
+            if username
+              UI.message "Using #{username} from your AppFile" 
+            else
+              username = params[:username]
+              UI.message "Didn't find a username in AppFile, using passed username parameter: #{params[:username]}"
+            end
 
             # it takes a couple of minutes until the new build is available through the API
             #  -> retry until available
