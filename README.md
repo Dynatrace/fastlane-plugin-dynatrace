@@ -89,6 +89,21 @@ dynatrace_process_symbols(
 | server                       | The API endpoint for the Dynatrace environment (e.g. `https://environmentID.live.dynatrace.com` or `https://dynatrace-managed.com/e/environmentID`).                  |                |
 | debugMode                    | Enable debug logging.                                                                                                                                                 | false          |
 
+## AppStore Connect Two-Factor-Authentication
+When the plugin is used to download symbols from *AppStore Connect* automatically (`downloadDsyms: true`)  valid login credentials to an account with permissions to access the dSYM files are required. The preferred method of doing so is by setting the `FASTLANE_USER` and `FASTLANE_PASSWORD` environment variables to their respective values.
+
+[Apple announced](https://github.com/fastlane/fastlane/discussions/17655) that 2-Factor-Authentication for the *AppStore Connect* API will be enforced starting February 2021. This limits the ability to automate the symbol processing, because it will most likely involve manual interaction, which is not suitable for CI automation. The only workaround at this point in time is to pre-generate a session and cache it in CI.
+
+### Fastlane Session
+The full documentation for this can be found on the [fastlane docs](https://docs.fastlane.tools/best-practices/continuous-integration/#two-step-or-two-factor-auth
+) under **spaceauth**.
+
+You can generate a session by running `fastlane spaceauth -u user@email.com` on your machine and copy the output into an environment variable `FASTLANE_SESSION` on the target system (e.g. CI).
+
+###NOTE
+- Session is only valid in the "region" you create it. If you CI is in a different geographical location the authentication might fail.
+
+- Generated sessions are valid up to one month. Apple's API doesn't specify details about that, so it will only be visible by a failing build.
 
 ## Example
 Try it by cloning the repo, running `fastlane install_plugins` and `bundle exec fastlane test`.
