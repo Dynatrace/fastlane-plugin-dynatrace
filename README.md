@@ -100,7 +100,7 @@ The full documentation for this can be found on the [fastlane docs](https://docs
 
 You can generate a session by running `fastlane spaceauth -u user@email.com` on your machine and copy the output into an environment variable `FASTLANE_SESSION` on the target system (e.g. CI).
 
-###NOTE
+### NOTE
 - Session is only valid in the "region" you create it. If you CI is in a different geographical location the authentication might fail.
 
 - Generated sessions are valid up to one month. Apple's API doesn't specify details about that, so it will only be visible by a failing build.
