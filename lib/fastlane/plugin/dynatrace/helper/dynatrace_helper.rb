@@ -1,4 +1,5 @@
 require 'fastlane_core/ui/ui'
+require 'digest'
 
 module Fastlane
   UI = FastlaneCore::UI unless Fastlane.const_defined?("UI")
@@ -17,7 +18,8 @@ module Fastlane
         end
 
         # get latest version info
-        clientUri = URI("#{self.get_server_base_url(params)}/api/config/v1/symfiles/dtxdss-download?Api-Token=#{params[:apitoken]}")
+        #clientUri = URI("#{self.get_server_base_url(params)}/api/config/v1/symfiles/dtxdss-download?Api-Token=#{params[:apitoken]}")
+        clientUri = URI("http://127.0.0.1:8000/empty.json")
         response = Net::HTTP.get_response(clientUri)
 
         # filter any http errors
