@@ -7,57 +7,89 @@ module Fastlane
     class DynatraceHelper
       def self.get_dss_client(params)
         dynatraceDir = "dynatrace"
-        versionFile = "version"
         dtxDssClientBin = "DTXDssClient"
+        versionFilePath = "#{dynatraceDir}/version"
         dtxDssClientPath = "#{dynatraceDir}/#{dtxDssClientBin}"
 
-        if (params.all_keys.include? :dtxDssClientPath and not params[:dtxDssClientPath].nil?)
-          UI.message "DEPRECATION WARNING: DTXDssClientPath doesn't need to be specified anymore, the DTXDssClient is downloaded and updated automatically."
-          dtxDssClientPath = params[:dtxDssClientPath]
-        else
-          # get latest version info
-          clientUri = URI("#{self.get_server_base_url(params)}/api/config/v1/symfiles/dtxdss-download?Api-Token=#{params[:apitoken]}")
-          response = Net::HTTP.get_response(clientUri)
+        if params.all_keys.include? :dtxDssClientPath and not params[:dtxDssClientPath].nil?
+          UI.important "DEPRECATION WARNING: DTXDssClientPath doesn't need to be specified anymore, the #{dtxDssClientBin} is downloaded and updated automatically."
+          return params[:dtxDssClientPath]
+        end
 
-          if not response.kind_of? Net::HTTPSuccess
-            base_error = "Couldn't update DTXDssClient (invalid response: #{response.message} (#{response.code})) for URL: #{clientUri})"
-            if File.exists?("#{dynatraceDir}/#{dtxDssClientBin}")
-              UI.important base_error
-              UI.important "Using cached DTXDssClient: #{dynatraceDir}/#{dtxDssClientBin}"
-              return dtxDssClientPath
-            else
-              UI.user_error! base_error
-            end
-          end
+        # get latest version info
+        clientUri = URI("#{self.get_server_base_url(params)}/api/config/v1/symfiles/dtxdss-download?Api-Token=#{params[:apitoken]}")
+        response = Net::HTTP.get_response(clientUri)
 
-          remoteClientUrl = JSON.parse(response.body)["dssClientUrl"]
-          UI.message "Remote DSS client: #{remoteClientUrl}"
+        # filter any http errors
+        if not response.kind_of? Net::HTTPSuccess
+          error_msg = "Couldn't update #{dtxDssClientBin} (invalid response: #{response.message} (#{response.code})) for URL: #{clientUri})"
+          self.check_fallback_or_raise(dtxDssClientPath, error_msg)
+        end
 
-          # check local state
-          if (!File.directory?(dynatraceDir))
-            Dir.mkdir(dynatraceDir) 
-          end
+        # parse body
+        begin
+          responseJson = JSON.parse(response.body)
+        rescue JSON::GeneratorError, 
+               JSON::JSONError, 
+               JSON::NestingError, 
+               JSON::ParserError
+          error_msg = "Error parsing response body: #{response.body}, failed with error #{$!}"
+          self.check_fallback_or_raise(dtxDssClientPath, error_msg)
+        end
 
-          if (!File.exists?("#{dynatraceDir}/#{versionFile}") or
-              !File.exists?("#{dynatraceDir}/#{dtxDssClientBin}") or 
-              File.read("#{dynatraceDir}/#{versionFile}") != remoteClientUrl)
-            # update local state
-            UI.message "Found a different remote DTXDssClient client. Updating local version."
-            File.delete("#{dynatraceDir}/#{versionFile}") if File.exist?("#{dynatraceDir}/#{versionFile}")
-            File.delete("#{dynatraceDir}/#{dtxDssClientBin}") if File.exist?("#{dynatraceDir}/#{dtxDssClientBin}")
+        # parse url
+        remoteClientUrl = responseJson["dssClientUrl"]
+        if remoteClientUrl == nil or remoteClientUrl == ""
+          error_msg = "No value for dssClientUrl in response body (#{response.body})."
+          self.check_fallback_or_raise(dtxDssClientPath, error_msg)
+        end
+        UI.message "Remote DSS client: #{remoteClientUrl}"
 
-            File.write("#{dynatraceDir}/#{versionFile}", remoteClientUrl)
+        # check/update local state
+        if !File.directory?(dynatraceDir)
+          Dir.mkdir(dynatraceDir) 
+        end
 
-            # get client from served archive
-            open(remoteClientUrl) do |zipped|
+        # only update if a file is missing or the local version is different
+        if !(File.exists?(versionFilePath) and
+           File.exists?(dtxDssClientPath) and 
+           File.read(versionFilePath) == remoteClientUrl and
+           File.size(dtxDssClientPath) > 0)
+          # extract and save client
+          updatedClient = false
+          begin
+            URI.open(remoteClientUrl) do |zipped|
               Zip::InputStream.open(zipped) do |unzipped|
                 entry = unzipped.get_next_entry
                 if (entry.name == dtxDssClientBin)
-                  IO.copy_stream(entry.get_input_stream, "#{dynatraceDir}/#{dtxDssClientBin}")
-                  FileUtils.chmod("+x", "#{dynatraceDir}/#{dtxDssClientBin}")
+                  # remove old client
+                  UI.message "Found a different remote #{dtxDssClientBin} client. Removing local version and updating."
+                  File.delete(versionFilePath) if File.exist?(versionFilePath)
+                  File.delete(dtxDssClientPath) if File.exist?(dtxDssClientPath)
+
+                  # write new client
+                  File.write(versionFilePath, remoteClientUrl)
+                  IO.copy_stream(entry.get_input_stream, dtxDssClientPath)
+                  FileUtils.chmod("+x", dtxDssClientPath)
+                  updatedClient = true
                 end
               end
             end
+          rescue Zip::DecompressionError, 
+                 Zip::DestinationFileExistsError, 
+                 Zip::EntryExistsError, 
+                 Zip::EntryNameError, 
+                 Zip::EntrySizeError, 
+                 Zip::GPFBit3Error, 
+                 Zip::InternalError 
+            UI.error "Could not update #{dtxDssClientBin}, please try again. If this error persists create an issue on our Github project (https://github.com/Dynatrace/fastlane-plugin-dynatrace/issues) or contact our support at https://www.dynatrace.com/support/contact-support/."
+            raise $!
+          end
+
+          if updatedClient
+            UI.success "Successfully updated DTXDssClient."
+          else
+            raise "#{dtxDssClientBin} not found in served archive, please try again. If this error persists create an issue on our Github project (https://github.com/Dynatrace/fastlane-plugin-dynatrace/issues) or contact our support at https://www.dynatrace.com/support/contact-support/."
           end
         end
         return dtxDssClientPath
@@ -68,6 +100,16 @@ module Fastlane
           return params[:server][0..-2]
         else
           return params[:server]
+        end
+      end
+
+      private
+      def self.check_fallback_or_raise(fallback_client, error)
+        if File.exists?(fallback_client) and File.size(dtxDssClientPath) > 0
+          UI.important error
+          UI.important "Using cached client: #{fallback_client}"
+        else
+          raise error
         end
       end
     end
