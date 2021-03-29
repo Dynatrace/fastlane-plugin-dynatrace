@@ -109,7 +109,7 @@ module Fastlane
 
       private
       def self.check_fallback_or_raise(fallback_client, error)
-        if File.exists?(fallback_client) and File.size(dtxDssClientPath) > 0
+        if File.exists?(fallback_client) and File.size(fallback_client) > 0
           UI.important error
           UI.important "Using cached client: #{fallback_client}"
         else
