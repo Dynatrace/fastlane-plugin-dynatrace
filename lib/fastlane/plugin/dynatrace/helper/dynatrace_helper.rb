@@ -35,6 +35,7 @@ module Fastlane
                JSON::ParserError
           error_msg = "Error parsing response body: #{response.body}, failed with error #{$!}"
           self.check_fallback_or_raise(dtxDssClientPath, error_msg)
+          return dtxDssClientPath
         end
 
         # parse url
@@ -42,6 +43,7 @@ module Fastlane
         if remoteClientUrl == nil or remoteClientUrl == ""
           error_msg = "No value for dssClientUrl in response body (#{response.body})."
           self.check_fallback_or_raise(dtxDssClientPath, error_msg)
+          return dtxDssClientPath
         end
         UI.message "Remote DSS client: #{remoteClientUrl}"
 
