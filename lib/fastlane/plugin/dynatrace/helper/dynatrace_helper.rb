@@ -18,8 +18,7 @@ module Fastlane
         end
 
         # get latest version info
-        #clientUri = URI("#{self.get_server_base_url(params)}/api/config/v1/symfiles/dtxdss-download?Api-Token=#{params[:apitoken]}")
-        clientUri = URI("http://127.0.0.1:8000/empty.json")
+        clientUri = URI("#{self.get_server_base_url(params)}/api/config/v1/symfiles/dtxdss-download?Api-Token=#{params[:apitoken]}")
         response = Net::HTTP.get_response(clientUri)
 
         # filter any http errors
@@ -63,6 +62,7 @@ module Fastlane
           updatedClient = false
           begin
             URI.open(remoteClientUrl) do |zipped|
+              UI.message "Unzipping fetched file with MD5 hash: #{Digest::MD5.new << IO.read(zipped)}"
               Zip::InputStream.open(zipped) do |unzipped|
                 entry = unzipped.get_next_entry
                 if (entry.name == dtxDssClientBin)
