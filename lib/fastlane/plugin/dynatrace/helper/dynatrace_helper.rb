@@ -1,5 +1,6 @@
 require 'fastlane_core/ui/ui'
 require 'digest'
+require 'open-uri'
 
 module Fastlane
   UI = FastlaneCore::UI unless Fastlane.const_defined?("UI")
