@@ -93,7 +93,7 @@ module Fastlane
           if updatedClient
             UI.success "Successfully updated DTXDssClient."
           else
-            raise "#{dtxDssClientBin} not found in served archive, please try again. If this error persists create an issue on our Github project (https://github.com/Dynatrace/fastlane-plugin-dynatrace/issues) or contact our support at https://www.dynatrace.com/support/contact-support/."
+            UI.important "#{dtxDssClientBin} not found in served archive, please try again. If this problem persists create an issue on our Github project (https://github.com/Dynatrace/fastlane-plugin-dynatrace/issues) or contact our support at https://www.dynatrace.com/support/contact-support/."
           end
         end
         return dtxDssClientPath
