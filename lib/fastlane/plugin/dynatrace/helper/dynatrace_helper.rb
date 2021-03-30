@@ -60,6 +60,11 @@ module Fastlane
            File.size(dtxDssClientPath) > 0)
           # extract and save client
           updatedClient = false
+
+          # prevents from creating a StringIO object instead of FileIO in URI.open if <10kB
+          OpenURI::Buffer.send :remove_const, 'StringMax' if OpenURI::Buffer.const_defined?('StringMax')
+          OpenURI::Buffer.const_set 'StringMax', 0
+
           begin
             URI.open(remoteClientUrl) do |zipped|
               UI.message "Unzipping fetched file with MD5 hash: #{Digest::MD5.new << IO.read(zipped)}"
