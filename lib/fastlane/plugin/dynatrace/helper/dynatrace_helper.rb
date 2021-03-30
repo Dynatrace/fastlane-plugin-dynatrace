@@ -92,14 +92,15 @@ module Fastlane
                  Zip::EntrySizeError, 
                  Zip::GPFBit3Error, 
                  Zip::InternalError 
-            UI.error "Could not update #{dtxDssClientBin}, please try again. If this error persists create an issue on our Github project (https://github.com/Dynatrace/fastlane-plugin-dynatrace/issues) or contact our support at https://www.dynatrace.com/support/contact-support/."
-            raise $!
+            error_msg = "Could not update/extract #{dtxDssClientBin}, please try again."
+            self.check_fallback_or_raise(dtxDssClientPath, error_msg)
           end
 
           if updatedClient
             UI.success "Successfully updated DTXDssClient."
           else
-            UI.important "#{dtxDssClientBin} not found in served archive, please try again. If this problem persists create an issue on our Github project (https://github.com/Dynatrace/fastlane-plugin-dynatrace/issues) or contact our support at https://www.dynatrace.com/support/contact-support/."
+            error_msg = "#{dtxDssClientBin} not found in served archive, please try again."
+            self.check_fallback_or_raise(dtxDssClientPath, error_msg)
           end
         end
         return dtxDssClientPath
@@ -115,6 +116,7 @@ module Fastlane
 
       private
       def self.check_fallback_or_raise(fallback_client, error)
+        UI.important "If this error persists create an issue on our Github project (https://github.com/Dynatrace/fastlane-plugin-dynatrace/issues) or contact our support at https://www.dynatrace.com/support/contact-support/."
         if File.exists?(fallback_client) and File.size(fallback_client) > 0
           UI.important error
           UI.important "Using cached client: #{fallback_client}"
