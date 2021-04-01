@@ -24,7 +24,7 @@ module Fastlane
 
         # filter any http errors
         if not response.kind_of? Net::HTTPSuccess
-          error_msg = "Couldn't update #{dtxDssClientBin} (invalid response: #{response.message} (#{response.code})) for URL: #{clientUri})"
+          error_msg = "Couldn't update #{dtxDssClientBin} (invalid response: #{response.message} (#{response.code})) for URL: #{self.to_redacted_api_token_string(clientUri)})"
           self.check_fallback_or_raise(dtxDssClientPath, error_msg)
         end
 
@@ -35,7 +35,7 @@ module Fastlane
                JSON::JSONError, 
                JSON::NestingError, 
                JSON::ParserError
-          error_msg = "Error parsing response body: #{response.body} from URL (#{clientUri}), failed with error #{$!}"
+          error_msg = "Error parsing response body: #{response.body} from URL (#{self.to_redacted_api_token_string(clientUri)}), failed with error #{$!}"
           self.check_fallback_or_raise(dtxDssClientPath, error_msg)
           return dtxDssClientPath
         end
@@ -123,6 +123,15 @@ module Fastlane
         else
           raise error
         end
+      end
+
+      def self.to_redacted_api_token_string(url)
+        urlStr = url.to_s
+        str = "Api-Token="
+        idx = urlStr.index(str)
+        token_len = urlStr.length - idx + str.length + 1
+        urlStr[idx + str.length..idx + str.length + token_len] = "-" * token_len
+        return urlStr
       end
     end
   end
