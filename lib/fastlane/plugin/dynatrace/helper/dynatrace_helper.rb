@@ -35,7 +35,7 @@ module Fastlane
                JSON::JSONError, 
                JSON::NestingError, 
                JSON::ParserError
-          error_msg = "Error parsing response body: #{response.body}, failed with error #{$!}"
+          error_msg = "Error parsing response body: #{response.body} from URL (#{clientUri}), failed with error #{$!}"
           self.check_fallback_or_raise(dtxDssClientPath, error_msg)
           return dtxDssClientPath
         end
