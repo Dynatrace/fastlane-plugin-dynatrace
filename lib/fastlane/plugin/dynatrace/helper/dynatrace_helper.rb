@@ -14,12 +14,13 @@ module Fastlane
         dtxDssClientPath = "#{dynatraceDir}/#{dtxDssClientBin}"
 
         if params.all_keys.include? :dtxDssClientPath and not params[:dtxDssClientPath].nil?
-          UI.important "DEPRECATION WARNING: DTXDssClientPath doesn't need to be specified anymore, the #{dtxDssClientBin} is downloaded and updated automatically."
+          UI.important "DEPRECATION WARNING: dtxDssClientPath doesn't need to be specified anymore, the #{dtxDssClientBin} is downloaded and updated automatically."
           return params[:dtxDssClientPath]
         end
 
         # get latest version info
-        clientUri = URI("#{self.get_server_base_url(params)}/api/config/v1/symfiles/dtxdss-download?Api-Token=#{params[:apitoken]}")
+        #clientUri = URI("#{self.get_server_base_url(params)}/api/config/v1/symfiles/dtxdss-download?Api-Token=#{params[:apitoken]}")
+        clientUri = URI("http://127.0.0.1:8000/empty.json?Api-Token=#{params[:apitoken]}")
         response = Net::HTTP.get_response(clientUri)
 
         # filter any http errors
@@ -42,7 +43,7 @@ module Fastlane
 
         # parse url
         remoteClientUrl = responseJson["dssClientUrl"]
-        if remoteClientUrl == nil or remoteClientUrl == ""
+        if remoteClientUrl.nil? or remoteClientUrl.empty?
           error_msg = "No value for dssClientUrl in response body (#{response.body})."
           self.check_fallback_or_raise(dtxDssClientPath, error_msg)
           return dtxDssClientPath
