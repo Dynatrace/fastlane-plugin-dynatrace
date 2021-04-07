@@ -19,8 +19,7 @@ module Fastlane
         end
 
         # get latest version info
-        #clientUri = URI("#{self.get_server_base_url(params)}/api/config/v1/symfiles/dtxdss-download?Api-Token=#{params[:apitoken]}")
-        clientUri = URI("http://127.0.0.1:8000/empty.json?Api-Token=#{params[:apitoken]}")
+        clientUri = URI("#{self.get_server_base_url(params)}/api/config/v1/symfiles/dtxdss-download?Api-Token=#{params[:apitoken]}")
         response = Net::HTTP.get_response(clientUri)
 
         # filter any http errors
@@ -122,6 +121,7 @@ module Fastlane
           UI.important error
           UI.important "Using cached client: #{fallback_client}"
         else
+          UI.important "No cached fallback found."
           raise error
         end
       end
