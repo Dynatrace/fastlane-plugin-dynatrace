@@ -108,6 +108,9 @@ You can generate a session by running `fastlane spaceauth -u user@email.com` on 
 ## Example
 Try it by cloning the repo, running `fastlane install_plugins` and `bundle exec fastlane test`.
 
+## Tests
+This plugin includes a set of RSpec unit tests, which can be executed by running ` bundle exec rspec spec`.
+
 ## Issues and Feedback
 For any other issues and feedback about this plugin, please submit it to this repository or contact [Dynatrace Support](https://support.dynatrace.com).
 
