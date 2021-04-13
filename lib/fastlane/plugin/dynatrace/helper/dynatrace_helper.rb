@@ -148,7 +148,7 @@ module Fastlane
         uri = URI.parse(url)
         Net::HTTP.start(uri.host, uri.port) do |http|
           resp = http.get(uri.path)
-          file = Tempfile.new('foo', Dir.tmpdir, 'wb+')
+          file = Tempfile.new('foo', Dir.tmpdir)
           file.binmode
           file.write(resp.body)
           file.flush
