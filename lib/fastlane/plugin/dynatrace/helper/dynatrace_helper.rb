@@ -144,16 +144,9 @@ module Fastlane
         return urlStr
       end
 
+      # for test mocking
       def self.save_to_tempfile(url)
-        uri = URI.parse(url)
-        Net::HTTP.start(uri.host, uri.port) do |http|
-          resp = http.get(uri.path)
-          file = Tempfile.new('foo', Dir.tmpdir)
-          file.binmode
-          file.write(resp.body)
-          file.flush
-          file
-        end
+        open(url)
       end
     end
   end
