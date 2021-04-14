@@ -12,11 +12,8 @@ fastlane add_plugin dynatrace
 
 ⚠️  Apple enabled two-factor authentication in a way which interferes with a fully automated workflow. The workaround requires manual interaction see section 'App Store Connect Two-Factor-Authentication' below for details.
 
-### Dynatrace Managed (1.195 and earlier)
-For cluster versions 1.195 and earlier the Symbolication Client has to be manually download and specified (`dtxDssClientPath`). For all cluster versions above 1.195 it is fetched and updated automatically. A matching version can be downloaded manually with this link [https://api.mobileagent.downloads.dynatrace.com/sprint-latest-dss-client/xyz](https://api.mobileagent.downloads.dynatrace.com/sprint-latest-dss-client/xyz) by replacing `xyz` with the 3-digit sprint version of your Dynatrace Managed installation.
-
 ## About the Dynatrace fastlane plugin
-The Dynatrace fastlane plugin manages uploading symbol files (iOS) or obfuscation mapping files (Android) to Dynatrace. Symbol and mapping files are used to make reported stack traces human-readable. The plugin also allows you to download the latest dSYM files from App Store Connect, which enables full automation of the mobile app deployment.
+The Dynatrace fastlane plugin manages uploading symbol files (iOS) or obfuscation mapping files (Android) to the Dynatrace cluster. Symbol and mapping files are used to make reported stack traces human-readable. The plugin also allows to download the latest dSYM files from App Store Connect, which enables full automation of the mobile app deployment, and the pre-processing of dSYM files, a step that is necessary for the Dynatrace cluster to be able to symbolicate.
 
 The plugin provides a single action `dynatrace_process_symbols`. The configuration depends on whether the app is (A) iOS and Bitcode-enabled or (B) iOS and not Bitcode-enabled or an Android app.
 
@@ -24,27 +21,35 @@ For Bitcode-enabled iOS apps we recommend to let the plugin handle upload of the
 
 
 ## Usage
-To get started, first, ask your Dynatrace administrator to generate an API token. The token needs the permission 'Mobile symbolication file management' and is used to obtain permission to upload the symbol and mapping files to Dynatrace.
+To get started, first, ask your Dynatrace administrator for a an API token - it can be generated in the global settings in "Integration > Dynatrace API". The token needs the permission 'Mobile symbolication file management' and is used by the plugin to obtain permission to upload the symbol and mapping files to Dynatrace.
 
-Then add the action `dynatrace_process_symbols` to your Fastfile, see below for all configuration options.
+Add the action `dynatrace_process_symbols` to your Fastfile, see further below for all configuration options.
 
 When you now run fastlane, the Dynatrace plugin will manage the symbol files of your app as configured.
 
-## Action: `dynatrace_process_symbols`
+### Dynatrace Managed (1.195 and earlier)
+For cluster versions 1.195 and earlier the Dynatrace application 'Symbolication Client' has to be downloaded manually and explicitly specified (`dtxDssClientPath`). For all cluster versions above 1.195 it is fetched and updated automatically. A matching version can be downloaded manually with this link [https://api.mobileagent.downloads.dynatrace.com/sprint-latest-dss-client/xyz](https://api.mobileagent.downloads.dynatrace.com/sprint-latest-dss-client/xyz) by replacing `xyz` with the 3-digit sprint version of your Dynatrace Managed installation.
 
-| Supported Platforms | ios, android |
-|---------------------|--------------|
 
-## (A) Bitcode-enabled iOS apps
-> Only applies for apps distributed via the AppStore or TestFlight.
+## A) Bitcode-enabled iOS apps
+> Only applies for apps distributed via Apple's App Store or TestFlight.
 
-If your app is bitcode enabled, then the dSYMs that are generated during the Xcode build are **_not_** the dSYMs you want to upload to Dynatrace. This is because Apple recompiles the application on their servers, generating new dSYM files in the process. These newly generated dSYM files need to be downloaded from *App Store Connect*, then processed and uploaded to Dynatrace.
+If your app is bitcode enabled, then the dSYMs that are generated during the Xcode build are **not** the dSYMs you want to upload to Dynatrace. Apple recompiles the application on their servers, generating new dSYM files in the process, and these newly generated dSYM files need to be downloaded from *App Store Connect*, processed and uploaded to Dynatrace.
 
 ### Automatically downloading dSYMs
 
-Make sure the following information is present in `AppFile` to allow authentication with App Store Connect.
+To fully automate the following five step workflow, add the snippets below to the respective files and fill in the placeholders:
+
+1. Upload build to App Store Connect
+2. Wait until the build is processed
+3. Download the resulting dSYM files
+4. Process dSYM files into the format that Dynatrace requires
+5. Upload processed dSYM files to Dynatrace
+
 
 #### AppFile
+Make sure the following information is present in `AppFile` to authenticate with App Store Connect.
+
 ```ruby
 app_identifier("com.yourcompany.yourappID") # bundle identifier of your app
 apple_id("user@email.com")
@@ -64,16 +69,22 @@ dynatrace_process_symbols(
 )
 ```
 
-### Waiting time between app upload and dSYM file download
+#### Waiting time between app upload and dSYM file download
 There is a waiting time after the application has finished uploading to App Store Connect until the dSYM files are ready to be downloaded. The Dynatrace fastlane plugin waits and downloads the symbol files if setting the `waitForDsymProcessing` is true and a waiting period is provided via `waitForDsymProcessingTimeout`. We recommend 1800 seconds (30 mins) as the default waiting time. In our exprience this is sufficiently long for the processing to happen. If this duration is not long enough it needs to be increased. 
 
 > Note: this timeout is the **maximum** waiting time. If the symbol files are ready sooner, the plugin will continue to the download and will not wait for the whole duration of the timeout.
 
 
-## Not Bitcode-enabled iOS apps or Android apps
-If you are NOT using Bitcode, or if you have already downloaded the new symbol files from App Store Connect manually, do use the parameter `symbolsfile` to provide a relative path to the symbols file. The parameter `downloadDsyms` must be _false_ or removed.
+## B) Not Bitcode-enabled iOS apps or Android apps
+If one of the following options is true, then this option is the right one for you:
+
+* **not** using Bitcode for your iOS app
+* already downloaded the new symbol files from App Store Connect manually
+* deploy an Android app
 
 #### Fastfile
+Use the parameter `symbolsfile` to provide a relative path to the symbols file.
+
 ```ruby
 dynatrace_process_symbols(
 	appId: "<Dynatrace application ID>",
@@ -107,9 +118,9 @@ dynatrace_process_symbols(
 | debugMode                    | Enable debug logging.                                                                                                                                                 | false          |
 
 ## App Store Connect Two-Factor-Authentication
-When the plugin is used to download symbols from *App Store Connect* automatically (`downloadDsyms: true`)  valid login credentials to an account with permissions to access the dSYM files are required. The preferred method of doing so is by setting the `FASTLANE_USER` and `FASTLANE_PASSWORD` environment variables to their respective values.
+When the plugin is used to download symbols from *App Store Connect* automatically (`downloadDsyms: true`) valid login App Store Connect credentials with access to the dSYM files are required. The preferred method of doing so is by setting the `FASTLANE_USER` and `FASTLANE_PASSWORD` environment variables to their respective values.
 
-[Apple announced](https://github.com/fastlane/fastlane/discussions/17655) that 2-Factor-Authentication for the *App Store Connect* API will be enforced starting February 2021. This limits the ability to automate the symbol processing, because it will most likely involve manual interaction, which is not suitable for CI automation. The only workaround at this point in time is to pre-generate a session and cache it in CI.
+Apple announced that 2-Factor-Authentication for the *App Store Connect* API will be enforced starting February 2021. This [limits the ability to automate the symbol processing](https://github.com/fastlane/fastlane/discussions/17655), because it will most likely involve manual interaction, which is not suitable for CI automation. The only workaround at this point in time is to pre-generate a session and cache it in CI.
 
 ### Fastlane Session
 The full documentation for this can be found on the [fastlane docs](https://docs.fastlane.tools/best-practices/continuous-integration/#two-step-or-two-factor-auth
@@ -117,7 +128,7 @@ The full documentation for this can be found on the [fastlane docs](https://docs
 
 You can generate a session by running `fastlane spaceauth -u user@email.com` on your machine and copy the output into an environment variable `FASTLANE_SESSION` on the target system (e.g. CI).
 
-### NOTE
+#### Note
 - Session is only valid in the "region" you create it. If you CI is in a different geographical location the authentication might fail.
 
 - Generated sessions are valid up to one month. Apple's API doesn't specify details about that, so it will only be visible by a failing build.
