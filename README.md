@@ -17,11 +17,11 @@ The Dynatrace fastlane plugin manages uploading symbol files (iOS) or obfuscatio
 
 The plugin provides a single action `dynatrace_process_symbols`. The configuration depends on whether the app is (A) iOS and Bitcode-enabled or (B) iOS and not Bitcode-enabled or an Android app.
 
-For Bitcode-enabled iOS apps we recommend to let the plugin handle upload of the app to App Store Connect and download of the dSYM files.
+For Bitcode-enabled iOS apps we recommend to let the plugin handle the download of the dSYM files from App Store Connect and upload to Dynatrace.
 
 
 ## Usage
-To get started, first, ask your Dynatrace administrator for a an API token - it can be generated in the global settings in "Integration > Dynatrace API". The token needs the permission 'Mobile symbolication file management' and is used by the plugin to obtain permission to upload the symbol and mapping files to Dynatrace.
+To get started, first, ask your Dynatrace administrator for an API token - it can be generated in the global settings in "Integration > Dynatrace API". The token needs the permission 'Mobile symbolication file management' and is used by the plugin to obtain permission to upload the symbol and mapping files to Dynatrace.
 
 Add the action `dynatrace_process_symbols` to your Fastfile, see further below for all configuration options and a default configuration.
 
@@ -38,13 +38,12 @@ Background: If your app is Bitcode-enabled, then the dSYMs that are generated du
 
 ### Automatically downloading dSYMs
 
-To fully automate the following five step workflow, add the snippets below to the respective files and fill in the placeholders:
+To fully automate the following five step workflow, add the snippets below to the respective files and fill in the placeholders. Uploading the app the App Store Connect is a necessary prerequisite and either handled manually or by fastlane directly:
 
-1. Upload build to App Store Connect
-2. Wait until the build is processed
-3. Download the resulting dSYM files
-4. Process dSYM files into the format that Dynatrace requires
-5. Upload processed dSYM files to Dynatrace
+1. Wait until the build is processed
+2. Download the resulting dSYM files
+3. Process dSYM files into the format that Dynatrace requires
+4. Upload processed dSYM files to Dynatrace
 
 
 #### AppFile
@@ -120,7 +119,7 @@ dynatrace_process_symbols(
 ## App Store Connect Two-Factor-Authentication
 When the plugin is used to download symbols from *App Store Connect* automatically (`downloadDsyms: true`) valid login App Store Connect credentials with access to the dSYM files are required. The preferred method of doing so is by setting the `FASTLANE_USER` and `FASTLANE_PASSWORD` environment variables to their respective values.
 
-Apple announced that 2-Factor-Authentication for the *App Store Connect* API will be enforced starting February 2021. This [limits the ability to automate the symbol processing](https://github.com/fastlane/fastlane/discussions/17655), because it will most likely involve manual interaction, which is not suitable for CI automation. The only workaround at this point in time is to pre-generate a session and cache it in CI.
+Apple started enforcing 2-Factor-Authentication for the *App Store Connect* API in February 2021. This [limits the ability to automate the symbol processing](https://github.com/fastlane/fastlane/discussions/17655), because it will most likely involve manual interaction, which is not suitable for CI automation. The only workaround at this point in time is to pre-generate a session and cache it in CI.
 
 ### Fastlane Session
 The full documentation for this can be found on the [fastlane docs](https://docs.fastlane.tools/best-practices/continuous-integration/#two-step-or-two-factor-auth
