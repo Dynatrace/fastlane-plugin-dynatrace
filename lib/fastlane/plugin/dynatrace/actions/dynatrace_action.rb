@@ -43,7 +43,7 @@ module Fastlane
           end
           return
         elsif params[:os] != "ios"
-          raise "Unsopported value os=#{params[:os]}"
+          UI.user_error! "Unsopported value os=#{params[:os]}"
         end
 
         # iOS workflow
@@ -53,7 +53,7 @@ module Fastlane
         symbolFilesKey = "symbolsfile" # default to iOS
 
         if !OS.mac?
-          raise "In order to process iOS symbols a macOS machine is required."
+          UI.user_error! "A macOS machine is required to process iOS symbols."
         end
 
         if params[:downloadDsyms] == true         
