@@ -1,9 +1,8 @@
 require 'fastlane_core/ui/ui'
 require 'digest'
-require 'net/http'
+require 'net/https'
 require 'tempfile'
 require 'uri'
-
 
 module Fastlane
   UI = FastlaneCore::UI unless Fastlane.const_defined?("UI")
@@ -120,6 +119,20 @@ module Fastlane
         else
           return params[:server]
         end
+      end
+
+      def self.put_android_symbols(params, bundleId)
+        path = "/api/config/v1/symfiles/#{params[:appId]}/#{bundleId}/ANDROID/#{params[:version]}/#{params[:versionStr]}"
+
+        req = Net::HTTP::Put.new(path, initheader = { 'Content-Type' => 'text/plain',
+                                                      'Authorization' => "Api-Token #{params[:apitoken]}"} )
+
+        req.body = IO.read(params[:symbolsfile])
+        http = Net::HTTP.new(self.get_server_base_url(params), 443)
+        http.use_ssl = true
+        response = http.request(req)
+
+        response.code
       end
 
       private
