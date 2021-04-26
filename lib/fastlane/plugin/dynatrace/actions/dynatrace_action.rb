@@ -101,7 +101,7 @@ module Fastlane
             raise 'No dSYM paths found!'
           end
         else
-          UI.error "dSYM download disabled, using local path (#{params[:symbolsfile]})"
+          UI.important "dSYM download disabled, using local path (#{params[:symbolsfile]})"
           dsym_paths << params[:symbolsfile] if params[:symbolsfile]
         end
 
@@ -125,7 +125,7 @@ module Fastlane
         command << "versionStr=\"#{params[:versionStr]}\""
         command << "version=\"#{params[:version]}\""
         command << symbolFilesCommandSnippet
-        command << "server=\"#{Helper::DynatraceHelper.get_host_name(params)}\""
+        command << "server=\"#{Helper::DynatraceHelper.get_base_url(params)}\""
         command << "DTXLogLevel=ALL -verbose" if params[:debugMode] == true
         command << "forced=1" # if the file already exists
 

@@ -21,7 +21,7 @@ module Fastlane
         end
 
         # get latest version info
-        clientUri = URI("#{self.get_host_name(params)}/api/config/v1/symfiles/dtxdss-download?Api-Token=#{params[:apitoken]}")
+        clientUri = URI("#{self.get_base_url(params)}/api/config/v1/symfiles/dtxdss-download?Api-Token=#{params[:apitoken]}")
         response = Net::HTTP.get_response(clientUri)
 
         # filter any http errors
@@ -111,6 +111,11 @@ module Fastlane
           end
         end
         return dtxDssClientPath
+      end
+
+      def self.get_base_url(params)
+        uri = URI.split(params[:server])
+        return uri[0] + '://' + uri[2]
       end
 
       def self.get_host_name(params)
