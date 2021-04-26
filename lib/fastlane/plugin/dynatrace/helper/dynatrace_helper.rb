@@ -1,6 +1,6 @@
 require 'fastlane_core/ui/ui'
 require 'digest'
-require 'net/https'
+require 'net/http'
 require 'tempfile'
 require 'uri'
 
