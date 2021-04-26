@@ -125,7 +125,7 @@ module Fastlane
         command << "versionStr=\"#{params[:versionStr]}\""
         command << "version=\"#{params[:version]}\""
         command << symbolFilesCommandSnippet
-        command << "server=\"#{Helper::DynatraceHelper.get_server_base_url(params)}\""
+        command << "server=\"#{Helper::DynatraceHelper.get_host_name(params)}\""
         command << "DTXLogLevel=ALL -verbose" if params[:debugMode] == true
         command << "forced=1" # if the file already exists
 

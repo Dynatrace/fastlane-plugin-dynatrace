@@ -407,18 +407,18 @@ describe Fastlane::Helper::DynatraceHelper do
     end
   end
 
-  describe ".get_server_base_url" do
+  describe ".get_host_name" do
     context "given 'https://dynatrace.com/'" do
-      it "returns https://dynatrace.com" do
+      it "returns dynatrace.com" do
         dict = { :server => "https://dynatrace.com/" }
-        expect(Fastlane::Helper::DynatraceHelper.get_server_base_url(dict)).to eql("https://dynatrace.com")
+        expect(Fastlane::Helper::DynatraceHelper.get_host_name(dict)).to eql("dynatrace.com")
       end
     end
 
-    context "given 'https://dynatrace.com'" do
-      it "returns https://dynatrace.com" do
-        dict = { :server => "https://dynatrace.com" }
-        expect(Fastlane::Helper::DynatraceHelper.get_server_base_url(dict)).to eql("https://dynatrace.com")
+    context "given 'dynatrace.com/'" do
+      it "returns dynatrace.com" do
+        dict = { :server => "dynatrace.com/" }
+        expect(Fastlane::Helper::DynatraceHelper.get_host_name(dict)).to eql("dynatrace.com")
       end
     end
   end

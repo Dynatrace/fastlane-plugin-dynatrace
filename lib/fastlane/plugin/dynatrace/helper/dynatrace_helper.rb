@@ -21,7 +21,7 @@ module Fastlane
         end
 
         # get latest version info
-        clientUri = URI("#{self.get_server_base_url(params)}/api/config/v1/symfiles/dtxdss-download?Api-Token=#{params[:apitoken]}")
+        clientUri = URI("#{self.get_host_name(params)}/api/config/v1/symfiles/dtxdss-download?Api-Token=#{params[:apitoken]}")
         response = Net::HTTP.get_response(clientUri)
 
         # filter any http errors
@@ -113,11 +113,18 @@ module Fastlane
         return dtxDssClientPath
       end
 
-      def self.get_server_base_url(params)
-        if params[:server][-1] == '/'
-          return params[:server][0..-2]
+      def self.get_host_name(params)
+        uri = URI.split(params[:server])
+
+        unless uri[2].nil?
+          return uri[2]
+        end
+
+        # no procotol prefix -> host name is with path
+        if uri[5][-1] == '/'
+          return uri[5][0..-2] # remove trailing /
         else
-          return params[:server]
+          return uri[5]
         end
       end
 
@@ -128,7 +135,7 @@ module Fastlane
                                                       'Authorization' => "Api-Token #{params[:apitoken]}"} )
 
         req.body = IO.read(params[:symbolsfile])
-        http = Net::HTTP.new(self.get_server_base_url(params), 443)
+        http = Net::HTTP.new(self.get_host_name(params), 443)
         http.use_ssl = true
         response = http.request(req)
 
