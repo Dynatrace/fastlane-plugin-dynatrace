@@ -2,7 +2,9 @@ require 'fastlane/action'
 require 'net/http'
 require 'open-uri'
 require 'zip'
-require "fileutils"
+require 'fileutils'
+require 'os'
+require 'json'
 require_relative '../helper/dynatrace_helper'
 
 module Fastlane
@@ -26,64 +28,87 @@ module Fastlane
           UI.message "BundleID: #{bundleId}"
         end
 
+        if params[:os] == "android"
+          response = Helper::DynatraceHelper.put_android_symbols(params, bundleId)
+          case response.code
+            when '204'
+              UI.success "Successfully uploaded the mapping file (#{params[:symbolsfile]}) to Dynatrace."
+            when '400'
+              UI.user_error! "Failed to upload. The input is invalid."
+            when '401'
+              UI.user_error! "Invalid Dynatrace API token. See https://www.dynatrace.com/support/help/dynatrace-api/basics/dynatrace-api-authentication/#token-permissions and https://www.dynatrace.com/support/help/dynatrace-api/configuration-api/mobile-symbolication-api/"
+            when '413'
+              UI.user_error! "Failed to upload. The symbol file storage quota is exhausted. See https://www.dynatrace.com/support/help/shortlink/mobile-symbolication#manage-the-uploaded-symbol-files for more information."
+            else
+              message = JSON.parse(response.body)["error"]["message"]
+              if message.nil?
+                UI.user_error! "Symbol upload error (Response Code: #{response.code}). Please try again in a few minutes or contact the Dynatrace support (https://www.dynatrace.com/services-support/)." 
+              else
+                UI.user_error! "Symbol upload error (Response Code: #{response.code}). #{message}" 
+              end
+          end
+          return
+        elsif params[:os] != "ios"
+          UI.user_error! "Unsopported value os=#{params[:os]}"
+        end
+
+        # iOS workflow
         dtxDssClientPath = Helper::DynatraceHelper.get_dss_client(params)
 
         dsym_paths = []
         symbolFilesKey = "symbolsfile" # default to iOS
 
-        if params[:os] == "ios"
-          if params[:downloadDsyms] == true         
-            UI.message "Downloading dSYMs from App Store Connect"
-            startTime = Time.now
+        if !OS.mac?
+          UI.user_error! "A macOS machine is required to process iOS symbols."
+        end
 
-            UI.message "Checking AppFile for possible username/AppleID" 
-            username = CredentialsManager::AppfileConfig.try_fetch_value(:apple_id)
-            if username
-              UI.message "Using #{username} from your AppFile" 
-            else
-              username = params[:username]
-              UI.message "Didn't find a username in AppFile, using passed username parameter: #{params[:username]}"
-            end
+        if params[:downloadDsyms] == true         
+          UI.message "Downloading dSYMs from App Store Connect"
+          startTime = Time.now
 
-            # it takes a couple of minutes until the new build is available through the API
-            #  -> retry until available
-            while params[:waitForDsymProcessing] and # wait is active
-                  !lane_context[SharedValues::DSYM_PATHS] and # has dsym path
-                  (Time.now - startTime) < params[:waitForDsymProcessingTimeout] # is in time
-
-              Actions::DownloadDsymsAction.run(wait_for_dsym_processing: params[:waitForDsymProcessing],
-                                              wait_timeout: (params[:waitForDsymProcessingTimeout] - (Time.now - startTime)).round(0), # remaining timeout
-                                              app_identifier: bundleId,
-                                              username: username,
-                                              version: params[:version],
-                                              build_number: params[:versionStr],
-                                              platform: :ios) # should be optional (Hint: it's not)
-
-              if !lane_context[SharedValues::DSYM_PATHS] and (Time.now - startTime) < params[:waitForDsymProcessingTimeout]
-                UI.message "Version #{params[:version]} (Build #{params[:versionStr]}) isn't listed yet, retrying in 60 seconds (timeout in #{(params[:waitForDsymProcessingTimeout] - (Time.now - startTime)).round(0)} seconds)."
-                sleep(60)
-              end
-            end
-
-            if (Time.now - startTime) > params[:waitForDsymProcessingTimeout]
-              UI.user_error!("Timeout during dSYM download. Try increasing :waitForDsymProcessingTimeout.")
-            end
-
-            dsym_paths += Actions.lane_context[SharedValues::DSYM_PATHS] if Actions.lane_context[SharedValues::DSYM_PATHS]
-
-            if dsym_paths.count > 0
-              UI.message "Downloaded the dSYMs from App Store Connect. Paths: #{dsym_paths}"
-            else
-              raise 'No dSYM paths found!'
-            end
+          UI.message "Checking AppFile for possible username/AppleID" 
+          username = CredentialsManager::AppfileConfig.try_fetch_value(:apple_id)
+          if username
+            UI.message "Using #{username} from your AppFile" 
           else
-            UI.error "dSYM download disabled, using local path (#{params[:symbolsfile]})"
-            dsym_paths << params[:symbolsfile] if params[:symbolsfile]
+            username = params[:username]
+            UI.message "Didn't find a username in AppFile, using passed username parameter: #{params[:username]}"
           end
 
-        else # android
-           dsym_paths << params[:symbolsfile] if params[:symbolsfile]
-           symbolFilesKey = "file"
+          # it takes a couple of minutes until the new build is available through the API
+          #  -> retry until available
+          while params[:waitForDsymProcessing] and # wait is active
+                !lane_context[SharedValues::DSYM_PATHS] and # has dsym path
+                (Time.now - startTime) < params[:waitForDsymProcessingTimeout] # is in time
+
+            Actions::DownloadDsymsAction.run(wait_for_dsym_processing: params[:waitForDsymProcessing],
+                                            wait_timeout: (params[:waitForDsymProcessingTimeout] - (Time.now - startTime)).round(0), # remaining timeout
+                                            app_identifier: bundleId,
+                                            username: username,
+                                            version: params[:version],
+                                            build_number: params[:versionStr],
+                                            platform: :ios) # should be optional (Hint: it's not)
+
+            if !lane_context[SharedValues::DSYM_PATHS] and (Time.now - startTime) < params[:waitForDsymProcessingTimeout]
+              UI.message "Version #{params[:version]} (Build #{params[:versionStr]}) isn't listed yet, retrying in 60 seconds (timeout in #{(params[:waitForDsymProcessingTimeout] - (Time.now - startTime)).round(0)} seconds)."
+              sleep(60)
+            end
+          end
+
+          if (Time.now - startTime) > params[:waitForDsymProcessingTimeout]
+            UI.user_error!("Timeout during dSYM download. Try increasing :waitForDsymProcessingTimeout.")
+          end
+
+          dsym_paths += Actions.lane_context[SharedValues::DSYM_PATHS] if Actions.lane_context[SharedValues::DSYM_PATHS]
+
+          if dsym_paths.count > 0
+            UI.message "Downloaded the dSYMs from App Store Connect. Paths: #{dsym_paths}"
+          else
+            raise 'No dSYM paths found!'
+          end
+        else
+          UI.important "dSYM download disabled, using local path (#{params[:symbolsfile]})"
+          dsym_paths << params[:symbolsfile] if params[:symbolsfile]
         end
 
         # check if we have dSYMs to proceed with
@@ -106,7 +131,7 @@ module Fastlane
         command << "versionStr=\"#{params[:versionStr]}\""
         command << "version=\"#{params[:version]}\""
         command << symbolFilesCommandSnippet
-        command << "server=\"#{Helper::DynatraceHelper.get_server_base_url(params)}\""
+        command << "server=\"#{Helper::DynatraceHelper.get_base_url(params)}\""
         command << "DTXLogLevel=ALL -verbose" if params[:debugMode] == true
         command << "forced=1" # if the file already exists
 
