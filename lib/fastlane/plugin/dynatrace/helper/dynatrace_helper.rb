@@ -142,9 +142,7 @@ module Fastlane
         req.body = IO.read(params[:symbolsfile])
         http = Net::HTTP.new(self.get_host_name(params), 443)
         http.use_ssl = true
-        response = http.request(req)
-
-        response.code
+        http.request(req)
       end
 
       private

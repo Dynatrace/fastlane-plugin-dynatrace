@@ -4,6 +4,7 @@ require 'open-uri'
 require 'zip'
 require 'fileutils'
 require 'os'
+require 'json'
 require_relative '../helper/dynatrace_helper'
 
 module Fastlane
@@ -28,8 +29,8 @@ module Fastlane
         end
 
         if params[:os] == "android"
-          response_code = Helper::DynatraceHelper.put_android_symbols(params, bundleId)
-          case response_code
+          response = Helper::DynatraceHelper.put_android_symbols(params, bundleId)
+          case response.code
             when '204'
               UI.success "Successfully uploaded the mapping file (#{params[:symbolsfile]}) to Dynatrace."
             when '400'
@@ -39,7 +40,12 @@ module Fastlane
             when '413'
               UI.user_error! "Failed to upload. The symbol file storage quota is exhausted. See https://www.dynatrace.com/support/help/shortlink/mobile-symbolication#manage-the-uploaded-symbol-files for more information."
             else
-              UI.user_error! "Unknown upload error (code=#{response_code})." 
+              message = JSON.parse(response.body)["error"]["message"]
+              if message.nil?
+                UI.user_error! "Symbol upload error (Response Code: #{response.code}). Please try again in a few minutes or contact the Dynatrace support (https://www.dynatrace.com/services-support/)." 
+              else
+                UI.user_error! "Symbol upload error (Response Code: #{response.code}). #{message}" 
+              end
           end
           return
         elsif params[:os] != "ios"
