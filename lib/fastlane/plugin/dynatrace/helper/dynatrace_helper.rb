@@ -21,7 +21,7 @@ module Fastlane
         end
 
         # get latest version info
-        clientUri = URI("#{self.get_base_url(params)}/api/config/v1/symfiles/dtxdss-download?Api-Token=#{params[:apitoken]}")
+        clientUri = URI("#{self.without_trailing_slash(params[:server])}/api/config/v1/symfiles/dtxdss-download?Api-Token=#{params[:apitoken]}")
         response = Net::HTTP.get_response(clientUri)
 
         # filter any http errors
@@ -113,9 +113,12 @@ module Fastlane
         return dtxDssClientPath
       end
 
-      def self.get_base_url(params)
-        uri = URI.split(params[:server])
-        return uri[0] + '://' + uri[2]
+      def self.without_trailing_slash(server)
+        if server[-1] == '/'
+          return server[0..-2]
+        else
+          return server
+        end
       end
 
       def self.get_host_name(params)
@@ -135,6 +138,16 @@ module Fastlane
 
       def self.put_android_symbols(params, bundleId)
         path = "/api/config/v1/symfiles/#{params[:appId]}/#{bundleId}/ANDROID/#{params[:version]}/#{params[:versionStr]}"
+
+        # if path points to dynatrace managed, we need to prepend the path component from the server (/e/{your-environment-id})
+        if params[:server].include? '/e/'
+          uri = URI.split(params[:server])
+          if uri[5].nil?
+            UI.user_error! "The path component of your managed Dynatrace URL is empty. Does does server URL follow the correct pattern (https://{your-domain}/e/{your-environment-id})?"
+          end
+          path = self.without_trailing_slash(uri[5]) + path
+        end
+
 
         req = Net::HTTP::Put.new(path, initheader = { 'Content-Type' => 'text/plain',
                                                       'Authorization' => "Api-Token #{params[:apitoken]}"} )

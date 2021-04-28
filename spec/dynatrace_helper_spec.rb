@@ -407,11 +407,22 @@ describe Fastlane::Helper::DynatraceHelper do
     end
   end
 
-  describe ".get_base_url" do
+  describe ".without_trailing_slash" do
     context "given 'https://dynatrace.com/'" do
       it "returns https://dynatrace.com" do
-        dict = { :server => "https://dynatrace.com/" }
-        expect(Fastlane::Helper::DynatraceHelper.get_base_url(dict)).to eql("https://dynatrace.com")
+        expect(Fastlane::Helper::DynatraceHelper.without_trailing_slash("https://dynatrace.com/")).to eql("https://dynatrace.com")
+      end
+    end
+
+    context "given 'https://your-domain.com/e/your-environment-id/'" do
+      it "returns https://your-domain.com/e/your-environment-id" do
+        expect(Fastlane::Helper::DynatraceHelper.without_trailing_slash("https://your-domain.com/e/your-environment-id/")).to eql("https://your-domain.com/e/your-environment-id")
+      end
+    end
+
+    context "given 'https://your-domain.com/e/your-environment-id'" do
+      it "returns https://your-domain.com/e/your-environment-id" do
+        expect(Fastlane::Helper::DynatraceHelper.without_trailing_slash("https://your-domain.com/e/your-environment-id")).to eql("https://your-domain.com/e/your-environment-id")
       end
     end
   end
@@ -428,6 +439,13 @@ describe Fastlane::Helper::DynatraceHelper do
       it "returns dynatrace.com" do
         dict = { :server => "dynatrace.com/" }
         expect(Fastlane::Helper::DynatraceHelper.get_host_name(dict)).to eql("dynatrace.com")
+      end
+    end
+
+    context "given 'https://your-domain.com/e/your-environment-id/api/blablub'" do
+      it "returns your-domain.com" do
+        dict = { :server => "https://your-domain.com/e/your-environment-id/api/blablub" }
+        expect(Fastlane::Helper::DynatraceHelper.get_host_name(dict)).to eql("your-domain.com")
       end
     end
   end
