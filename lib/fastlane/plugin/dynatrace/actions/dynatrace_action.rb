@@ -40,7 +40,10 @@ module Fastlane
             when '413'
               UI.user_error! "Failed to upload. The symbol file storage quota is exhausted. See https://www.dynatrace.com/support/help/shortlink/mobile-symbolication#manage-the-uploaded-symbol-files for more information."
             else
-              message = JSON.parse(response.body)["error"]["message"]
+              message = nil
+              unless response.body.nil?
+                message = JSON.parse(response.body)["error"]["message"]
+              end
               if message.nil?
                 UI.user_error! "Symbol upload error (Response Code: #{response.code}). Please try again in a few minutes or contact the Dynatrace support (https://www.dynatrace.com/services-support/)." 
               else

@@ -123,7 +123,7 @@ describe Fastlane::Actions::DynatraceProcessSymbolsAction do
 
             flhash = FastlaneCore::Configuration.create([apitoken, os, versionStr, version, server, bundleId, symbolsfile, dtxDssClientPath, appId], dict)    
 
-            response = Net::HTTPSuccess.new(1.0, '400', 'Bad Request')
+            response = Net::HTTPClientError.new(1.0, '400', 'Bad Request')
             expect_any_instance_of(Net::HTTP).to receive(:request) { response }    
 
             expect{
@@ -155,7 +155,7 @@ describe Fastlane::Actions::DynatraceProcessSymbolsAction do
 
             flhash = FastlaneCore::Configuration.create([apitoken, os, versionStr, version, server, bundleId, symbolsfile, dtxDssClientPath, appId], dict)    
 
-            response = Net::HTTPSuccess.new(1.0, '401', 'Unauthorized')
+            response = Net::HTTPClientError.new(1.0, '401', 'Unauthorized')
             expect_any_instance_of(Net::HTTP).to receive(:request) { response }    
 
             expect{
@@ -187,7 +187,7 @@ describe Fastlane::Actions::DynatraceProcessSymbolsAction do
 
             flhash = FastlaneCore::Configuration.create([apitoken, os, versionStr, version, server, bundleId, symbolsfile, dtxDssClientPath, appId], dict)    
 
-            response = Net::HTTPSuccess.new(1.0, '413', 'Quota Exceeded')
+            response = Net::HTTPClientError.new(1.0, '413', 'Quota Exceeded')
             expect_any_instance_of(Net::HTTP).to receive(:request) { response }    
 
             expect{
@@ -219,8 +219,43 @@ describe Fastlane::Actions::DynatraceProcessSymbolsAction do
 
             flhash = FastlaneCore::Configuration.create([apitoken, os, versionStr, version, server, bundleId, symbolsfile, dtxDssClientPath, appId], dict)    
 
-            response = Net::HTTPSuccess.new(1.0, '444', 'Idk')
-            expect_any_instance_of(Net::HTTP).to receive(:request) { response }    
+            response = Net::HTTPClientError.new(1.0, '444', 'Idk')
+            expect_any_instance_of(Net::HTTP).to receive(:request) { response }
+            expect_any_instance_of(Net::HTTPClientError).to receive(:body).and_return(nil)
+
+            expect{
+                Fastlane::Actions::DynatraceProcessSymbolsAction.run(flhash)
+            }.to raise_error(FastlaneCore::Interface::FastlaneError)
+        end
+
+        it "uploads a local symbol file but has an unknown error response with message" do
+            # mock config
+            apitoken = FastlaneCore::ConfigItem.new(key: :apitoken, type: String, optional: false)
+            os = FastlaneCore::ConfigItem.new(key: :os, type: String, optional: false)
+            versionStr = FastlaneCore::ConfigItem.new(key: :versionStr, type: String, optional: false)
+            version = FastlaneCore::ConfigItem.new(key: :version, type: String, optional: false)
+            server = FastlaneCore::ConfigItem.new(key: :server, type: String, optional: false)
+            bundleId = FastlaneCore::ConfigItem.new(key: :bundleId, type: String, optional: false)
+            symbolsfile = FastlaneCore::ConfigItem.new(key: :symbolsfile, type: String, optional: false)
+            dtxDssClientPath = FastlaneCore::ConfigItem.new(key: :dtxDssClientPath, type: String, optional: false)
+            appId = FastlaneCore::ConfigItem.new(key: :appId, type: String, optional: false)    
+
+            dict = { :apitoken => "",
+                     :os => "android",
+                     :versionStr => "123",
+                     :version => "456",
+                     :server => "https://dynatrace.com",
+                     :bundleId => "com.dynatrace.fastlanetest",
+                     :symbolsfile => Dir.pwd + "/spec/testdata/android-mapping-test.txt",
+                     :dtxDssClientPath => "",
+                     :appId => "abcdefg" }    
+
+            flhash = FastlaneCore::Configuration.create([apitoken, os, versionStr, version, server, bundleId, symbolsfile, dtxDssClientPath, appId], dict)    
+
+            response = Net::HTTPClientError.new(1.0, '444', 'Idk')
+            expect_any_instance_of(Net::HTTP).to receive(:request) { response }
+            expect_any_instance_of(Net::HTTPClientError).to receive(:body).and_return('{ "error": { "message": "test message" } }')
+            expect_any_instance_of(Net::HTTPClientError).to receive(:body).and_return('{ "error": { "message": "test message" } }')
 
             expect{
                 Fastlane::Actions::DynatraceProcessSymbolsAction.run(flhash)
