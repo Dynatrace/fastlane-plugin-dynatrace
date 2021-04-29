@@ -143,7 +143,7 @@ module Fastlane
         if params[:server].include? '/e/'
           uri = URI.split(params[:server])
           if uri[5].nil?
-            UI.user_error! "The path component of your managed Dynatrace URL is empty. Does does server URL follow the correct pattern (https://{your-domain}/e/{your-environment-id})?"
+            UI.user_error! "The path component of your managed Dynatrace URL is empty. Does the server URL follow the correct pattern (https://{your-domain}/e/{your-environment-id})?"
           end
           path = self.without_trailing_slash(uri[5]) + path
         end
