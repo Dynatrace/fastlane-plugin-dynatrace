@@ -51,11 +51,11 @@ module Fastlane
               end
           end
           return
-        elsif params[:os] != "ios"
+        elsif params[:os] != "ios" && params[:os] != "tvos"
           UI.user_error! "Unsopported value os=#{params[:os]}"
         end
 
-        # iOS workflow
+        # iOS/tvOS workflow
         dtxDssClientPath = Helper::DynatraceHelper.get_dss_client(params)
 
         dsym_paths = []
@@ -90,7 +90,7 @@ module Fastlane
                                             username: username,
                                             version: params[:version],
                                             build_number: params[:versionStr],
-                                            platform: :ios) # should be optional (Hint: it's not)
+                                            platform: params[:os] == "ios" ? :ios : :appletvos)
 
             if !lane_context[SharedValues::DSYM_PATHS] and (Time.now - startTime) < params[:waitForDsymProcessingTimeout]
               UI.message "Version #{params[:version]} (Build #{params[:versionStr]}) isn't listed yet, retrying in 60 seconds (timeout in #{(params[:waitForDsymProcessingTimeout] - (Time.now - startTime)).round(0)} seconds)."
@@ -205,11 +205,11 @@ module Fastlane
 
           FastlaneCore::ConfigItem.new(key: :os,
                                        env_name: "FL_UPLOAD_TO_DYNATRACE_OS",
-                                       description: "The type of the symbol files, either \"ios\" or \"android\"",
+                                       description: "The type of the symbol files, either \"ios\", \"tvos\" or \"android\"",
                                        sensitive: false,
                                        optional: false,
                                        verify_block: proc do |value|
-                                          UI.user_error!("Please specify the type of the symbol files. Possible values are \"ios\" or \"android\".") unless (value and not value.empty? and (value == "ios" || value =="android"))
+                                          UI.user_error!("Please specify the type of the symbol files. Possible values are \"ios\", \"tvos\" or \"android\".") unless (value and not value.empty? and (value == "ios" || value == "tvos" || value =="android"))
                                        end),
 
           FastlaneCore::ConfigItem.new(key: :apitoken,

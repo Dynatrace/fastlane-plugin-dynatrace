@@ -131,7 +131,7 @@ describe Fastlane::Actions::DynatraceProcessSymbolsAction do
             }.to raise_error(FastlaneCore::Interface::FastlaneError)
       end
 
-        it "uploads a local symbol file but auth token is valid" do
+        it "uploads a local symbol file but auth token is invalid" do
             # mock config
             apitoken = FastlaneCore::ConfigItem.new(key: :apitoken, type: String, optional: false)
             os = FastlaneCore::ConfigItem.new(key: :os, type: String, optional: false)
