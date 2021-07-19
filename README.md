@@ -13,9 +13,9 @@ fastlane add_plugin dynatrace
 ⚠️  The way Apple introduced the two-factor authentication interferes with a fully automated workflow. The workaround requires manual interaction. For more information, see **App Store Connect Two-Factor-Authentication** section below for details.
 
 ## About the Dynatrace fastlane plugin
-The Dynatrace fastlane plugin manages uploading symbol files (iOS) or obfuscation mapping files (Android) to the Dynatrace cluster. Symbol and mapping files are used to make reported stack traces human-readable. The plugin also allows to download the latest dSYM files from App Store Connect, which enables full automation of the mobile app deployment, and the pre-processing of dSYM files, a step that is necessary for the Dynatrace cluster to be able to symbolicate.
+The Dynatrace fastlane plugin manages uploading symbol files (iOS, tvOS) or obfuscation mapping files (Android) to the Dynatrace cluster. Symbol and mapping files are used to make reported stack traces human-readable. The plugin also allows to download the latest dSYM files from App Store Connect, which enables full automation of the mobile app deployment, and the pre-processing of dSYM files, a step that is necessary for the Dynatrace cluster to be able to symbolicate.
 
-The plugin provides a single action `dynatrace_process_symbols`. The configuration depends on whether the app is (A) iOS and Bitcode-enabled or (B) iOS and not Bitcode-enabled or an Android app.
+The plugin provides a single action `dynatrace_process_symbols`. The configuration depends on whether the app is (A) iOS and Bitcode-enabled or (B) iOS/tvOS and not Bitcode-enabled or an Android app.
 
 For Bitcode-enabled iOS apps we recommend to let the plugin handle the download of the dSYM files from App Store Connect and upload to Dynatrace.
 
@@ -74,10 +74,10 @@ After a completed upload to App Store Connect, there is some waiting time before
 > Note: this timeout is the **maximum** waiting time. If the symbol files are ready sooner, the plugin will continue to the download and will not wait for the whole duration of the timeout.
 
 
-## B) Not Bitcode-enabled iOS apps or Android apps
+## B) Not Bitcode-enabled iOS/tvOS apps or Android apps
 If at least one of the following conditions is true, you should follow this approach:
 
-* **not** using Bitcode for your iOS app
+* **not** using Bitcode for your iOS/tvOS app
 * already downloaded the new symbol files from App Store Connect manually
 * deploy an Android app
 
@@ -88,10 +88,10 @@ Use the parameter `symbolsfile` to provide a relative path to the symbols file.
 dynatrace_process_symbols(
 	appId: "<Dynatrace application ID>",
 	apitoken: "<Dynatrace API Token>",
-	os: "<ios> or <android>",
-	bundleId: "<CFBundlebundleId (iOS) / package (Android)>",
-	versionStr: "<CFBundleShortVersionString (iOS) / versionName (Android)>",
-	version: "<CFBundleVersion (iOS) / versionCode (Android)>",
+	os: "<ios>, <tvos> or <android>",
+	bundleId: "<CFBundlebundleId (iOS, tvOS) / package (Android)>",
+	versionStr: "<CFBundleShortVersionString (iOS, tvOS) / versionName (Android)>",
+	version: "<CFBundleVersion (iOS, tvOS) / versionCode (Android)>",
 	server: "<Dynatrace Environment URL>",
 	symbolsfile: "<Symbols File Path>"
 )
@@ -100,18 +100,18 @@ dynatrace_process_symbols(
 ## List of all Parameters
 | Key                          | Description                                                                                                                                                           | default value  |
 |------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------|----------------|
-| action                       | *(iOS only)* Action to be performed by DTXDssClient (`upload` or `decode`).                                                                                           | `upload`       |
-| downloadDsyms                | *(iOS only)* Download the dSYMs from App Store Connect.                                                                                                               | `false`        |
-| waitForDsymProcessing        | *(iOS only)* Wait for dSYM processing to be finished.                                                                                                                  | `true`         |
-| waitForDsymProcessingTimeout | *(iOS only)* Timeout in seconds to wait for the dSYMs be downloadable.                                                                                                | `1800`         |
-| username                     | *(iOS only)* The username/AppleID to use to download the dSYMs. Alternatively you can specify this in your AppFile as `apple_id`.                                     |                |
-| os                           | The type of the symbol files, either `ios` or `android`.                                                                                                              |                |
+| action                       | *(iOS/tvOS only)* Action to be performed by DTXDssClient (`upload` or `decode`).                                                                                           | `upload`       |
+| downloadDsyms                | *(iOS/tvOS only)* Download the dSYMs from App Store Connect.                                                                                                               | `false`        |
+| waitForDsymProcessing        | *(iOS/tvOS only)* Wait for dSYM processing to be finished.                                                                                                                  | `true`         |
+| waitForDsymProcessingTimeout | *(iOS/tvOS only)* Timeout in seconds to wait for the dSYMs be downloadable.                                                                                                | `1800`         |
+| username                     | *(iOS/tvOS only)* The username/AppleID to use to download the dSYMs. Alternatively you can specify this in your AppFile as `apple_id`.                                     |                |
+| os                           | The type of the symbol files, either `ios`, `tvOS` or `android`.                                                                                                              |                |
 | apitoken                     | Dynatrace API token with mobile symbolication permissions.                                                                                                            |                |
 | dtxDssClientPath             | **(DEPRECATED)** The path to your DTXDssClient. The DTXDssClient is downloaded and updated automatically, unless this key is set.                                     |                |
 | appID                        | The application ID you get from your Dynatrace environment.                                                                                                           |                |
-| bundleId                     | The CFBundlebundleId (iOS) / package (Android) of the application. Alternatively you can specify this in your AppFile as `app_identifier`.                            |                |
-| versionStr                   | The CFBundleShortVersionString (iOS) / versionName (Android)                                                                                                          |                |
-| version                      | The CFBundleVersion (iOS) / versionCode (Android). Is also used for the dSYM download.                                                                                |                |
+| bundleId                     | The CFBundlebundleId (iOS, tvOS) / package (Android) of the application. Alternatively you can specify this in your AppFile as `app_identifier`.                            |                |
+| versionStr                   | The CFBundleShortVersionString (iOS, tvOS) / versionName (Android)                                                                                                          |                |
+| version                      | The CFBundleVersion (iOS, tvOS) / versionCode (Android). Is also used for the dSYM download.                                                                                |                |
 | symbolsfile                  | Path to the dSYM file to be processed. If downloadDsyms is set, this is only a fallback.                                                                              |                |
 | server                       | The API endpoint for the Dynatrace environment (e.g. `https://environmentID.live.dynatrace.com` or `https://dynatrace-managed.com/e/environmentID`).                  |                |
 | debugMode                    | Enable debug logging.                                                                                                                                                 | false          |
@@ -147,4 +147,4 @@ If you have trouble using plugins, check out the [Plugins Troubleshooting](https
 For more information about how the `fastlane` plugin system works, check out the [Plugins documentation](https://docs.fastlane.tools/plugins/create-plugin/).
 
 ## About _fastlane_
-_fastlane_ is the easiest way to automate beta deployments and releases for your iOS and Android apps. To learn more, check out [fastlane.tools](https://fastlane.tools).
+_fastlane_ is the easiest way to automate beta deployments and releases for your iOS, tvOS and Android apps. To learn more, check out [fastlane.tools](https://fastlane.tools).
