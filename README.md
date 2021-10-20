@@ -114,6 +114,7 @@ dynatrace_process_symbols(
 | version                      | The CFBundleVersion (iOS, tvOS) / versionCode (Android). Is also used for the dSYM download.                                                                                |                |
 | symbolsfile                  | Path to the dSYM file to be processed. If downloadDsyms is set, this is only a fallback.                                                                              |                |
 | server                       | The API endpoint for the Dynatrace environment (e.g. `https://environmentID.live.dynatrace.com` or `https://dynatrace-managed.com/e/environmentID`).                  |                |
+| cleanBuildArtifacts | Clean build artifacts after processing.                                                                                         | `true`         |
 | debugMode                    | Enable debug logging.                                                                                                                                                 | false          |
 
 ## App Store Connect Two-Factor-Authentication
@@ -135,7 +136,7 @@ You can generate a session by running `fastlane spaceauth -u user@email.com` on 
 Try it by cloning the repo, running `fastlane install_plugins` and `bundle exec fastlane test`.
 
 ## Tests
-This plugin includes a set of RSpec unit tests, which can be executed by running ` bundle exec rspec spec`.
+This plugin includes a set of RSpec unit tests, which can be executed by running `bundle exec rspec spec`.
 
 ## Issues and Feedback
 For any other issues and feedback about this plugin, please submit it to this repository or contact [Dynatrace Support](https://support.dynatrace.com).
