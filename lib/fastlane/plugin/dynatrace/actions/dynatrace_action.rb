@@ -158,7 +158,7 @@ module Fastlane
           end
         })
 
-        if params[:cleanBuildArtifacts] == true
+        if params[:cleanBuildArtifacts]
           UI.message "Cleaning build artifacts"
           Fastlane::Actions::CleanBuildArtifactsAction.run(exclude_pattern: nil)
         end
