@@ -158,8 +158,10 @@ module Fastlane
           end
         })
 
-        UI.message "Cleaning build artifacts"
-        Fastlane::Actions::CleanBuildArtifactsAction.run(exclude_pattern: nil)
+        if params[:cleanBuildArtifacts]
+          UI.message "Cleaning build artifacts"
+          Fastlane::Actions::CleanBuildArtifactsAction.run(exclude_pattern: nil)
+        end
       end
 
       def self.description
@@ -265,6 +267,12 @@ module Fastlane
                                        verify_block: proc do |value|
                                           UI.user_error!("Please provide your environment API endpoint. Pass using `server: 'server'`") unless (value and not value.empty?)
                                        end),
+
+          FastlaneCore::ConfigItem.new(key: :cleanBuildArtifacts,
+                                       env_name: "FL_UPLOAD_TO_DYNATRACE_CLEAN_BUILD_ARTIFACTS",
+                                       default_value: true,
+                                       is_string: false,
+                                       description: "Clean build artifacts after processing"),
 
           FastlaneCore::ConfigItem.new(key: :debugMode,
                                        env_name: "FL_UPLOAD_TO_DYNATRACE_DEBUG_MODE",
