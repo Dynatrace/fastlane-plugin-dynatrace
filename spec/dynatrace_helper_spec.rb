@@ -9,7 +9,7 @@ describe Fastlane::Helper::DynatraceHelper do
         server = FastlaneCore::ConfigItem.new(key: :server, type: String, optional: false)
         apitoken = FastlaneCore::ConfigItem.new(key: :apitoken, type: String, optional: false)
         dict = { :server => "https://dynatrace.com/",
-                 :apitoken => "9df8gzjn" }
+                 :apitoken => "this_is_just_a_mock_token_dont_report_pls" }
 
         flhash = FastlaneCore::Configuration.create([server, apitoken], dict)
 
@@ -46,7 +46,7 @@ describe Fastlane::Helper::DynatraceHelper do
         apitoken = FastlaneCore::ConfigItem.new(key: :apitoken, type: String, optional: false)
         dtxDssClientPath = FastlaneCore::ConfigItem.new(key: :dtxDssClientPath, type: String, optional: false)
         dict = { :server => "https://dynatrace.com/",
-                 :apitoken => "9df8gzjn",
+                 :apitoken => "this_is_just_a_mock_token_dont_report_pls",
                  :dtxDssClientPath => "dynatrace/DTXDssClient123" }
 
         flhash = FastlaneCore::Configuration.create([server, apitoken, dtxDssClientPath], dict)
@@ -60,7 +60,7 @@ describe Fastlane::Helper::DynatraceHelper do
         server = FastlaneCore::ConfigItem.new(key: :server, type: String, optional: false)
         apitoken = FastlaneCore::ConfigItem.new(key: :apitoken, type: String, optional: false)
         dict = { :server => "https://dynatrace.com/",
-                 :apitoken => "9df8gzjn" }
+                 :apitoken => "this_is_just_a_mock_token_dont_report_pls" }
 
         flhash = FastlaneCore::Configuration.create([server, apitoken], dict)
 
@@ -81,7 +81,7 @@ describe Fastlane::Helper::DynatraceHelper do
         server = FastlaneCore::ConfigItem.new(key: :server, type: String, optional: false)
         apitoken = FastlaneCore::ConfigItem.new(key: :apitoken, type: String, optional: false)
         dict = { :server => "https://dynatrace.com/",
-                 :apitoken => "9df8gzjn" }
+                 :apitoken => "this_is_just_a_mock_token_dont_report_pls" }
 
         flhash = FastlaneCore::Configuration.create([server, apitoken], dict)
 
@@ -102,7 +102,7 @@ describe Fastlane::Helper::DynatraceHelper do
         server = FastlaneCore::ConfigItem.new(key: :server, type: String, optional: false)
         apitoken = FastlaneCore::ConfigItem.new(key: :apitoken, type: String, optional: false)
         dict = { :server => "https://dynatrace.com/",
-                 :apitoken => "9df8gzjn" }
+                 :apitoken => "this_is_just_a_mock_token_dont_report_pls" }
 
         flhash = FastlaneCore::Configuration.create([server, apitoken], dict)
 
@@ -124,7 +124,7 @@ describe Fastlane::Helper::DynatraceHelper do
         server = FastlaneCore::ConfigItem.new(key: :server, type: String, optional: false)
         apitoken = FastlaneCore::ConfigItem.new(key: :apitoken, type: String, optional: false)
         dict = { :server => "https://dynatrace.com/",
-                 :apitoken => "9df8gzjn" }
+                 :apitoken => "this_is_just_a_mock_token_dont_report_pls" }
 
         flhash = FastlaneCore::Configuration.create([server, apitoken], dict)
 
@@ -144,7 +144,7 @@ describe Fastlane::Helper::DynatraceHelper do
         server = FastlaneCore::ConfigItem.new(key: :server, type: String, optional: false)
         apitoken = FastlaneCore::ConfigItem.new(key: :apitoken, type: String, optional: false)
         dict = { :server => "https://dynatrace.com/",
-                 :apitoken => "9df8gzjn" }
+                 :apitoken => "this_is_just_a_mock_token_dont_report_pls" }
 
         flhash = FastlaneCore::Configuration.create([server, apitoken], dict)
 
@@ -166,7 +166,7 @@ describe Fastlane::Helper::DynatraceHelper do
         server = FastlaneCore::ConfigItem.new(key: :server, type: String, optional: false)
         apitoken = FastlaneCore::ConfigItem.new(key: :apitoken, type: String, optional: false)
         dict = { :server => "https://dynatrace.com/",
-                 :apitoken => "9df8gzjn" }
+                 :apitoken => "this_is_just_a_mock_token_dont_report_pls" }
 
         flhash = FastlaneCore::Configuration.create([server, apitoken], dict)
 
@@ -186,7 +186,7 @@ describe Fastlane::Helper::DynatraceHelper do
         server = FastlaneCore::ConfigItem.new(key: :server, type: String, optional: false)
         apitoken = FastlaneCore::ConfigItem.new(key: :apitoken, type: String, optional: false)
         dict = { :server => "https://dynatrace.com/",
-                 :apitoken => "9df8gzjn" }
+                 :apitoken => "this_is_just_a_mock_token_dont_report_pls" }
 
         flhash = FastlaneCore::Configuration.create([server, apitoken], dict)
 
@@ -208,7 +208,7 @@ describe Fastlane::Helper::DynatraceHelper do
         server = FastlaneCore::ConfigItem.new(key: :server, type: String, optional: false)
         apitoken = FastlaneCore::ConfigItem.new(key: :apitoken, type: String, optional: false)
         dict = { :server => "https://dynatrace.com/",
-                 :apitoken => "9df8gzjn" }
+                 :apitoken => "this_is_just_a_mock_token_dont_report_pls" }
 
         flhash = FastlaneCore::Configuration.create([server, apitoken], dict)
 
@@ -230,7 +230,7 @@ describe Fastlane::Helper::DynatraceHelper do
         server = FastlaneCore::ConfigItem.new(key: :server, type: String, optional: false)
         apitoken = FastlaneCore::ConfigItem.new(key: :apitoken, type: String, optional: false)
         dict = { :server => "https://dynatrace.com/",
-                 :apitoken => "9df8gzjn" }
+                 :apitoken => "this_is_just_a_mock_token_dont_report_pls" }
 
         flhash = FastlaneCore::Configuration.create([server, apitoken], dict)
 
@@ -261,7 +261,7 @@ describe Fastlane::Helper::DynatraceHelper do
         server = FastlaneCore::ConfigItem.new(key: :server, type: String, optional: false)
         apitoken = FastlaneCore::ConfigItem.new(key: :apitoken, type: String, optional: false)
         dict = { :server => "https://dynatrace.com/",
-                 :apitoken => "9df8gzjn" }
+                 :apitoken => "this_is_just_a_mock_token_dont_report_pls" }
 
         flhash = FastlaneCore::Configuration.create([server, apitoken], dict)
 
@@ -290,7 +290,7 @@ describe Fastlane::Helper::DynatraceHelper do
         server = FastlaneCore::ConfigItem.new(key: :server, type: String, optional: false)
         apitoken = FastlaneCore::ConfigItem.new(key: :apitoken, type: String, optional: false)
         dict = { :server => "https://dynatrace.com/",
-                 :apitoken => "9df8gzjn" }
+                 :apitoken => "this_is_just_a_mock_token_dont_report_pls" }
 
         flhash = FastlaneCore::Configuration.create([server, apitoken], dict)
 
@@ -321,7 +321,7 @@ describe Fastlane::Helper::DynatraceHelper do
         server = FastlaneCore::ConfigItem.new(key: :server, type: String, optional: false)
         apitoken = FastlaneCore::ConfigItem.new(key: :apitoken, type: String, optional: false)
         dict = { :server => "https://dynatrace.com/",
-                 :apitoken => "9df8gzjn" }
+                 :apitoken => "this_is_just_a_mock_token_dont_report_pls" }
 
         flhash = FastlaneCore::Configuration.create([server, apitoken], dict)
 
@@ -350,7 +350,7 @@ describe Fastlane::Helper::DynatraceHelper do
         server = FastlaneCore::ConfigItem.new(key: :server, type: String, optional: false)
         apitoken = FastlaneCore::ConfigItem.new(key: :apitoken, type: String, optional: false)
         dict = { :server => "https://dynatrace.com/",
-                 :apitoken => "9df8gzjn" }
+                 :apitoken => "this_is_just_a_mock_token_dont_report_pls" }
 
         flhash = FastlaneCore::Configuration.create([server, apitoken], dict)
 
@@ -381,7 +381,7 @@ describe Fastlane::Helper::DynatraceHelper do
         server = FastlaneCore::ConfigItem.new(key: :server, type: String, optional: false)
         apitoken = FastlaneCore::ConfigItem.new(key: :apitoken, type: String, optional: false)
         dict = { :server => "https://dynatrace.com/",
-                 :apitoken => "9df8gzjn" }
+                 :apitoken => "this_is_just_a_mock_token_dont_report_pls" }
 
         flhash = FastlaneCore::Configuration.create([server, apitoken], dict)
 
