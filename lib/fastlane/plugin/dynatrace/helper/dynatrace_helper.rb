@@ -2,7 +2,7 @@ require 'fastlane_core/ui/ui'
 require 'digest'
 require 'net/http'
 require 'tempfile'
-require 'uri'
+require 'open-uri'
 
 module Fastlane
   UI = FastlaneCore::UI unless Fastlane.const_defined?("UI")
@@ -182,7 +182,7 @@ module Fastlane
 
       # for test mocking
       def self.save_to_tempfile(url)
-        open(url)
+        URI.open(url)
       end
     end
   end
