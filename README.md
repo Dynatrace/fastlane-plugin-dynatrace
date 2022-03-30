@@ -114,7 +114,8 @@ dynatrace_process_symbols(
 | version                      | The CFBundleVersion (iOS, tvOS) / versionCode (Android). Is also used for the dSYM download.                                                                                |                |
 | symbolsfile                  | Path to the dSYM file to be processed. If downloadDsyms is set, this is only a fallback.                                                                              |                |
 | server                       | The API endpoint for the Dynatrace environment (e.g. `https://environmentID.live.dynatrace.com` or `https://dynatrace-managed.com/e/environmentID`).                  |                |
-| cleanBuildArtifacts | Clean build artifacts after processing.                                                                                         | `true`         |
+| cleanBuildArtifacts          | Clean build artifacts after processing.                                                                                         | `true`         |
+| tempdir                      | (OPTIONAL) Custom temporary directory for the DTXDssClient. **The plugin does not take care of cleaning this directory.**                                                                                         | `true`         |
 | debugMode                    | Enable debug logging.                                                                                                                                                 | false          |
 
 ## App Store Connect Two-Factor-Authentication

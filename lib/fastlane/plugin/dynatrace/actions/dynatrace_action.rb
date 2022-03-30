@@ -18,6 +18,7 @@ module Fastlane
         UI.message "Version string: #{params[:versionStr]}"
         UI.message "Version: #{params[:version]}"
         UI.message "Server URL: #{params[:server]}"
+        UI.message "Tempdir: #{params[:tempdir]}"
 
         UI.message "Checking AppFile for possible AppID"
         bundleId = CredentialsManager::AppfileConfig.try_fetch_value(:app_identifier)
@@ -137,6 +138,10 @@ module Fastlane
         command << "server=\"#{Helper::DynatraceHelper.without_trailing_slash(params[:server])}\""
         command << "DTXLogLevel=ALL -verbose" if params[:debugMode] == true
         command << "forced=1" # if the file already exists
+
+        if params[:tempdir]
+          command << "tempdir=\"#{params[:tempdir]}\"" 
+        end
 
         # Create the full shell command to trigger the DTXDssClient
         shell_command = command.join(' ')
@@ -273,6 +278,11 @@ module Fastlane
                                        default_value: true,
                                        is_string: false,
                                        description: "Clean build artifacts after processing"),
+
+          FastlaneCore::ConfigItem.new(key: :tempdir,
+                                       env_name: "FL_UPLOAD_TO_DYNATRACE_TEMP_DIR",
+                                       description: "(OPTIONAL) Custom temporary directory for the DTXDssClient. The plugin does not take care of cleaning this directory",
+                                       optional: true),
 
           FastlaneCore::ConfigItem.new(key: :debugMode,
                                        env_name: "FL_UPLOAD_TO_DYNATRACE_DEBUG_MODE",
