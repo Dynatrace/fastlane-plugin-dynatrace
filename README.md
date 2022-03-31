@@ -104,7 +104,7 @@ dynatrace_process_symbols(
 | symbolsfile                  | Path to the dSYM file to be processed. If downloadDsyms is set, this is only a fallback.                                                                              |                |
 | server                       | The API endpoint for the Dynatrace environment (e.g. `https://environmentID.live.dynatrace.com` or `https://dynatrace-managed.com/e/environmentID`).                  |                |
 | cleanBuildArtifacts          | Clean build artifacts after processing.                                                                                         | `true`         |
-| tempdir                      | (OPTIONAL) Custom temporary directory for the DTXDssClient. **The plugin does not take care of cleaning this directory.**                                                                                         | `true`         |
+| tempdir                      | (OPTIONAL) Custom temporary directory for the DTXDssClient. **The plugin does not take care of cleaning this directory.**                                                                                         |                |
 | debugMode                    | Enable debug logging.                                                                                                                                                 | false          |
 
 
