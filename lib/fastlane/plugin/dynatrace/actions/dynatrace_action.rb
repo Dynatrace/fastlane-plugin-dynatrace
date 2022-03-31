@@ -138,10 +138,7 @@ module Fastlane
         command << "server=\"#{Helper::DynatraceHelper.without_trailing_slash(params[:server])}\""
         command << "DTXLogLevel=ALL -verbose" if params[:debugMode] == true
         command << "forced=1" # if the file already exists
-
-        if params[:tempdir]
-          command << "tempdir=\"#{params[:tempdir]}\"" 
-        end
+        command << "tempdir=\"#{params[:tempdir]}\"" if params[:tempdir]
 
         # Create the full shell command to trigger the DTXDssClient
         shell_command = command.join(' ')
