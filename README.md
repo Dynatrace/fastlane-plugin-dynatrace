@@ -10,8 +10,6 @@ This project is a [_fastlane_](https://github.com/fastlane/fastlane) plugin. To 
 fastlane add_plugin dynatrace
 ```
 
-⚠️  The way Apple introduced the two-factor authentication interferes with a fully automated workflow. The workaround requires manual interaction. For more information, see **App Store Connect Two-Factor-Authentication** section below for details.
-
 ## About the Dynatrace fastlane plugin
 The Dynatrace fastlane plugin manages uploading symbol files (iOS, tvOS) or obfuscation mapping files (Android) to the Dynatrace cluster. Symbol and mapping files are used to make reported stack traces human-readable. The plugin also allows to download the latest dSYM files from App Store Connect, which enables full automation of the mobile app deployment, and the pre-processing of dSYM files, a step that is necessary for the Dynatrace cluster to be able to symbolicate.
 
@@ -38,21 +36,12 @@ Background: If your app is Bitcode-enabled, then the dSYMs that are generated du
 
 ### Automatically downloading dSYMs
 
-To fully automate the following five-step workflow, add the snippets below to the respective files and fill in the placeholders. Uploading the app the App Store Connect is a necessary prerequisite and either handled manually or by fastlane directly:
+To fully automate the following five-step workflow, add the snippets below to the respective files and fill in the placeholders. Uploading the app to App Store Connect is a necessary prerequisite and either handled manually or by fastlane directly:
 
 1. Wait until the build is processed
 2. Download the resulting dSYM files
 3. Process dSYM files into the format that Dynatrace requires
 4. Upload processed dSYM files to Dynatrace
-
-
-#### AppFile
-Make sure the following information is present in `AppFile` to authenticate with App Store Connect.
-
-```ruby
-app_identifier("com.yourcompany.yourappID") # bundle identifier of your app
-apple_id("user@email.com")
-```
 
 #### Fastfile
 ```ruby
@@ -118,10 +107,6 @@ dynatrace_process_symbols(
 | tempdir                      | (OPTIONAL) Custom temporary directory for the DTXDssClient. **The plugin does not take care of cleaning this directory.**                                                                                         | `true`         |
 | debugMode                    | Enable debug logging.                                                                                                                                                 | false          |
 
-## App Store Connect Two-Factor-Authentication
-When the plugin is used to download symbols from *App Store Connect* automatically (`downloadDsyms: true`),  valid App Store Connect credentials with access to the dSYM files are required. The preferred method of doing so is by setting the `FASTLANE_USER` and `FASTLANE_PASSWORD` environment variables to their respective values.
-
-Apple started enforcing 2-Factor-Authentication for the *App Store Connect* API in February 2021. This [limits the ability to automate the symbol processing](https://github.com/fastlane/fastlane/discussions/17655), because it will most likely involve manual interaction, which is not suitable for CI automation. The only workaround at this point in time is to pre-generate a session and cache it in CI.
 
 ### Fastlane Session
 The full documentation for this can be found on the [fastlane docs](https://docs.fastlane.tools/best-practices/continuous-integration/#two-step-or-two-factor-auth
