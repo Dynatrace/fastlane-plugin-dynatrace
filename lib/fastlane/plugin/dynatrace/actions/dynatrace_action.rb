@@ -33,13 +33,13 @@ module Fastlane
           response = Helper::DynatraceHelper.put_android_symbols(params, bundleId)
           case response.code
             when '204'
-              UI.success "Successfully uploaded the mapping file (#{params[:symbolsfile]}) to Dynatrace."
+              UI.success "Success. The file has been uploaded and stored."
             when '400'
-              UI.user_error! "Failed to upload. The input is invalid."
+              UI.user_error! "Failed. The input is invalid."
             when '401'
               UI.user_error! "Invalid Dynatrace API token. See https://www.dynatrace.com/support/help/dynatrace-api/basics/dynatrace-api-authentication/#token-permissions and https://www.dynatrace.com/support/help/dynatrace-api/configuration-api/mobile-symbolication-api/"
             when '413'
-              UI.user_error! "Failed to upload. The symbol file storage quota is exhausted. See https://www.dynatrace.com/support/help/shortlink/mobile-symbolication#manage-the-uploaded-symbol-files for more information."
+              UI.user_error! "Failed. The symbol file storage quota is exhausted. See https://www.dynatrace.com/support/help/shortlink/mobile-symbolication#manage-the-uploaded-symbol-files for more information."
             else
               message = nil
               unless response.body.nil?
