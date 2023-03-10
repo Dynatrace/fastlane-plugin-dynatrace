@@ -13,11 +13,12 @@ describe Fastlane::Actions::DynatraceProcessSymbolsAction do
           FastlaneCore::ConfigItem.new(key: :symbolsfile, type: String, optional: false),
           FastlaneCore::ConfigItem.new(key: :dtxDssClientPath, type: String, optional: false),
           FastlaneCore::ConfigItem.new(key: :appId, type: String, optional: false),
-          FastlaneCore::ConfigItem.new(key: :tempdir, type: String, optional: false)
+          FastlaneCore::ConfigItem.new(key: :tempdir, type: String, optional: false),
+          FastlaneCore::ConfigItem.new(key: :symbolsfileAutoZip, type: Object, optional: false)
         ]
   end
 
-  def mock_dict (os)
+  def mock_dict (os, symbolsfile = Dir.pwd + "/spec/testdata/android-mapping-test.txt")
     return { 
           :apitoken => "",
           :os => os,
@@ -25,10 +26,11 @@ describe Fastlane::Actions::DynatraceProcessSymbolsAction do
           :version => "456",
           :server => "https://dynatrace.com",
           :bundleId => "com.dynatrace.fastlanetest",
-          :symbolsfile => Dir.pwd + "/spec/testdata/android-mapping-test.txt",
+          :symbolsfile => symbolsfile,
           :dtxDssClientPath => "",
           :appId => "abcdefg",
-          :tempdir => "" 
+          :tempdir => "",
+          :symbolsfileAutoZip => true
         } 
   end
 
@@ -58,6 +60,15 @@ describe Fastlane::Actions::DynatraceProcessSymbolsAction do
     context "android: full valid workflow" do
       it "uploads a local symbol file" do
         flhash = FastlaneCore::Configuration.create(mock_config(), mock_dict("android"))
+
+        response = Net::HTTPSuccess.new(1.0, '204', 'OK')
+        expect_any_instance_of(Net::HTTP).to receive(:request) { response }
+
+        Fastlane::Actions::DynatraceProcessSymbolsAction.run(flhash)
+      end
+
+      it "uploads a local symbol file exceeding the zip limit" do
+        flhash = FastlaneCore::Configuration.create(mock_config(), mock_dict("android", Dir.pwd + "/spec/testdata/android-mapping-test_bigger.txt"))
 
         response = Net::HTTPSuccess.new(1.0, '204', 'OK')
         expect_any_instance_of(Net::HTTP).to receive(:request) { response }

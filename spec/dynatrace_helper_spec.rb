@@ -509,4 +509,139 @@ describe Fastlane::Helper::DynatraceHelper do
       end
     end
   end
+
+  describe ".zip_if_required" do
+    context "given no auto zip param" do
+      it "doesn't auto zip" do
+        symbolsfile = FastlaneCore::ConfigItem.new(key: :symbolsfile, type: String, optional: false)
+        symbolsfileAutoZip = FastlaneCore::ConfigItem.new(key: :symbolsfileAutoZip, type: Object, optional: false)
+        dict = { :symbolsfile => "samplepath",
+                 :symbolsfileAutoZip => false }
+
+        flhash = FastlaneCore::Configuration.create([symbolsfile, symbolsfileAutoZip], dict)
+
+        preprocessed_symbolspath = Fastlane::Helper::DynatraceHelper.zip_if_required(flhash)
+        expect(preprocessed_symbolspath).to eql(dict[:symbolsfile])
+      end
+    end
+
+    context "it's already zipped" do
+      it "doesn't zip again" do
+        symbolsfile = FastlaneCore::ConfigItem.new(key: :symbolsfile, type: String, optional: false)
+        symbolsfileAutoZip = FastlaneCore::ConfigItem.new(key: :symbolsfileAutoZip, type: Object, optional: false)
+        dict = { :symbolsfile => "samplepath.zip",
+                 :symbolsfileAutoZip => true }
+
+        flhash = FastlaneCore::Configuration.create([symbolsfile, symbolsfileAutoZip], dict)
+
+        preprocessed_symbolspath = Fastlane::Helper::DynatraceHelper.zip_if_required(flhash)
+        expect(preprocessed_symbolspath).to eql(dict[:symbolsfile])
+      end
+    end
+
+    context "doesn't exceed the limit" do
+      it "doesn't zip" do
+        tmpfile = Tempfile.new('testfile.txt')
+        tmpfile.write ("a" * 10 * 1024 * 1024).freeze
+        tmpfile.rewind
+
+        symbolsfile = FastlaneCore::ConfigItem.new(key: :symbolsfile, type: String, optional: false)
+        symbolsfileAutoZip = FastlaneCore::ConfigItem.new(key: :symbolsfileAutoZip, type: Object, optional: false)
+        dict = { :symbolsfile => tmpfile.path(),
+                 :symbolsfileAutoZip => true }
+
+        flhash = FastlaneCore::Configuration.create([symbolsfile, symbolsfileAutoZip], dict)
+
+        preprocessed_symbolspath = Fastlane::Helper::DynatraceHelper.zip_if_required(flhash)
+        expect(preprocessed_symbolspath).to eql(dict[:symbolsfile])
+      end
+    end
+
+    context "exceeds the limit" do
+      it "zips" do
+        tmpfile = Tempfile.new('testfile.txt')
+        tmpfile.write ("a" * 10 * 1024 * 1024).freeze + "b"
+        tmpfile.rewind
+
+        symbolsfile = FastlaneCore::ConfigItem.new(key: :symbolsfile, type: String, optional: false)
+        symbolsfileAutoZip = FastlaneCore::ConfigItem.new(key: :symbolsfileAutoZip, type: Object, optional: false)
+        dict = { :symbolsfile => tmpfile.path(),
+                 :symbolsfileAutoZip => true }
+
+        flhash = FastlaneCore::Configuration.create([symbolsfile, symbolsfileAutoZip], dict)
+
+        preprocessed_symbolspath = Fastlane::Helper::DynatraceHelper.zip_if_required(flhash)
+        expect(preprocessed_symbolspath).to eql(dict[:symbolsfile] + ".zip")
+        expect(File.exist?(preprocessed_symbolspath)).to eql(true)
+      end
+    end
+  end
+
+  def mock_config ()
+    return [
+          FastlaneCore::ConfigItem.new(key: :apitoken, type: String, optional: false),
+          FastlaneCore::ConfigItem.new(key: :os, type: String, optional: false),
+          FastlaneCore::ConfigItem.new(key: :versionStr, type: String, optional: false),
+          FastlaneCore::ConfigItem.new(key: :version, type: String, optional: false),
+          FastlaneCore::ConfigItem.new(key: :server, type: String, optional: false),
+          FastlaneCore::ConfigItem.new(key: :bundleId, type: String, optional: false),
+          FastlaneCore::ConfigItem.new(key: :symbolsfile, type: String, optional: false),
+          FastlaneCore::ConfigItem.new(key: :dtxDssClientPath, type: String, optional: false),
+          FastlaneCore::ConfigItem.new(key: :appId, type: String, optional: false),
+          FastlaneCore::ConfigItem.new(key: :tempdir, type: String, optional: false),
+          FastlaneCore::ConfigItem.new(key: :symbolsfileAutoZip, type: Object, optional: false)
+        ]
+  end
+
+  def mock_dict (os, symbolsfile = Dir.pwd + "/spec/testdata/android-mapping-test.txt")
+    return { 
+          :apitoken => "",
+          :os => os,
+          :versionStr => "123",
+          :version => "456",
+          :server => "https://dynatrace.com",
+          :bundleId => "com.dynatrace.fastlanetest",
+          :symbolsfile => symbolsfile,
+          :dtxDssClientPath => "",
+          :appId => "abcdefg",
+          :tempdir => "",
+          :symbolsfileAutoZip => true
+        } 
+  end
+
+  describe ".put_android_symbols" do
+    context "regular saas request without zip" do
+      it "generates the correct request" do
+        mock_dict = mock_dict("android")
+        flhash = FastlaneCore::Configuration.create(mock_config(), mock_dict)
+
+        response = Net::HTTPSuccess.new(1.0, '204', 'OK')
+        expect_any_instance_of(Net::HTTP).to receive(:request) { response }
+
+        response, request = Fastlane::Helper::DynatraceHelper.put_android_symbols(mock_dict, "com.dynatrace.fastlanetest", Dir.pwd + "/spec/testdata/android-mapping-test.txt")
+
+        expect(request['Content-Type']).to eql('text/plain')
+        expect(request['Authorization']).to eql('Api-Token')
+        expect(request.path).to eql('/api/config/v1/symfiles/abcdefg/com.dynatrace.fastlanetest/ANDROID/456/123')
+      end
+    end
+
+    context "regular saas request with zip" do
+      it "generates the correct request" do
+        mock_dict = mock_dict("android")
+        flhash = FastlaneCore::Configuration.create(mock_config(), mock_dict)
+
+        response = Net::HTTPSuccess.new(1.0, '204', 'OK')
+        expect_any_instance_of(Net::HTTP).to receive(:request) { response }
+
+        Fastlane::Helper::DynatraceHelper.zip_if_required(flhash)
+
+        response, request = Fastlane::Helper::DynatraceHelper.put_android_symbols(mock_dict, "com.dynatrace.fastlanetest", Dir.pwd + "/spec/testdata/android-mapping-test_bigger.txt.zip")
+
+        expect(request['Content-Type']).to eql('application/zip')
+        expect(request['Authorization']).to eql('Api-Token')
+        expect(request.path).to eql('/api/config/v1/symfiles/abcdefg/com.dynatrace.fastlanetest/ANDROID/456/123')
+      end
+    end
+  end
 end
