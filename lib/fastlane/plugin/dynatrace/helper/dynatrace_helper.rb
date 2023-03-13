@@ -3,6 +3,7 @@ require 'digest'
 require 'net/http'
 require 'tempfile'
 require 'open-uri'
+require 'zip'
 
 module Fastlane
   UI = FastlaneCore::UI unless Fastlane.const_defined?("UI")
@@ -136,7 +137,7 @@ module Fastlane
         end
       end
 
-      def self.put_android_symbols(params, bundleId)
+      def self.put_android_symbols(params, bundleId, symbolspath)
         path = "/api/config/v1/symfiles/#{params[:appId]}/#{bundleId}/ANDROID/#{params[:version]}/#{params[:versionStr]}"
 
         # if path points to dynatrace managed, we need to prepend the path component from the server (/e/{your-environment-id})
@@ -148,14 +149,46 @@ module Fastlane
           path = self.without_trailing_slash(uri[5]) + path
         end
 
+        is_symbolsfile_zip = symbolspath.end_with?(".zip")
 
-        req = Net::HTTP::Put.new(path, initheader = { 'Content-Type' => 'text/plain',
+        request = Net::HTTP::Put.new(path, initheader = { 'Content-Type' => is_symbolsfile_zip ? 'application/zip' : 'text/plain',
                                                       'Authorization' => "Api-Token #{params[:apitoken]}"} )
 
-        req.body = IO.read(params[:symbolsfile])
+        request.body = IO.read(symbolspath)
         http = Net::HTTP.new(self.get_host_name(params), 443)
         http.use_ssl = true
-        http.request(req)
+        response = http.request(request)
+
+        return [response, request]
+      end
+
+      def self.zip_if_required(params)
+        symbolsfile_path = params[:symbolsfile]
+
+        if !params[:symbolsfileAutoZip]
+          UI.message "Symbolsfile auto-zipping is disbled."
+          return symbolsfile_path
+        end
+
+        if symbolsfile_path.end_with?(".zip")
+          UI.message "Symbolsfile is already a zip."
+          return symbolsfile_path
+        end
+
+        if File.size(symbolsfile_path) > 10 * 1024 * 1024 # 10MiB
+          symbolsfile_path_zip = symbolsfile_path + ".zip"
+          UI.message "Symbolsfile exceeds 10MiB -> zipping to " + symbolsfile_path_zip
+
+          # replace any old file
+          FileUtils.rm_f(symbolsfile_path_zip)
+
+          Zip::File.open(symbolsfile_path_zip, create: true) do |zipfile|
+            zipfile.add(File.basename(symbolsfile_path), symbolsfile_path)
+          end
+          symbolsfile_path = symbolsfile_path_zip
+        end
+
+        return symbolsfile_path
       end
 
       private

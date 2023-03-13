@@ -30,7 +30,8 @@ module Fastlane
         end
 
         if params[:os] == "android"
-          response = Helper::DynatraceHelper.put_android_symbols(params, bundleId)
+          symbols_path = Helper::DynatraceHelper.zip_if_required(params)
+          response, request = Helper::DynatraceHelper.put_android_symbols(params, bundleId, symbols_path)
           case response.code
             when '204'
               UI.success "Success. The file has been uploaded and stored."
@@ -258,10 +259,16 @@ module Fastlane
 
           FastlaneCore::ConfigItem.new(key: :symbolsfile,
                                        env_name: "FL_UPLOAD_TO_DYNATRACE_SYM_FILE_PATH",
-                                       description: "Path to the dSYM file to be processed. Is only used when downloadDsyms is not set",
+                                       description: "Path to the dSYM file to be processed. Is only used when downloadDsyms is not set. Android only: If the file exceeds 10MiB and doesn't end with *.zip it's zipped before uploading. This can be disabled by setting `symbolsfileAutoZip` to false",
                                        verify_block: proc do |value|
                                           UI.user_error!("Please provide a value for the symbol files. Pass using `symbolsfile: 'symbolsfile'`") unless (value and not value.empty?)
                                       end),
+
+          FastlaneCore::ConfigItem.new(key: :symbolsfileAutoZip,
+                                       env_name: "FL_UPLOAD_TO_DYNATRACE_SYM_FILE_AUTO_ZIP",
+                                       default_value: true,
+                                       is_string: false,
+                                       description: "(Android only) Automatically zip symbolsfile if it exceeds 10MiB and doesn't already end with *.zip"),
 
           FastlaneCore::ConfigItem.new(key: :server,
                                        env_name: "FL_UPLOAD_TO_DYNATRACE_SERVER_URL",
