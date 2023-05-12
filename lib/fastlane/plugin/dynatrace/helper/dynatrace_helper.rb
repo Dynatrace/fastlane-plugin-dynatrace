@@ -59,8 +59,8 @@ module Fastlane
         end
 
         # only update if a file is missing or the local version is different
-        if !(File.exists?(versionFilePath) and
-           File.exists?(dtxDssClientPath) and 
+        if !(File.exist?(versionFilePath) and
+           File.exist?(dtxDssClientPath) and 
            File.read(versionFilePath) == remoteClientUrl and
            File.size(dtxDssClientPath) > 0)
           updatedClient = false
@@ -195,7 +195,7 @@ module Fastlane
       def self.check_fallback_or_raise(fallback_client, error)
         UI.important "If this error persists create an issue on our Github project (https://github.com/Dynatrace/fastlane-plugin-dynatrace/issues) or contact our support at https://www.dynatrace.com/support/contact-support/."
         UI.important error
-        if File.exists?(fallback_client) and File.size(fallback_client) > 0
+        if File.exist?(fallback_client) and File.size(fallback_client) > 0
           UI.important "Using cached client: #{fallback_client}"
         else
           UI.important "No cached fallback found."

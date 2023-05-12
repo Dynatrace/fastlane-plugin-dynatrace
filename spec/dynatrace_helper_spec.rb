@@ -27,7 +27,7 @@ describe Fastlane::Helper::DynatraceHelper do
 
         # mock file operations
         expect(File).to receive(:directory?).and_return(true)
-        expect(File).to receive(:exists?).and_return(false)
+        #expect(File).to receive(:exist?).and_return(false)
         #expect(File).to receive(:read).and_return("http://127.0.0.1:8000/DTXDssClient.zip")
         #expect(File).to receive(:size).and_return(1)
         #expect(File).to receive(:delete).and_return(1, 1)
@@ -69,7 +69,7 @@ describe Fastlane::Helper::DynatraceHelper do
         expect_any_instance_of(Net::HTTP).to receive(:request) { response }
 
         allow(File).to receive(:size).and_return(0)
-        allow(File).to receive(:exists?).and_return(false)
+        allow(File).to receive(:exist?).and_return(false)
 
         expect{
           Fastlane::Helper::DynatraceHelper.get_dss_client(flhash)
@@ -90,7 +90,7 @@ describe Fastlane::Helper::DynatraceHelper do
         expect_any_instance_of(Net::HTTP).to receive(:request) { response }
 
         allow(File).to receive(:size).and_return(1)
-        allow(File).to receive(:exists?).and_return(true)
+        allow(File).to receive(:exist?).and_return(true)
 
         expect(Fastlane::Helper::DynatraceHelper.get_dss_client(flhash)).to eql("dynatrace/DTXDssClient")
       end
@@ -112,7 +112,7 @@ describe Fastlane::Helper::DynatraceHelper do
         expect(response).to receive(:body) { '{}' }.twice
 
         allow(File).to receive(:size).and_return(0)
-        allow(File).to receive(:exists?).and_return(false)
+        allow(File).to receive(:exist?).and_return(false)
 
         expect{
           Fastlane::Helper::DynatraceHelper.get_dss_client(flhash)
@@ -134,7 +134,7 @@ describe Fastlane::Helper::DynatraceHelper do
         expect(response).to receive(:body) { '{}' }.twice
 
         allow(File).to receive(:size).and_return(1)
-        allow(File).to receive(:exists?).and_return(true)
+        allow(File).to receive(:exist?).and_return(true)
 
         expect(Fastlane::Helper::DynatraceHelper.get_dss_client(flhash)).to eql("dynatrace/DTXDssClient")
       end
@@ -154,7 +154,7 @@ describe Fastlane::Helper::DynatraceHelper do
         expect(response).to receive(:body) { '{"dssClientUrl1": "http://127.0.0.1:8000/DTXDssClient.zip"}' }.twice
 
         allow(File).to receive(:size).and_return(0)
-        allow(File).to receive(:exists?).and_return(false)
+        allow(File).to receive(:exist?).and_return(false)
 
         expect{
           Fastlane::Helper::DynatraceHelper.get_dss_client(flhash)
@@ -176,7 +176,7 @@ describe Fastlane::Helper::DynatraceHelper do
         expect(response).to receive(:body) { '{"dssClientUrl1": "http://127.0.0.1:8000/DTXDssClient.zip"}' }.twice
 
         allow(File).to receive(:size).and_return(1)
-        allow(File).to receive(:exists?).and_return(true)
+        allow(File).to receive(:exist?).and_return(true)
 
         expect(Fastlane::Helper::DynatraceHelper.get_dss_client(flhash)).to eql("dynatrace/DTXDssClient")
       end
@@ -196,7 +196,7 @@ describe Fastlane::Helper::DynatraceHelper do
         expect(response).to receive(:body) { '{""dssClientUrl": "http://127.0.0.1:8000/DTXDssClient.zip"}' }.twice
 
         allow(File).to receive(:size).and_return(0)
-        allow(File).to receive(:exists?).and_return(false)
+        allow(File).to receive(:exist?).and_return(false)
 
         expect{
           Fastlane::Helper::DynatraceHelper.get_dss_client(flhash)
@@ -218,7 +218,7 @@ describe Fastlane::Helper::DynatraceHelper do
         expect(response).to receive(:body) { '{""dssClientUrl": "http://127.0.0.1:8000/DTXDssClient.zip"}' }.twice
 
         allow(File).to receive(:size).and_return(1)
-        allow(File).to receive(:exists?).and_return(true)
+        allow(File).to receive(:exist?).and_return(true)
 
         expect(Fastlane::Helper::DynatraceHelper.get_dss_client(flhash)).to eql("dynatrace/DTXDssClient")
       end
@@ -248,7 +248,7 @@ describe Fastlane::Helper::DynatraceHelper do
 
         # mock file operations
         expect(File).to receive(:directory?).and_return(true)
-        expect(File).to receive(:exists?).and_return(false).twice
+        expect(File).to receive(:exist?).and_return(false).twice
         expect(File).to receive(:size).and_return(1)
 
         expect{
@@ -279,7 +279,7 @@ describe Fastlane::Helper::DynatraceHelper do
 
         # mock file operations
         expect(File).to receive(:directory?).and_return(true)
-        expect(File).to receive(:exists?).and_return(false, true)
+        expect(File).to receive(:exist?).and_return(false, true)
         expect(File).to receive(:size).and_return(1).twice
 
         expect(Fastlane::Helper::DynatraceHelper.get_dss_client(flhash)).to eql("dynatrace/DTXDssClient")    
@@ -308,7 +308,7 @@ describe Fastlane::Helper::DynatraceHelper do
 
         # mock file operations
         expect(File).to receive(:directory?).and_return(true)
-        expect(File).to receive(:exists?).and_return(false).twice
+        expect(File).to receive(:exist?).and_return(false).twice
         expect(File).to receive(:size).and_return(1)
         
         expect{
@@ -339,7 +339,7 @@ describe Fastlane::Helper::DynatraceHelper do
 
         # mock file operations
         expect(File).to receive(:directory?).and_return(true)
-        expect(File).to receive(:exists?).and_return(false, true)
+        expect(File).to receive(:exist?).and_return(false, true)
         expect(File).to receive(:size).and_return(1).twice
 
         expect(Fastlane::Helper::DynatraceHelper.get_dss_client(flhash)).to eql("dynatrace/DTXDssClient")    
@@ -368,7 +368,7 @@ describe Fastlane::Helper::DynatraceHelper do
 
         # mock file operations
         expect(File).to receive(:directory?).and_return(true)
-        expect(File).to receive(:exists?).and_return(false).twice
+        expect(File).to receive(:exist?).and_return(false).twice
         expect(File).to receive(:size).and_return(0)
 
         expect{
@@ -399,7 +399,7 @@ describe Fastlane::Helper::DynatraceHelper do
 
         # mock file operations
         expect(File).to receive(:directory?).and_return(true)
-        expect(File).to receive(:exists?).and_return(false, true)
+        expect(File).to receive(:exist?).and_return(false, true)
         expect(File).to receive(:size).and_return(0, 1)
 
         expect(Fastlane::Helper::DynatraceHelper.get_dss_client(flhash)).to eql("dynatrace/DTXDssClient")    
@@ -457,7 +457,7 @@ describe Fastlane::Helper::DynatraceHelper do
         fallback_client_path = "test/DTXDssClient"
 
         allow(File).to receive(:size).and_return(1)
-        allow(File).to receive(:exists?).and_return(true)
+        allow(File).to receive(:exist?).and_return(true)
 
         Fastlane::Helper::DynatraceHelper.check_fallback_or_raise(fallback_client_path, error_msg)
       end
@@ -469,7 +469,7 @@ describe Fastlane::Helper::DynatraceHelper do
         fallback_client_path = "test/DTXDssClient"
 
         allow(File).to receive(:size).and_return(0)
-        allow(File).to receive(:exists?).and_return(true)
+        allow(File).to receive(:exist?).and_return(true)
 
         expect{
           Fastlane::Helper::DynatraceHelper.check_fallback_or_raise(fallback_client_path, error_msg)
@@ -483,7 +483,7 @@ describe Fastlane::Helper::DynatraceHelper do
         fallback_client_path = "test/DTXDssClient"
 
         allow(File).to receive(:size).and_return(0)
-        allow(File).to receive(:exists?).and_return(false)
+        allow(File).to receive(:exist?).and_return(false)
 
         expect{
           Fastlane::Helper::DynatraceHelper.check_fallback_or_raise(fallback_client_path, error_msg)
