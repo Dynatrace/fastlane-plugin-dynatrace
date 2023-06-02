@@ -32,28 +32,25 @@ module Fastlane
         if params[:os] == "android"
           symbols_path = Helper::DynatraceHelper.zip_if_required(params)
           response, request = Helper::DynatraceHelper.put_android_symbols(params, bundleId, symbols_path)
-          case response.code
-            when '204'
-              UI.success "Success. The file has been uploaded and stored."
-            when '400'
-              UI.user_error! "Failed. The input is invalid."
-            when '401'
-              UI.user_error! "Invalid Dynatrace API token. See https://www.dynatrace.com/support/help/dynatrace-api/basics/dynatrace-api-authentication/#token-permissions and https://www.dynatrace.com/support/help/dynatrace-api/configuration-api/mobile-symbolication-api/"
-            when '413'
-              UI.user_error! "Failed. The symbol file storage quota is exhausted. See https://www.dynatrace.com/support/help/shortlink/mobile-symbolication#manage-the-uploaded-symbol-files for more information."
-            else
+
+          # https://www.dynatrace.com/support/help/dynatrace-api/configuration-api/mobile-symbolication-api/put-files-app-version
+          if response.code == '204'
+              UI.success "API response: Success."
+          else
               message = nil
               unless response.body.nil?
                 message = JSON.parse(response.body)["error"]["message"]
               end
               if message.nil?
-                UI.user_error! "Symbol upload error (Response Code: #{response.code}). Please try again in a few minutes or contact the Dynatrace support (https://www.dynatrace.com/services-support/)." 
+                UI.user_error! "API response: #{response.code}. Please try again in a few minutes or contact the Dynatrace support (https://www.dynatrace.com/services-support/)." 
               else
-                UI.user_error! "Symbol upload error (Response Code: #{response.code}). #{message}" 
+                UI.user_error! "API response: #{message} (Response code: #{response.code})" 
               end
           end
           return
-        elsif params[:os] != "ios" && params[:os] != "tvos"
+        end
+
+        if params[:os] != "ios" && params[:os] != "tvos"
           UI.user_error! "Unsopported value os=#{params[:os]}"
         end
 
