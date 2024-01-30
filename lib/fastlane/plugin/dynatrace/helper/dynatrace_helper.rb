@@ -114,6 +114,65 @@ module Fastlane
         return dtxDssClientPath
       end
 
+      def self.symlink_lldb(lldb_path, destination_path, auto_link = true)
+        require_path(destination_path)
+
+        unless lldb_path.nil?
+          return symlink(lldb_path, destination_path) if path_exists?(lldb_path)
+        end
+
+        if auto_link
+          return auto_link_lldb(destination_path)
+        end
+
+        # if there is no lldb_path provided and auto_link is not true
+        # then just delete the existing symlinks and raise error
+        Dir.glob("#{destination_path}/*LLDB*").map { |file| FileUtils.rm(file) if File.symlink?(file) }
+        raise "Please provide either a valid lldbPath or enable autoLink option"
+      end
+
+      private
+      def self.require_path(path)
+        if path.nil?
+          UI.important "Path should not be nil."
+          raise RuntimeError
+        end
+
+        unless path_exists?(path)
+          UI.important "Path does not exist."
+          raise RuntimeError
+        end
+      end
+
+      private
+      def self.path_exists?(path)
+        Dir.exist?(path) || File.exist?(path)
+      end
+
+      private
+      def self.symlink(source, destination)
+        %x(ln -s #{source} #{destination})
+      end
+
+      private
+      def self.auto_link_lldb(destination_path)
+        current_xcode_path = %x(xcrun xcode-select --print-path).chomp
+        active_lldb_path = active_lldb_path(current_xcode_path)
+        symlink(active_lldb_path, destination_path)
+      end
+
+      private
+      def self.active_lldb_path(xcode_path)
+        if xcode_path.end_with? "/Developer"
+          parent_dir = File.dirname(xcode_path)
+          return "#{parent_dir}/SharedFrameworks/LLDB.framework"
+        end
+
+        if xcode_path.end_with? "/CommandLineTools"
+          return "#{xcode_path}/Library/PrivateFrameworks/LLDB.framework"
+        end
+      end
+
       def self.without_trailing_slash(server)
         if server[-1] == '/'
           return server[0..-2]

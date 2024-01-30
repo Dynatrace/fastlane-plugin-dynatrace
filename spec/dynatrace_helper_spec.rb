@@ -644,4 +644,78 @@ describe Fastlane::Helper::DynatraceHelper do
       end
     end
   end
+
+  describe ".symlink_lldb" do
+    it "should raise error when destination_path does not exist" do
+      expect {
+        Fastlane::Helper::DynatraceHelper.symlink_lldb(anything, nil, anything)
+      }.to raise_error(RuntimeError)
+
+      expect {
+        Fastlane::Helper::DynatraceHelper.symlink_lldb(anything, "something/that/does/not/exist", anything)
+      }.to raise_error(RuntimeError)
+      verify_no_symlink_exists("something/that/does/not/exist")
+    end
+
+    context "when destination_path exists" do
+      before do
+        @destination_path = Dir.mktmpdir("destination-test")
+      end
+
+      it "should successfully create the symlink when lldb_path exists" do
+        lldb_path = Dir.mktmpdir("lldb-test")
+
+        Fastlane::Helper::DynatraceHelper.symlink_lldb(lldb_path, @destination_path, anything)
+
+        verify_symlink_exists(lldb_path, @destination_path)
+      end
+
+      context "when lldb_path does not exist" do
+        it "should successfully create the symlink when auto_link is true" do
+          expected_active_lldb_path = Fastlane::Helper::DynatraceHelper.active_lldb_path("#{%x(xcrun xcode-select --print-path)}".chomp)
+
+          Fastlane::Helper::DynatraceHelper.symlink_lldb(nil, @destination_path, true)
+
+          verify_symlink_exists(expected_active_lldb_path, @destination_path)
+        end
+
+        it "should delete existing symlinks and raise error when auto_link is not true" do
+          expect {
+            Fastlane::Helper::DynatraceHelper.symlink_lldb(nil, @destination_path, false)
+          }.to raise_error(RuntimeError)
+          verify_no_symlink_exists(@destination_path)
+        end
+      end
+
+      def verify_symlink_exists(expected_symlink, destination_path)
+        symlink_files = Dir.glob("#{destination_path}/*").map { |file| File.readlink(file) if File.symlink?(file) }.compact
+        expect(symlink_files.include? expected_symlink).to eql(true)
+      end
+    end
+
+    def verify_no_symlink_exists(destination_path)
+      symlink_files = Dir.glob("#{destination_path}/*").map { |file| File.readlink(file) if File.symlink?(file) }.compact
+      expect(symlink_files.empty?).to eql(true)
+    end
+  end
+
+  describe ".active_lldb_path" do
+    it "should return the correct path when xcode path ends with `Developer`" do
+      xcode_path = "some_path/Developer"
+      expected_path = "some_path/SharedFrameworks/LLDB.framework"
+
+      active_lldb_path = Fastlane::Helper::DynatraceHelper.active_lldb_path(xcode_path)
+
+      expect(active_lldb_path).to eql(expected_path)
+    end
+
+    it "should return the correct path when xcode path ends with `CommandLineTools`" do
+      xcode_path = "some_path/CommandLineTools"
+      expected_path = "some_path/CommandLineTools/Library/PrivateFrameworks/LLDB.framework"
+
+      active_lldb_path = Fastlane::Helper::DynatraceHelper.active_lldb_path(xcode_path)
+
+      expect(active_lldb_path).to eql(expected_path)
+    end
+  end
 end
