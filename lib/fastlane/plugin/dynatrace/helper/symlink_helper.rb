@@ -4,7 +4,10 @@ module Fastlane
   module Helper
     class SymlinkHelper
       def self.path_exists?(path)
-        Dir.exist?(path) || File.exist?(path)
+        unless path.nil?
+          return Dir.exist?(path) || File.exist?(path)
+        end
+        return false
       end
 
       def self.symlink_lldb(lldb_path, destination_path)

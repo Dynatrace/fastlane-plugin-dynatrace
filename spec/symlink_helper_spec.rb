@@ -2,6 +2,43 @@ require 'rspec'
 
 describe Fastlane::Helper::SymlinkHelper do
 
+  context "when path_exists? is called" do
+    context "with invalid path" do
+      it "should return false" do
+        expect(Fastlane::Helper::SymlinkHelper.path_exists?(nil)).to eql(false)
+        expect(Fastlane::Helper::SymlinkHelper.path_exists?("path/that/does/not/exist")).to eql(false)
+      end
+    end
+
+    context "with valid file path" do
+      before do
+        @file_path = Tempfile.new("temp-file")
+      end
+
+      after do
+        FileUtils.remove_entry @file_path
+      end
+
+      it "should return true" do
+        expect(Fastlane::Helper::SymlinkHelper.path_exists?(@file_path)).to eql(true)
+      end
+    end
+
+    context "with valid directory path" do
+      before do
+        @dir_path = Dir.mktmpdir("temp-dir")
+      end
+
+      after do
+        FileUtils.remove_entry @dir_path
+      end
+
+      it "should return true" do
+        expect(Fastlane::Helper::SymlinkHelper.path_exists?(@dir_path)).to eql(true)
+      end
+    end
+  end
+
   context "when symlink_lldb is called" do
     context "with invalid lldb_path" do
       it "should raise error" do
@@ -29,13 +66,20 @@ describe Fastlane::Helper::SymlinkHelper do
     end
 
     context "with valid lldb_path and valid destination_path" do
+      before do
+        @destination_path = Dir.mktmpdir("destination-test")
+        @lldb_path = Dir.mktmpdir("lldb-test")
+      end
+
+      after do
+        FileUtils.remove_entry @destination_path
+        FileUtils.remove_entry @lldb_path
+      end
+
       it "should successfully create the symlink" do
-        destination_path = Dir.mktmpdir("destination-test")
-        lldb_path = Dir.mktmpdir("lldb-test")
+        Fastlane::Helper::SymlinkHelper.symlink_lldb(@lldb_path, @destination_path)
 
-        Fastlane::Helper::SymlinkHelper.symlink_lldb(lldb_path, destination_path)
-
-        verify_symlink_exists(lldb_path, destination_path)
+        verify_symlink_exists(@lldb_path, @destination_path)
       end
     end
   end
