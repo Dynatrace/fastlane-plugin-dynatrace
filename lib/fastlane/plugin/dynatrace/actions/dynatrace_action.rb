@@ -61,7 +61,13 @@ module Fastlane
 
         dtxDssClientPath = Helper::DynatraceHelper.get_dss_client(params)
         destination_path = File.dirname(dtxDssClientPath)
-        Helper::DynatraceHelper.symlink_lldb(params[:customLLDBFrameworkPath], destination_path, params[:autoSymlinkLLDB])
+
+        lldb_path = params[:customLLDBFrameworkPath]
+        if Helper::SymlinkHelper.path_exists?(lldb_path)
+          Helper::SymlinkHelper.symlink_lldb(lldb_path, destination_path)
+        elsif params[:autoSymlinkLLDB] == true
+          Helper::SymlinkHelper.auto_symlink_lldb(destination_path)
+        end
 
         # start constructing the command that will trigger the DTXDssClient
         command = []
