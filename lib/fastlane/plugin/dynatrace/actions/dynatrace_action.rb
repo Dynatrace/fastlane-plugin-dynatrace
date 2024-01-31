@@ -174,7 +174,19 @@ module Fastlane
                                        description: "Path to the dSYM or Android mapping file to be processed. Android only: If the file exceeds 10MiB and doesn't end with *.zip it's zipped before uploading. This can be disabled by setting `symbolsfileAutoZip` to false",
                                        verify_block: proc do |value|
                                           UI.user_error!("Please provide a value for the symbol files. Pass using `symbolsfile: 'symbolsfile'`") unless (value and not value.empty?)
-                                      end),
+                                       end),
+
+          FastlaneCore::ConfigItem.new(key: :lldbPath,
+                                       env_name: "FL_UPLOAD_TO_DYNATRACE_LLDB_PATH",
+                                       description: "Custom path to the LLDB framework",
+                                       optional: true),
+
+          FastlaneCore::ConfigItem.new(key: :autoLink,
+                                       env_name: "FL_UPLOAD_TO_DYNATRACE_AUTO_LINK_LLDB",
+                                       description: "Automatically symlink the first found LLDB framework on the system",
+                                       type: Boolean,
+                                       default_value: true,
+                                       optional: true),
 
           FastlaneCore::ConfigItem.new(key: :symbolsfileAutoZip,
                                        env_name: "FL_UPLOAD_TO_DYNATRACE_SYM_FILE_AUTO_ZIP",
