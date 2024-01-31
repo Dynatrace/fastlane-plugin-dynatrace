@@ -55,13 +55,13 @@ module Fastlane
         end
 
         # iOS/tvOS workflow
+        unless OS.mac?
+          UI.user_error! "A macOS machine is required to process iOS symbols."
+        end
+
         dtxDssClientPath = Helper::DynatraceHelper.get_dss_client(params)
         destination_path = File.dirname(dtxDssClientPath)
         Helper::DynatraceHelper.symlink_lldb(params[:lldbPath], destination_path, params[:autoLink])
-
-        if !OS.mac?
-          UI.user_error! "A macOS machine is required to process iOS symbols."
-        end
 
         # start constructing the command that will trigger the DTXDssClient
         command = []
@@ -178,18 +178,6 @@ module Fastlane
                                           UI.user_error!("Please provide a value for the symbol files. Pass using `symbolsfile: 'symbolsfile'`") unless (value and not value.empty?)
                                        end),
 
-          FastlaneCore::ConfigItem.new(key: :lldbPath,
-                                       env_name: "FL_UPLOAD_TO_DYNATRACE_LLDB_PATH",
-                                       description: "Custom path to the LLDB framework",
-                                       optional: true),
-
-          FastlaneCore::ConfigItem.new(key: :autoLink,
-                                       env_name: "FL_UPLOAD_TO_DYNATRACE_AUTO_LINK_LLDB",
-                                       description: "Automatically symlink the first found LLDB framework on the system",
-                                       type: Boolean,
-                                       default_value: true,
-                                       optional: true),
-
           FastlaneCore::ConfigItem.new(key: :symbolsfileAutoZip,
                                        env_name: "FL_UPLOAD_TO_DYNATRACE_SYM_FILE_AUTO_ZIP",
                                        default_value: true,
@@ -219,6 +207,18 @@ module Fastlane
                                        description: "Enable debug logging",
                                        default_value: false,
                                        is_string: false,
+                                       optional: true),
+
+          FastlaneCore::ConfigItem.new(key: :lldbPath,
+                                       env_name: "FL_UPLOAD_TO_DYNATRACE_LLDB_PATH",
+                                       description: "Custom path to the LLDB framework",
+                                       optional: true),
+
+          FastlaneCore::ConfigItem.new(key: :autoLink,
+                                       env_name: "FL_UPLOAD_TO_DYNATRACE_AUTO_LINK_LLDB",
+                                       description: "Automatically symlink the first found LLDB framework on the system",
+                                       type: Boolean,
+                                       default_value: true,
                                        optional: true)
         ]
       end
