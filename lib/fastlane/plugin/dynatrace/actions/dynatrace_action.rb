@@ -56,6 +56,8 @@ module Fastlane
 
         # iOS/tvOS workflow
         dtxDssClientPath = Helper::DynatraceHelper.get_dss_client(params)
+        destination_path = File.dirname(dtxDssClientPath)
+        Helper::DynatraceHelper.symlink_lldb(params[:lldbPath], destination_path, params[:autoLink])
 
         if !OS.mac?
           UI.user_error! "A macOS machine is required to process iOS symbols."
