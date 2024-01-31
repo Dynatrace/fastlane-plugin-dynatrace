@@ -61,7 +61,7 @@ module Fastlane
 
         dtxDssClientPath = Helper::DynatraceHelper.get_dss_client(params)
         destination_path = File.dirname(dtxDssClientPath)
-        Helper::DynatraceHelper.symlink_lldb(params[:lldbPath], destination_path, params[:autoLink])
+        Helper::DynatraceHelper.symlink_lldb(params[:customLLDBFrameworkPath], destination_path, params[:autoSymlinkLLDB])
 
         # start constructing the command that will trigger the DTXDssClient
         command = []
@@ -209,14 +209,14 @@ module Fastlane
                                        is_string: false,
                                        optional: true),
 
-          FastlaneCore::ConfigItem.new(key: :lldbPath,
+          FastlaneCore::ConfigItem.new(key: :customLLDBFrameworkPath,
                                        env_name: "FL_UPLOAD_TO_DYNATRACE_LLDB_PATH",
-                                       description: "Custom path to the LLDB framework",
+                                       description: "Custom path to the LLDB framework used as runtime dependency by DTXDssClient",
                                        optional: true),
 
-          FastlaneCore::ConfigItem.new(key: :autoLink,
+          FastlaneCore::ConfigItem.new(key: :autoSymlinkLLDB,
                                        env_name: "FL_UPLOAD_TO_DYNATRACE_AUTO_LINK_LLDB",
-                                       description: "Automatically symlink the first found LLDB framework on the system",
+                                       description: "Automatically find and create a symlink to the LLDB framework into the DTXDssClient's temporary folder",
                                        type: Boolean,
                                        default_value: true,
                                        optional: true)

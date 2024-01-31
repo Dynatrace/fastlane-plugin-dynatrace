@@ -127,20 +127,18 @@ module Fastlane
 
         # if there is no lldb_path provided and auto_link is not true
         # then just delete the existing symlinks and raise error
-        Dir.glob("#{destination_path}/*LLDB*").map { |file| FileUtils.rm(file) if File.symlink?(file) }
-        raise "Please provide either a valid lldbPath or enable autoLink option"
+        Dir.glob("#{destination_path}/*LLDB.framework").map { |file| FileUtils.rm(file) if File.symlink?(file) }
+        raise "Please provide either a valid path to LLDB framework or enable autoLink option"
       end
 
       private
       def self.require_path(path)
         if path.nil?
-          UI.important "Path should not be nil."
-          raise RuntimeError
+          raise "Path should not be nil."
         end
 
         unless path_exists?(path)
-          UI.important "Path does not exist."
-          raise RuntimeError
+          raise "Path does not exist."
         end
       end
 
