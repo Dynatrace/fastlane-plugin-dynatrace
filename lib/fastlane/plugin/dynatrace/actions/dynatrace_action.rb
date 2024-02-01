@@ -63,12 +63,12 @@ module Fastlane
         dtxDssClientDir = File.dirname(dtxDssClientPath)
 
         customLLDBFrameworkPath = params[:customLLDBFrameworkPath]
-        if Helper::SymlinkHelper.path_exists?(customLLDBFrameworkPath)
+        if Helper::DynatraceSymlinkHelper.path_exists?(customLLDBFrameworkPath)
           UI.message "Custom LLDB Framework path found at: #{customLLDBFrameworkPath}"
-          Helper::SymlinkHelper.symlink_custom_lldb(customLLDBFrameworkPath, dtxDssClientDir)
+          Helper::DynatraceSymlinkHelper.symlink_custom_lldb(customLLDBFrameworkPath, dtxDssClientDir)
         elsif params[:autoSymlinkLLDB]
           UI.message "Automatic LLDB symlink creation enabled"
-          Helper::SymlinkHelper.auto_symlink_lldb(dtxDssClientDir)
+          Helper::DynatraceSymlinkHelper.auto_symlink_lldb(dtxDssClientDir)
         end
 
         # start constructing the command that will trigger the DTXDssClient

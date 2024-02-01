@@ -2,7 +2,7 @@ module Fastlane
   UI = FastlaneCore::UI unless Fastlane.const_defined?("UI")
 
   module Helper
-    class SymlinkHelper
+    class DynatraceSymlinkHelper
       @symlink_pattern = "*LLDB.framework"
 
       def self.path_exists?(path)

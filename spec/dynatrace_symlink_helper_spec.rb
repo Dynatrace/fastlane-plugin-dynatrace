@@ -1,12 +1,12 @@
 require 'rspec'
 
-describe Fastlane::Helper::SymlinkHelper do
+describe Fastlane::Helper::DynatraceSymlinkHelper do
 
   context "when path_exists? is called" do
     context "with invalid path" do
       it "should return false" do
-        expect(Fastlane::Helper::SymlinkHelper.path_exists?(nil)).to eql(false)
-        expect(Fastlane::Helper::SymlinkHelper.path_exists?("path/that/does/not/exist")).to eql(false)
+        expect(Fastlane::Helper::DynatraceSymlinkHelper.path_exists?(nil)).to eql(false)
+        expect(Fastlane::Helper::DynatraceSymlinkHelper.path_exists?("path/that/does/not/exist")).to eql(false)
       end
     end
 
@@ -20,7 +20,7 @@ describe Fastlane::Helper::SymlinkHelper do
       end
 
       it "should return true" do
-        expect(Fastlane::Helper::SymlinkHelper.path_exists?(@file_path)).to eql(true)
+        expect(Fastlane::Helper::DynatraceSymlinkHelper.path_exists?(@file_path)).to eql(true)
       end
     end
 
@@ -34,7 +34,7 @@ describe Fastlane::Helper::SymlinkHelper do
       end
 
       it "should return true" do
-        expect(Fastlane::Helper::SymlinkHelper.path_exists?(@dir_path)).to eql(true)
+        expect(Fastlane::Helper::DynatraceSymlinkHelper.path_exists?(@dir_path)).to eql(true)
       end
     end
   end
@@ -43,11 +43,11 @@ describe Fastlane::Helper::SymlinkHelper do
     context "with invalid lldb_path" do
       it "should raise error" do
         expect {
-          Fastlane::Helper::SymlinkHelper.symlink_custom_lldb(nil, anything)
+          Fastlane::Helper::DynatraceSymlinkHelper.symlink_custom_lldb(nil, anything)
         }.to raise_error(RuntimeError)
 
         expect {
-          Fastlane::Helper::SymlinkHelper.symlink_custom_lldb("something/that/does/not/exist", anything)
+          Fastlane::Helper::DynatraceSymlinkHelper.symlink_custom_lldb("something/that/does/not/exist", anything)
         }.to raise_error(RuntimeError)
       end
     end
@@ -55,11 +55,11 @@ describe Fastlane::Helper::SymlinkHelper do
     context "with invalid destination_path" do
       it "should raise error" do
         expect {
-          Fastlane::Helper::SymlinkHelper.symlink_custom_lldb(anything, nil)
+          Fastlane::Helper::DynatraceSymlinkHelper.symlink_custom_lldb(anything, nil)
         }.to raise_error(RuntimeError)
 
         expect {
-          Fastlane::Helper::SymlinkHelper.symlink_custom_lldb(anything, "something/that/does/not/exist")
+          Fastlane::Helper::DynatraceSymlinkHelper.symlink_custom_lldb(anything, "something/that/does/not/exist")
         }.to raise_error(RuntimeError)
         expect_no_symlinks("something/that/does/not/exist")
       end
@@ -77,7 +77,7 @@ describe Fastlane::Helper::SymlinkHelper do
       end
 
       it "should successfully create the symlink" do
-        Fastlane::Helper::SymlinkHelper.symlink_custom_lldb(@lldb_path, @destination_path)
+        Fastlane::Helper::DynatraceSymlinkHelper.symlink_custom_lldb(@lldb_path, @destination_path)
 
         expect(symlink_exists?(@lldb_path, @destination_path)).to eql(true)
       end
@@ -94,7 +94,7 @@ describe Fastlane::Helper::SymlinkHelper do
         end
 
         it "should replace the symlink with the new one successfully" do
-          Fastlane::Helper::SymlinkHelper.symlink_custom_lldb(@lldb_path, @destination_path)
+          Fastlane::Helper::DynatraceSymlinkHelper.symlink_custom_lldb(@lldb_path, @destination_path)
 
           expect(symlink_exists?(@lldb_path, @destination_path)).to eql(true)
           expect(symlink_exists?(@other_lldb_path, @destination_path)).to eql(false)
@@ -107,11 +107,11 @@ describe Fastlane::Helper::SymlinkHelper do
     context "with invalid destination_path" do
       it "should raise error" do
         expect {
-          Fastlane::Helper::SymlinkHelper.auto_symlink_lldb(nil)
+          Fastlane::Helper::DynatraceSymlinkHelper.auto_symlink_lldb(nil)
         }.to raise_error(RuntimeError)
 
         expect {
-          Fastlane::Helper::SymlinkHelper.auto_symlink_lldb("something/that/does/not/exist")
+          Fastlane::Helper::DynatraceSymlinkHelper.auto_symlink_lldb("something/that/does/not/exist")
         }.to raise_error(RuntimeError)
       end
     end
@@ -119,7 +119,7 @@ describe Fastlane::Helper::SymlinkHelper do
     context "with valid destination_path" do
       before do
         @destination_path = Dir.mktmpdir("destination-test")
-        @expected_symlink = Fastlane::Helper::SymlinkHelper.active_lldb_path("#{%x(xcrun xcode-select --print-path)}".chomp)
+        @expected_symlink = Fastlane::Helper::DynatraceSymlinkHelper.active_lldb_path("#{%x(xcrun xcode-select --print-path)}".chomp)
       end
 
       after do
@@ -128,7 +128,7 @@ describe Fastlane::Helper::SymlinkHelper do
       end
 
       it "should successfully create the symlink" do
-        Fastlane::Helper::SymlinkHelper.auto_symlink_lldb(@destination_path)
+        Fastlane::Helper::DynatraceSymlinkHelper.auto_symlink_lldb(@destination_path)
 
         expect(symlink_exists?(@expected_symlink, @destination_path)).to eql(true)
       end
@@ -144,7 +144,7 @@ describe Fastlane::Helper::SymlinkHelper do
         end
 
         it "should replace the symlink with the new one successfully" do
-          Fastlane::Helper::SymlinkHelper.auto_symlink_lldb(@destination_path)
+          Fastlane::Helper::DynatraceSymlinkHelper.auto_symlink_lldb(@destination_path)
 
           expect(symlink_exists?(@expected_symlink, @destination_path)).to eql(true)
           expect(symlink_exists?(@other_lldb_path, @destination_path)).to eql(false)
@@ -159,7 +159,7 @@ describe Fastlane::Helper::SymlinkHelper do
         xcode_path = "some_path/Developer"
         expected_path = "some_path/SharedFrameworks/LLDB.framework"
 
-        active_lldb_path = Fastlane::Helper::SymlinkHelper.active_lldb_path(xcode_path)
+        active_lldb_path = Fastlane::Helper::DynatraceSymlinkHelper.active_lldb_path(xcode_path)
 
         expect(active_lldb_path).to eql(expected_path)
       end
@@ -169,7 +169,7 @@ describe Fastlane::Helper::SymlinkHelper do
       it "should return nil" do
         xcode_path = "some_path/CommandLineTools"
 
-        active_lldb_path = Fastlane::Helper::SymlinkHelper.active_lldb_path(xcode_path)
+        active_lldb_path = Fastlane::Helper::DynatraceSymlinkHelper.active_lldb_path(xcode_path)
 
         expect(active_lldb_path).to be_nil
       end

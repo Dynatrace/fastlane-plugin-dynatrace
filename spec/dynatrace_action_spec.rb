@@ -193,7 +193,7 @@ describe Fastlane::Actions::DynatraceProcessSymbolsAction do
         context "and autoSymlinkLLDB is true" do
           before do
             @flhash = FastlaneCore::Configuration.create(mock_config, mock_dict("ios", autoSymlinkLLDB: true))
-            @expected_symlink = Fastlane::Helper::SymlinkHelper.active_lldb_path("#{%x(xcrun xcode-select --print-path)}".chomp)
+            @expected_symlink = Fastlane::Helper::DynatraceSymlinkHelper.active_lldb_path("#{%x(xcrun xcode-select --print-path)}".chomp)
           end
 
           after do
