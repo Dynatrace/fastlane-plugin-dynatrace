@@ -64,8 +64,10 @@ module Fastlane
 
         customLLDBFrameworkPath = params[:customLLDBFrameworkPath]
         if Helper::SymlinkHelper.path_exists?(customLLDBFrameworkPath)
+          UI.message "Custom LLDB Framework path found at: #{customLLDBFrameworkPath}"
           Helper::SymlinkHelper.symlink_lldb(customLLDBFrameworkPath, dtxDssClientDir)
-        elsif params[:autoSymlinkLLDB] == true
+        elsif params[:autoSymlinkLLDB]
+          UI.message "Automatic LLDB symlink creation enabled"
           Helper::SymlinkHelper.auto_symlink_lldb(dtxDssClientDir)
         end
 
