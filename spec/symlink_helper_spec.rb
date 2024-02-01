@@ -165,14 +165,13 @@ describe Fastlane::Helper::SymlinkHelper do
       end
     end
 
-    context "and xcode_path ends with `CommandLineTools`" do
-      it "should return the correct path" do
+    context "and xcode_path does not end with `Developer`" do
+      it "should return nil" do
         xcode_path = "some_path/CommandLineTools"
-        expected_path = "some_path/CommandLineTools/Library/PrivateFrameworks/LLDB.framework"
 
         active_lldb_path = Fastlane::Helper::SymlinkHelper.active_lldb_path(xcode_path)
 
-        expect(active_lldb_path).to eql(expected_path)
+        expect(active_lldb_path).to be_nil
       end
     end
   end

@@ -25,9 +25,11 @@ module Fastlane
         UI.message "Preparing to set up auto-symlink for LLDB framework to: #{destination_path}"
         current_xcode_path = %x(xcrun xcode-select --print-path).chomp
         active_lldb_path = active_lldb_path(current_xcode_path)
-        UI.message "LLDB framework found at: #{active_lldb_path}"
-        delete_existing_lldb_symlinks(destination_path)
-        symlink(active_lldb_path, destination_path)
+        unless active_lldb_path.nil?
+          UI.message "LLDB framework found at: #{active_lldb_path}"
+          delete_existing_lldb_symlinks(destination_path)
+          symlink(active_lldb_path, destination_path)
+        end
       end
 
       def self.require_path(path)
@@ -59,14 +61,13 @@ module Fastlane
       end
 
       def self.active_lldb_path(xcode_path)
-        if xcode_path.end_with? "/Developer"
-          parent_dir = File.dirname(xcode_path)
-          return "#{parent_dir}/SharedFrameworks/LLDB.framework"
+        unless xcode_path.end_with? "/Developer"
+          UI.important "Could not find proper Xcode path. It should end `.../Developer`, but got: #{xcode_path}"
+          return nil
         end
 
-        if xcode_path.end_with? "/CommandLineTools"
-          return "#{xcode_path}/Library/PrivateFrameworks/LLDB.framework"
-        end
+        parent_dir = File.dirname(xcode_path)
+        return "#{parent_dir}/SharedFrameworks/LLDB.framework"
       end
 
       private_class_method :require_path, :delete_existing_lldb_symlinks, :symlink
