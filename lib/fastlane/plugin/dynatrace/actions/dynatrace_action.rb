@@ -43,7 +43,7 @@ module Fastlane
             end
 
             if message.nil?
-              UI.user_error! "API response: #{response.code}. Please try again in a few minutes or contact the Dynatrace support (https://www.dynatrace.com/services-support/)." 
+              UI.user_error! "API response: #{response.code}. Please try again in a few minutes or contact Dynatrace support (https://support.dynatrace.com)." 
             else
               UI.user_error! "API response: #{message} (Response code: #{response.code})" 
             end
