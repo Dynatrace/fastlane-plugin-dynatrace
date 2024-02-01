@@ -169,7 +169,7 @@ describe Fastlane::Actions::DynatraceProcessSymbolsAction do
       end
 
       after do
-        FileUtils.remove_entry(@destination_path)
+        FileUtils.remove_entry(@destination_path) if File.exist?(@destination_path)
       end
 
       context "when valid customLLDBFrameWorkPath provided" do
@@ -179,30 +179,13 @@ describe Fastlane::Actions::DynatraceProcessSymbolsAction do
         end
 
         after do
-          FileUtils.remove_entry(@custom_lldb_path)
+          FileUtils.remove_entry(@custom_lldb_path) if File.exist?(@custom_lldb_path)
         end
 
         it "should create the symlink successfully" do
           Fastlane::Actions::DynatraceProcessSymbolsAction.run(@flhash)
 
           expect(symlink_exists?(@custom_lldb_path, @destination_path)).to eql(true)
-        end
-
-        context "when there is already symlink exists for LLDB" do
-          before do
-            @lldb_path = Dir.mktmpdir("test-LLDB.framework")
-            FileUtils.symlink(@lldb_path, @destination_path)
-          end
-
-          after do
-            FileUtils.remove_entry(@lldb_path)
-          end
-
-          it "should replace the symlink with new one successfully" do
-            Fastlane::Actions::DynatraceProcessSymbolsAction.run(@flhash)
-            expect(symlink_exists?(@custom_lldb_path, @destination_path)).to eql(true)
-            expect(symlink_exists?(@lldb_path, @destination_path)).to eql(false)
-          end
         end
       end
 
@@ -213,28 +196,14 @@ describe Fastlane::Actions::DynatraceProcessSymbolsAction do
             @expected_symlink = Fastlane::Helper::SymlinkHelper.active_lldb_path("#{%x(xcrun xcode-select --print-path)}".chomp)
           end
 
+          after do
+            FileUtils.remove_entry(@expected_symlink) if File.exist?(@expected_symlink)
+          end
+
           it "should create the symlink successfully" do
             Fastlane::Actions::DynatraceProcessSymbolsAction.run(@flhash)
 
             expect(symlink_exists?(@expected_symlink, @destination_path)).to eql(true)
-          end
-
-          context "when there is already symlink exists for LLDB framework" do
-            before do
-              @lldb_path = Dir.mktmpdir("test-LLDB.framework")
-              FileUtils.symlink(@lldb_path, @destination_path)
-            end
-
-            after do
-              FileUtils.remove_entry(@lldb_path)
-            end
-
-            it "should replace the symlink with new one successfully" do
-              Fastlane::Actions::DynatraceProcessSymbolsAction.run(@flhash)
-
-              expect(symlink_exists?(@expected_symlink, @destination_path)).to eql(true)
-              expect(symlink_exists?(@lldb_path, @destination_path)).to eql(false)
-            end
           end
         end
 
@@ -260,13 +229,13 @@ describe Fastlane::Actions::DynatraceProcessSymbolsAction do
       end
 
       def symlink_exists?(expected_symlink, destination_path)
-        symlink_files = Dir.glob("#{destination_path}/*").map { |file| File.readlink(file) if File.symlink?(file) }.compact
-        return symlink_files.include? expected_symlink
+        symlinks = Dir.glob("#{destination_path}/*").map { |file| File.readlink(file) if File.symlink?(file) }.compact
+        return symlinks.include? expected_symlink
       end
 
       def expect_no_symlinks(destination_path)
-        symlink_files = Dir.glob("#{destination_path}/*").map { |file| File.readlink(file) if File.symlink?(file) }.compact
-        expect(symlink_files.empty?).to eql(true)
+        symlinks = Dir.glob("#{destination_path}/*").map { |file| File.readlink(file) if File.symlink?(file) }.compact
+        expect(symlinks.empty?).to eql(true)
       end
     end
   end

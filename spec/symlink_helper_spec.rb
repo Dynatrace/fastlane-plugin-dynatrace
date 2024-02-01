@@ -16,7 +16,7 @@ describe Fastlane::Helper::SymlinkHelper do
       end
 
       after do
-        FileUtils.remove_entry(@file_path)
+        FileUtils.remove_entry(@file_path) if File.exist?(@file_path)
       end
 
       it "should return true" do
@@ -30,7 +30,7 @@ describe Fastlane::Helper::SymlinkHelper do
       end
 
       after do
-        FileUtils.remove_entry(@dir_path)
+        FileUtils.remove_entry(@dir_path) if File.exist?(@dir_path)
       end
 
       it "should return true" do
@@ -61,7 +61,7 @@ describe Fastlane::Helper::SymlinkHelper do
         expect {
           Fastlane::Helper::SymlinkHelper.symlink_custom_lldb(anything, "something/that/does/not/exist")
         }.to raise_error(RuntimeError)
-        verify_no_symlink_exists("something/that/does/not/exist")
+        expect_no_symlinks("something/that/does/not/exist")
       end
     end
 
@@ -72,14 +72,33 @@ describe Fastlane::Helper::SymlinkHelper do
       end
 
       after do
-        FileUtils.remove_entry(@destination_path)
-        FileUtils.remove_entry(@lldb_path)
+        FileUtils.remove_entry(@destination_path) if File.exist?(@destination_path)
+        FileUtils.remove_entry(@lldb_path) if File.exist?(@lldb_path)
       end
 
       it "should successfully create the symlink" do
         Fastlane::Helper::SymlinkHelper.symlink_custom_lldb(@lldb_path, @destination_path)
 
-        verify_symlink_exists(@lldb_path, @destination_path)
+        expect(symlink_exists?(@lldb_path, @destination_path)).to eql(true)
+      end
+
+      context "when there is already an existing symlink for LLDB framework" do
+        before do
+          @other_lldb_path = Tempfile.new("test-LLDB.framework")
+          # Dir.mkdir(@other_lldb_path)
+          FileUtils.symlink(@other_lldb_path, @destination_path)
+        end
+
+        after do
+          FileUtils.remove_entry(@other_lldb_path) if File.exist?(@other_lldb_path)
+        end
+
+        it "should replace the symlink with the new one successfully" do
+          Fastlane::Helper::SymlinkHelper.symlink_custom_lldb(@lldb_path, @destination_path)
+
+          expect(symlink_exists?(@lldb_path, @destination_path)).to eql(true)
+          expect(symlink_exists?(@other_lldb_path, @destination_path)).to eql(false)
+        end
       end
     end
   end
@@ -98,13 +117,38 @@ describe Fastlane::Helper::SymlinkHelper do
     end
 
     context "with valid destination_path" do
+      before do
+        @destination_path = Dir.mktmpdir("destination-test")
+        @expected_symlink = Fastlane::Helper::SymlinkHelper.active_lldb_path("#{%x(xcrun xcode-select --print-path)}".chomp)
+      end
+
+      after do
+        FileUtils.remove_entry(@destination_path) if File.exist?(@destination_path)
+        FileUtils.remove_entry(@expected_symlink) if File.exist?(@expected_symlink)
+      end
+
       it "should successfully create the symlink" do
-        destination_path = Dir.mktmpdir("destination-test")
-        expected_symlink = Fastlane::Helper::SymlinkHelper.active_lldb_path("#{%x(xcrun xcode-select --print-path)}".chomp)
+        Fastlane::Helper::SymlinkHelper.auto_symlink_lldb(@destination_path)
 
-        Fastlane::Helper::SymlinkHelper.auto_symlink_lldb(destination_path)
+        expect(symlink_exists?(@expected_symlink, @destination_path)).to eql(true)
+      end
 
-        verify_symlink_exists(expected_symlink, destination_path)
+      context "when there is already an existing symlink for LLDB framework" do
+        before do
+          @other_lldb_path = Tempfile.new("test-LLDB.framework")
+          FileUtils.symlink(@other_lldb_path, @destination_path)
+        end
+
+        after do
+          FileUtils.remove_entry(@other_lldb_path) if File.exist?(@other_lldb_path)
+        end
+
+        it "should replace the symlink with the new one successfully" do
+          Fastlane::Helper::SymlinkHelper.auto_symlink_lldb(@destination_path)
+
+          expect(symlink_exists?(@expected_symlink, @destination_path)).to eql(true)
+          expect(symlink_exists?(@other_lldb_path, @destination_path)).to eql(false)
+        end
       end
     end
   end
@@ -133,13 +177,13 @@ describe Fastlane::Helper::SymlinkHelper do
     end
   end
 
-  def verify_symlink_exists(expected_symlink, destination_path)
-    symlink_files = Dir.glob("#{destination_path}/*").map { |file| File.readlink(file) if File.symlink?(file) }.compact
-    expect(symlink_files.include? expected_symlink).to eql(true)
+  def symlink_exists?(expected_symlink, destination_path)
+    symlinks = Dir.glob("#{destination_path}/*").map { |file| File.readlink(file) if File.symlink?(file) }.compact
+    return symlinks.include? expected_symlink
   end
 
-  def verify_no_symlink_exists(destination_path)
-    symlink_files = Dir.glob("#{destination_path}/*").map { |file| File.readlink(file) if File.symlink?(file) }.compact
-    expect(symlink_files.empty?).to eql(true)
+  def expect_no_symlinks(destination_path)
+    symlinks = Dir.glob("#{destination_path}/*").map { |file| File.readlink(file) if File.symlink?(file) }.compact
+    expect(symlinks.empty?).to eql(true)
   end
 end

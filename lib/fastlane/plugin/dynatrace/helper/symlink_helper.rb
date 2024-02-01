@@ -3,6 +3,8 @@ module Fastlane
 
   module Helper
     class SymlinkHelper
+      @symlink_pattern = "*LLDB.framework"
+
       def self.path_exists?(path)
         unless path.nil?
           return Dir.exist?(path) || File.exist?(path)
@@ -43,7 +45,7 @@ module Fastlane
       end
 
       def self.delete_existing_lldb_symlinks(destination)
-        Dir.glob("#{destination}/*LLDB.framework").map do |file|
+        Dir.glob("#{destination}/#{@symlink_pattern}").map do |file|
           if File.symlink?(file)
             UI.message "Deleting existing LLDB symlink: #{file}"
             FileUtils.rm(file)
