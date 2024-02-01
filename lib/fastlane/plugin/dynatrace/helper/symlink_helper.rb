@@ -22,7 +22,7 @@ module Fastlane
 
       def self.auto_symlink_lldb(destination_path)
         require_path(destination_path)
-        UI.message "Starting process to auto-symlink LLDB framework at: #{destination_path}"
+        UI.message "Preparing to set up auto-symlink for LLDB framework to: #{destination_path}"
         current_xcode_path = %x(xcrun xcode-select --print-path).chomp
         active_lldb_path = active_lldb_path(current_xcode_path)
         UI.message "LLDB framework found at: #{active_lldb_path}"
