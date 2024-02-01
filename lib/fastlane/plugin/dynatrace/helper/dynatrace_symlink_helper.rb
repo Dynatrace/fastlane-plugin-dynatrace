@@ -15,14 +15,14 @@ module Fastlane
       def self.symlink_custom_lldb(lldb_path, destination_path)
         require_path(destination_path)
         require_path(lldb_path)
-        UI.message "Starting process to create symlink of custom LLDB Framework at: #{destination_path}"
+        UI.message "Preparing to symlink custom LLDB framework path to: #{destination_path}"
         delete_existing_lldb_symlinks(destination_path)
         symlink(lldb_path, destination_path)
       end
 
       def self.auto_symlink_lldb(destination_path)
         require_path(destination_path)
-        UI.message "Preparing to set up auto-symlink for LLDB framework to: #{destination_path}"
+        UI.message "Preparing to automatically symlink LLDB framework path to: #{destination_path}"
         current_xcode_path = %x(xcrun xcode-select --print-path).chomp
         active_lldb_path = active_lldb_path(current_xcode_path)
         unless active_lldb_path.nil?
