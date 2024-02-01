@@ -16,7 +16,7 @@ describe Fastlane::Helper::SymlinkHelper do
       end
 
       after do
-        FileUtils.remove_entry @file_path
+        FileUtils.remove_entry(@file_path)
       end
 
       it "should return true" do
@@ -30,7 +30,7 @@ describe Fastlane::Helper::SymlinkHelper do
       end
 
       after do
-        FileUtils.remove_entry @dir_path
+        FileUtils.remove_entry(@dir_path)
       end
 
       it "should return true" do
@@ -39,15 +39,15 @@ describe Fastlane::Helper::SymlinkHelper do
     end
   end
 
-  context "when symlink_lldb is called" do
+  context "when symlink_custom_lldb is called" do
     context "with invalid lldb_path" do
       it "should raise error" do
         expect {
-          Fastlane::Helper::SymlinkHelper.symlink_lldb(nil, anything)
+          Fastlane::Helper::SymlinkHelper.symlink_custom_lldb(nil, anything)
         }.to raise_error(RuntimeError)
 
         expect {
-          Fastlane::Helper::SymlinkHelper.symlink_lldb("something/that/does/not/exist", anything)
+          Fastlane::Helper::SymlinkHelper.symlink_custom_lldb("something/that/does/not/exist", anything)
         }.to raise_error(RuntimeError)
       end
     end
@@ -55,11 +55,11 @@ describe Fastlane::Helper::SymlinkHelper do
     context "with invalid destination_path" do
       it "should raise error" do
         expect {
-          Fastlane::Helper::SymlinkHelper.symlink_lldb(anything, nil)
+          Fastlane::Helper::SymlinkHelper.symlink_custom_lldb(anything, nil)
         }.to raise_error(RuntimeError)
 
         expect {
-          Fastlane::Helper::SymlinkHelper.symlink_lldb(anything, "something/that/does/not/exist")
+          Fastlane::Helper::SymlinkHelper.symlink_custom_lldb(anything, "something/that/does/not/exist")
         }.to raise_error(RuntimeError)
         verify_no_symlink_exists("something/that/does/not/exist")
       end
@@ -72,12 +72,12 @@ describe Fastlane::Helper::SymlinkHelper do
       end
 
       after do
-        FileUtils.remove_entry @destination_path
-        FileUtils.remove_entry @lldb_path
+        FileUtils.remove_entry(@destination_path)
+        FileUtils.remove_entry(@lldb_path)
       end
 
       it "should successfully create the symlink" do
-        Fastlane::Helper::SymlinkHelper.symlink_lldb(@lldb_path, @destination_path)
+        Fastlane::Helper::SymlinkHelper.symlink_custom_lldb(@lldb_path, @destination_path)
 
         verify_symlink_exists(@lldb_path, @destination_path)
       end
