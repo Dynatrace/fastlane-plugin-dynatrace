@@ -23,25 +23,38 @@ describe Fastlane::Actions::DynatraceProcessSymbolsAction do
         ]
   end
 
-  def mock_dict (os, symbolsfile = Dir.pwd + "/spec/testdata/android-mapping-test.txt", customLLDBFrameworkPath: nil, autoSymlinkLLDB: false)
-    return {
-          :action => "-upload",
-          :apitoken => "",
-          :os => os,
-          :versionStr => "123",
-          :version => "456",
-          :server => "https://dynatrace.com",
-          :bundleId => "com.dynatrace.fastlanetest",
-          :symbolsfile => symbolsfile,
-          :dtxDssClientPath => "",
-          :appId => "abcdefg",
-          :cleanBuildArtifacts => false,
-          :tempdir => "",
-          :debugMode => false,
-          :symbolsfileAutoZip => true,
-          :customLLDBFrameworkPath => customLLDBFrameworkPath,
-          :autoSymlinkLLDB => autoSymlinkLLDB
-        }
+  def mock_dict (
+    os,
+    symbolsfile = Dir.pwd + "/spec/testdata/android-mapping-test.txt",
+    customLLDBFrameworkPath: nil,
+    autoSymlinkLLDB: nil
+  )
+    dict = {
+      :action => "-upload",
+      :apitoken => "",
+      :os => os,
+      :versionStr => "123",
+      :version => "456",
+      :server => "https://dynatrace.com",
+      :bundleId => "com.dynatrace.fastlanetest",
+      :symbolsfile => symbolsfile,
+      :dtxDssClientPath => "",
+      :appId => "abcdefg",
+      :cleanBuildArtifacts => false,
+      :tempdir => "",
+      :debugMode => false,
+      :symbolsfileAutoZip => true
+    }
+
+    unless customLLDBFrameworkPath.nil?
+      dict[:customLLDBFrameworkPath] = customLLDBFrameworkPath
+    end
+
+    unless autoSymlinkLLDB.nil?
+      dict[:autoSymlinkLLDB] = autoSymlinkLLDB
+    end
+
+    return dict
   end
 
   describe ".run" do
@@ -190,6 +203,16 @@ describe Fastlane::Actions::DynatraceProcessSymbolsAction do
         context "and autoSymlinkLLDB is false" do
           it "should not create the symlink" do
             flhash = FastlaneCore::Configuration.create(mock_config, mock_dict("ios", autoSymlinkLLDB: false))
+
+            Fastlane::Actions::DynatraceProcessSymbolsAction.run(flhash)
+
+            verify_no_symlink_exists(@destination_path)
+          end
+        end
+
+        context "and autoSymlinkLLDB is nil" do
+          it "should not create the symlink" do
+            flhash = FastlaneCore::Configuration.create(mock_config, mock_dict("ios"))
 
             Fastlane::Actions::DynatraceProcessSymbolsAction.run(flhash)
 
