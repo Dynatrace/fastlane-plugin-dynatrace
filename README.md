@@ -53,7 +53,7 @@ Now, when you run fastlane, the Dynatrace plugin will manage the symbol files of
 | cleanBuildArtifacts     | Clean build artifacts after processing.                                                                                                                                                                                         | `false`       |
 | tempdir                 | (OPTIONAL) Custom temporary directory for the DTXDssClient. **The plugin does not take care of cleaning this directory.**                                                                                                       |               |
 | debugMode               | Enable debug logging.                                                                                                                                                                                                           | `false`       |
-| customLLDBFrameworkPath | (OPTIONAL) Custom path to the LLDB framework used as runtime dependency by DTXDssClient.                                                                                                                                        |               |
+| customLLDBFrameworkPath | (OPTIONAL) Custom path to the LLDB framework used as runtime dependency by DTXDssClient (e.g. `/Users/test/Documents/LLDB.framework`).                                                                                          |               |
 | autoSymlinkLLDB         | (OPTIONAL) Automatically find and create a symlink to the LLDB framework into the DTXDssClient's temporary folder.                                                                                                              | `true`        |
 
 ## Example
