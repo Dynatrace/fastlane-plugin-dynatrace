@@ -35,17 +35,18 @@ module Fastlane
 
           # https://www.dynatrace.com/support/help/dynatrace-api/configuration-api/mobile-symbolication-api/put-files-app-version
           if response.code == '204'
-              UI.success "API response: Success."
+            UI.success "API response: Success."
           else
-              message = nil
-              unless response.body.nil?
-                message = JSON.parse(response.body)["error"]["message"]
-              end
-              if message.nil?
-                UI.user_error! "API response: #{response.code}. Please try again in a few minutes or contact the Dynatrace support (https://www.dynatrace.com/services-support/)." 
-              else
-                UI.user_error! "API response: #{message} (Response code: #{response.code})" 
-              end
+            message = nil
+            if response.class.body_permitted? and not response.body.nil?
+              message = JSON.parse(response.body)["error"]["message"]
+            end
+
+            if message.nil?
+              UI.user_error! "API response: #{response.code}. Please try again in a few minutes or contact Dynatrace support (https://support.dynatrace.com)." 
+            else
+              UI.user_error! "API response: #{message} (Response code: #{response.code})" 
+            end
           end
           return
         end
