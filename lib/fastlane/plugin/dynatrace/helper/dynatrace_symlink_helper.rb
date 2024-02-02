@@ -16,7 +16,6 @@ module Fastlane
         require_path(destination_path)
         require_path(lldb_path)
         UI.message "Preparing to symlink custom LLDB framework path to: #{destination_path}"
-        delete_existing_lldb_symlinks(destination_path)
         symlink(lldb_path, destination_path)
       end
 
@@ -27,7 +26,6 @@ module Fastlane
         active_lldb_path = active_lldb_path(current_xcode_path)
         unless active_lldb_path.nil?
           UI.message "LLDB framework found at: #{active_lldb_path}"
-          delete_existing_lldb_symlinks(destination_path)
           symlink(active_lldb_path, destination_path)
         end
       end
@@ -46,15 +44,6 @@ module Fastlane
         end
       end
 
-      def self.delete_existing_lldb_symlinks(destination)
-        Dir.glob("#{destination}/#{@symlink_pattern}").map do |file|
-          if File.symlink?(file)
-            UI.message "Deleting existing LLDB symlink: #{file}"
-            FileUtils.rm(file)
-          end
-        end
-      end
-
       def self.symlink(source, destination)
         UI.message "Creating a symlink of #{source} at #{destination}"
         FileUtils.symlink(source, destination)
@@ -70,7 +59,7 @@ module Fastlane
         return "#{parent_dir}/SharedFrameworks/LLDB.framework"
       end
 
-      private_class_method :require_path, :delete_existing_lldb_symlinks, :symlink
+      private_class_method :require_path, :symlink
     end
   end
 end

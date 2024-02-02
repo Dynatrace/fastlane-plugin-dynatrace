@@ -160,7 +160,7 @@ describe Fastlane::Actions::DynatraceProcessSymbolsAction do
       end
     end
 
-    context "ios: workflow" do
+    context "ios: workflow for symlink" do
       before do
         dss_client_path = "dt-action-ios-workflow-test/dynatrace"
         FileUtils::mkdir_p dss_client_path
@@ -170,6 +170,24 @@ describe Fastlane::Actions::DynatraceProcessSymbolsAction do
 
       after do
         FileUtils.remove_entry(@destination_path) if File.exist?(@destination_path)
+      end
+
+      context "when there is already an existing symlink for LLDB framework" do
+        before do
+          @other_lldb_path = Tempfile.new("test-LLDB.framework")
+          FileUtils.symlink(@other_lldb_path, @destination_path)
+        end
+
+        after do
+          FileUtils.remove_entry(@other_lldb_path) if File.exist?(@other_lldb_path)
+        end
+
+        it "should delete it" do
+          flhash = FastlaneCore::Configuration.create(mock_config, mock_dict("ios"))
+          Fastlane::Actions::DynatraceProcessSymbolsAction.run(flhash)
+
+          expect(symlink_exists?(@other_lldb_path, @destination_path)).to eql(false)
+        end
       end
 
       context "when valid customLLDBFrameWorkPath provided" do
@@ -197,7 +215,7 @@ describe Fastlane::Actions::DynatraceProcessSymbolsAction do
           end
 
           after do
-            FileUtils.remove_entry(@expected_symlink) if File.exist?(@expected_symlink)
+            FileUtils.remove_entry(@expected_symlink) if not @expected_symlink.nil? and File.exist?(@expected_symlink)
           end
 
           it "should create the symlink successfully" do

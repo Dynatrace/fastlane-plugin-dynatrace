@@ -79,26 +79,7 @@ describe Fastlane::Helper::DynatraceSymlinkHelper do
       it "should successfully create the symlink" do
         Fastlane::Helper::DynatraceSymlinkHelper.symlink_custom_lldb(@lldb_path, @destination_path)
 
-        expect(symlink_exists?(@lldb_path, @destination_path)).to eql(true)
-      end
-
-      context "when there is already an existing symlink for LLDB framework" do
-        before do
-          @other_lldb_path = Tempfile.new("test-LLDB.framework")
-          # Dir.mkdir(@other_lldb_path)
-          FileUtils.symlink(@other_lldb_path, @destination_path)
-        end
-
-        after do
-          FileUtils.remove_entry(@other_lldb_path) if File.exist?(@other_lldb_path)
-        end
-
-        it "should replace the symlink with the new one successfully" do
-          Fastlane::Helper::DynatraceSymlinkHelper.symlink_custom_lldb(@lldb_path, @destination_path)
-
-          expect(symlink_exists?(@lldb_path, @destination_path)).to eql(true)
-          expect(symlink_exists?(@other_lldb_path, @destination_path)).to eql(false)
-        end
+        expect_symlink(@lldb_path, @destination_path)
       end
     end
   end
@@ -124,31 +105,13 @@ describe Fastlane::Helper::DynatraceSymlinkHelper do
 
       after do
         FileUtils.remove_entry(@destination_path) if File.exist?(@destination_path)
-        FileUtils.remove_entry(@expected_symlink) if File.exist?(@expected_symlink)
+        FileUtils.remove_entry(@expected_symlink) if not @expected_symlink.nil? and File.exist?(@expected_symlink)
       end
 
       it "should successfully create the symlink" do
         Fastlane::Helper::DynatraceSymlinkHelper.auto_symlink_lldb(@destination_path)
 
-        expect(symlink_exists?(@expected_symlink, @destination_path)).to eql(true)
-      end
-
-      context "when there is already an existing symlink for LLDB framework" do
-        before do
-          @other_lldb_path = Tempfile.new("test-LLDB.framework")
-          FileUtils.symlink(@other_lldb_path, @destination_path)
-        end
-
-        after do
-          FileUtils.remove_entry(@other_lldb_path) if File.exist?(@other_lldb_path)
-        end
-
-        it "should replace the symlink with the new one successfully" do
-          Fastlane::Helper::DynatraceSymlinkHelper.auto_symlink_lldb(@destination_path)
-
-          expect(symlink_exists?(@expected_symlink, @destination_path)).to eql(true)
-          expect(symlink_exists?(@other_lldb_path, @destination_path)).to eql(false)
-        end
+        expect_symlink(@expected_symlink, @destination_path)
       end
     end
   end
@@ -176,9 +139,9 @@ describe Fastlane::Helper::DynatraceSymlinkHelper do
     end
   end
 
-  def symlink_exists?(expected_symlink, destination_path)
+  def expect_symlink(expected_symlink, destination_path)
     symlinks = Dir.glob("#{destination_path}/*").map { |file| File.readlink(file) if File.symlink?(file) }.compact
-    return symlinks.include? expected_symlink
+    expect(symlinks.include? expected_symlink).to eql(true)
   end
 
   def expect_no_symlinks(destination_path)
