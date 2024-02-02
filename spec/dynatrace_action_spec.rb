@@ -91,12 +91,16 @@ describe Fastlane::Actions::DynatraceProcessSymbolsAction do
       end
 
       it "uploads a local symbol file exceeding the zip limit" do
-        flhash = FastlaneCore::Configuration.create(mock_config(), mock_dict("android", Dir.pwd + "/spec/testdata/android-mapping-test_bigger.txt"))
+        testFilePath = Dir.pwd + "/spec/testdata/android-mapping-test_bigger.txt"
+        flhash = FastlaneCore::Configuration.create(mock_config(), mock_dict("android", testFilePath))
 
         response = Net::HTTPSuccess.new(1.0, '204', 'OK')
         expect_any_instance_of(Net::HTTP).to receive(:request) { response }
 
         Fastlane::Actions::DynatraceProcessSymbolsAction.run(flhash)
+
+        testFileZipPath = testFilePath + ".zip"
+        File.delete(testFileZipPath) if File.exist?(testFileZipPath)
       end
     end
 
@@ -106,6 +110,7 @@ describe Fastlane::Actions::DynatraceProcessSymbolsAction do
 
         response = Net::HTTPClientError.new(1.0, '400', 'Bad Request')
         expect_any_instance_of(Net::HTTP).to receive(:request) { response }
+        expect_any_instance_of(Net::HTTPClientError).to receive(:body).and_return(nil)
 
         expect{
           Fastlane::Actions::DynatraceProcessSymbolsAction.run(flhash)
@@ -117,6 +122,7 @@ describe Fastlane::Actions::DynatraceProcessSymbolsAction do
 
         response = Net::HTTPClientError.new(1.0, '401', 'Unauthorized')
         expect_any_instance_of(Net::HTTP).to receive(:request) { response }
+        expect_any_instance_of(Net::HTTPClientError).to receive(:body).and_return(nil)
 
         expect{
           Fastlane::Actions::DynatraceProcessSymbolsAction.run(flhash)
@@ -128,6 +134,7 @@ describe Fastlane::Actions::DynatraceProcessSymbolsAction do
 
         response = Net::HTTPClientError.new(1.0, '413', 'Quota Exceeded')
         expect_any_instance_of(Net::HTTP).to receive(:request) { response }
+        expect_any_instance_of(Net::HTTPClientError).to receive(:body).and_return(nil)
 
         expect{
           Fastlane::Actions::DynatraceProcessSymbolsAction.run(flhash)

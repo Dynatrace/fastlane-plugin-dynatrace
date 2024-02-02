@@ -628,7 +628,8 @@ describe Fastlane::Helper::DynatraceHelper do
 
     context "regular saas request with zip" do
       it "generates the correct request" do
-        mock_dict = mock_dict("android")
+        testFilePath = Dir.pwd + "/spec/testdata/android-mapping-test_bigger.txt"
+        mock_dict = mock_dict("android", testFilePath)
         flhash = FastlaneCore::Configuration.create(mock_config(), mock_dict)
 
         response = Net::HTTPSuccess.new(1.0, '204', 'OK')
@@ -641,6 +642,9 @@ describe Fastlane::Helper::DynatraceHelper do
         expect(request['Content-Type']).to eql('application/zip')
         expect(request['Authorization']).to eql('Api-Token')
         expect(request.path).to eql('/api/config/v1/symfiles/abcdefg/com.dynatrace.fastlanetest/ANDROID/456/123')
+
+        testFileZipPath = testFilePath + ".zip"
+        File.delete(testFileZipPath) if File.exist?(testFileZipPath)
       end
     end
   end
