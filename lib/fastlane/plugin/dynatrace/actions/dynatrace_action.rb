@@ -19,6 +19,8 @@ module Fastlane
         UI.message "Server URL: #{params[:server]}"
         UI.message "Tempdir: #{params[:tempdir]}"
         UI.message "Symbols file path: #{params[:symbolsfile]}"
+        UI.message "Custom LLDB framework path: #{params[:customLLDBFrameworkPath]}"
+        UI.message "Auto symlink LLDB: #{params[:autoSymlinkLLDB]}"
 
         UI.message "Checking AppFile for possible AppID"
         bundleId = CredentialsManager::AppfileConfig.try_fetch_value(:app_identifier)
@@ -62,12 +64,16 @@ module Fastlane
 
         dtxDssClientPath = Helper::DynatraceHelper.get_dss_client(params)
         dtxDssClientDir = File.dirname(dtxDssClientPath)
-
         Helper::DynatraceSymlinkHelper.delete_existing_lldb_symlinks(dtxDssClientDir)
+
         customLLDBFrameworkPath = params[:customLLDBFrameworkPath]
-        if Helper::DynatraceSymlinkHelper.path_exists?(customLLDBFrameworkPath)
-          UI.message "Custom LLDB Framework path found at: #{customLLDBFrameworkPath}"
-          Helper::DynatraceSymlinkHelper.symlink_custom_lldb(customLLDBFrameworkPath, dtxDssClientDir)
+        if not customLLDBFrameworkPath.nil?
+          if Helper::DynatraceSymlinkHelper.path_exists?(customLLDBFrameworkPath)
+            UI.message "Custom LLDB Framework path found at: #{customLLDBFrameworkPath}"
+            Helper::DynatraceSymlinkHelper.symlink_custom_lldb(customLLDBFrameworkPath, dtxDssClientDir)
+          else
+            UI.message "Custom LLDB Framework path set, but the path does not exist: #{customLLDBFrameworkPath}"
+          end
         elsif params[:autoSymlinkLLDB]
           UI.message "Automatic LLDB symlink creation enabled"
           Helper::DynatraceSymlinkHelper.auto_symlink_lldb(dtxDssClientDir)
