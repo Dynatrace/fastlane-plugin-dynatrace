@@ -31,7 +31,7 @@ module Fastlane
       def self.delete_existing_lldb_symlinks(destination_path)
         symlink_path = make_symlink_path_name(destination_path)
         if path_exists?(symlink_path) and File.symlink?(symlink_path)
-          UI.message "Deleting existing LLDB symlink: #{file}"
+          UI.message "Deleting existing LLDB symlink: #{symlink_path}"
           FileUtils.rm(symlink_path)
         else
           UI.message "No existing LLDB symlink at destination: #{symlink_path}"
