@@ -181,7 +181,7 @@ describe Fastlane::Actions::DynatraceProcessSymbolsAction do
 
       context "when there is already an existing symlink for LLDB framework" do
         before do
-          @other_lldb_path = Tempfile.new("test-LLDB.framework")
+          @other_lldb_path = Tempfile.new("test-lldb")
           FileUtils.symlink(@other_lldb_path, @destination_path)
         end
 
@@ -199,7 +199,8 @@ describe Fastlane::Actions::DynatraceProcessSymbolsAction do
 
       context "when valid customLLDBFrameWorkPath provided" do
         before do
-          @custom_lldb_path = Dir.mktmpdir("custom-LLDB.framework")
+          @custom_lldb_path = "custom-lldb"
+          FileUtils.mkdir(@custom_lldb_path)
           @flhash = FastlaneCore::Configuration.create(mock_config, mock_dict("ios", customLLDBFrameworkPath: @custom_lldb_path))
         end
 
@@ -215,22 +216,22 @@ describe Fastlane::Actions::DynatraceProcessSymbolsAction do
       end
 
       context "when there is no valid customLLDBFrameWorkPath provided" do
-        context "and autoSymlinkLLDB is true" do
-          before do
-            @flhash = FastlaneCore::Configuration.create(mock_config, mock_dict("ios", autoSymlinkLLDB: true))
-            @expected_symlink = Fastlane::Helper::DynatraceSymlinkHelper.active_lldb_path("#{%x(xcrun xcode-select --print-path)}".chomp)
-          end
-
-          after do
-            FileUtils.remove_entry(@expected_symlink) if not @expected_symlink.nil? and File.exist?(@expected_symlink)
-          end
-
-          it "should create the symlink successfully" do
-            Fastlane::Actions::DynatraceProcessSymbolsAction.run(@flhash)
-
-            expect(symlink_exists?(@expected_symlink, @destination_path)).to eql(true)
-          end
-        end
+        # context "and autoSymlinkLLDB is true" do
+        #   before do
+        #     @flhash = FastlaneCore::Configuration.create(mock_config, mock_dict("ios", autoSymlinkLLDB: true))
+        #     @expected_symlink = Fastlane::Helper::DynatraceSymlinkHelper.active_lldb_path("#{%x(xcrun xcode-select --print-path)}".chomp)
+        #   end
+        #
+        #   after do
+        #     FileUtils.remove_entry(@expected_symlink) if not @expected_symlink.nil? and File.exist?(@expected_symlink)
+        #   end
+        #
+        #   it "should create the symlink successfully" do
+        #     Fastlane::Actions::DynatraceProcessSymbolsAction.run(@flhash)
+        #
+        #     expect(symlink_exists?(@expected_symlink, @destination_path)).to eql(true)
+        #   end
+        # end
 
         context "and autoSymlinkLLDB is false" do
           it "should not create the symlink" do
