@@ -193,14 +193,13 @@ describe Fastlane::Actions::DynatraceProcessSymbolsAction do
           flhash = FastlaneCore::Configuration.create(mock_config, mock_dict("ios"))
           Fastlane::Actions::DynatraceProcessSymbolsAction.run(flhash)
 
-          expect(symlink_exists?(@other_lldb_path, @destination_path)).to eql(false)
+          expect(lldb_symlink_exists?(@destination_path)).to eql(false)
         end
       end
 
       context "when valid customLLDBFrameWorkPath provided" do
         before do
-          @custom_lldb_path = "custom-lldb"
-          FileUtils.mkdir(@custom_lldb_path)
+          @custom_lldb_path = Dir.mktmpdir
           @flhash = FastlaneCore::Configuration.create(mock_config, mock_dict("ios", customLLDBFrameworkPath: @custom_lldb_path))
         end
 
@@ -210,28 +209,20 @@ describe Fastlane::Actions::DynatraceProcessSymbolsAction do
 
         it "should create the symlink successfully" do
           Fastlane::Actions::DynatraceProcessSymbolsAction.run(@flhash)
-
-          expect(symlink_exists?(@custom_lldb_path, @destination_path)).to eql(true)
+          expect(lldb_symlink_exists?(@destination_path)).to eql(true)
         end
       end
 
       context "when there is no valid customLLDBFrameWorkPath provided" do
-        # context "and autoSymlinkLLDB is true" do
-        #   before do
-        #     @flhash = FastlaneCore::Configuration.create(mock_config, mock_dict("ios", autoSymlinkLLDB: true))
-        #     @expected_symlink = Fastlane::Helper::DynatraceSymlinkHelper.active_lldb_path("#{%x(xcrun xcode-select --print-path)}".chomp)
-        #   end
-        #
-        #   after do
-        #     FileUtils.remove_entry(@expected_symlink) if not @expected_symlink.nil? and File.exist?(@expected_symlink)
-        #   end
-        #
-        #   it "should create the symlink successfully" do
-        #     Fastlane::Actions::DynatraceProcessSymbolsAction.run(@flhash)
-        #
-        #     expect(symlink_exists?(@expected_symlink, @destination_path)).to eql(true)
-        #   end
-        # end
+        context "and autoSymlinkLLDB is true" do
+          it "should create the symlink successfully" do
+            flhash = FastlaneCore::Configuration.create(mock_config, mock_dict("ios", autoSymlinkLLDB: true))
+
+            Fastlane::Actions::DynatraceProcessSymbolsAction.run(flhash)
+
+            expect(lldb_symlink_exists?(@destination_path)).to eql(true)
+          end
+        end
 
         context "and autoSymlinkLLDB is false" do
           it "should not create the symlink" do
@@ -239,7 +230,7 @@ describe Fastlane::Actions::DynatraceProcessSymbolsAction do
 
             Fastlane::Actions::DynatraceProcessSymbolsAction.run(flhash)
 
-            expect_no_symlinks(@destination_path)
+            expect(lldb_symlink_exists?(@destination_path)).to eql(false)
           end
         end
 
@@ -249,19 +240,14 @@ describe Fastlane::Actions::DynatraceProcessSymbolsAction do
 
             Fastlane::Actions::DynatraceProcessSymbolsAction.run(flhash)
 
-            expect_no_symlinks(@destination_path)
+            expect(lldb_symlink_exists?(@destination_path)).to eql(false)
           end
         end
       end
 
-      def symlink_exists?(expected_symlink, destination_path)
-        symlinks = Dir.glob("#{destination_path}/*").map { |file| File.readlink(file) if File.symlink?(file) }.compact
-        return symlinks.include? expected_symlink
-      end
-
-      def expect_no_symlinks(destination_path)
-        symlinks = Dir.glob("#{destination_path}/*").map { |file| File.readlink(file) if File.symlink?(file) }.compact
-        expect(symlinks.empty?).to eql(true)
+      def lldb_symlink_exists?(destination_path)
+        symlink = File.join(destination_path, "LLDB.framework")
+        return File.exist?(symlink) && File.symlink?(symlink)
       end
     end
   end

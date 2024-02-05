@@ -26,8 +26,7 @@ describe Fastlane::Helper::DynatraceSymlinkHelper do
 
     context "with valid directory path" do
       before do
-        @dir_path = "temp-dir"
-        FileUtils.mkdir(@dir_path)
+        @dir_path = Dir.mktmpdir
       end
 
       after do
@@ -70,28 +69,17 @@ describe Fastlane::Helper::DynatraceSymlinkHelper do
       before do
         @destination_path = "symlink_custom_lldb-destination-test"
         FileUtils.mkdir(@destination_path)
-        @lldb_path = "symlink_custom_lldb-lldb-test"
-        FileUtils.mkdir(@lldb_path)
+        @lldb_path = Dir.mktmpdir
       end
 
       after do
         FileUtils.remove_entry(@destination_path)
-        FileUtils.remove_entry(@lldb_path)
+        FileUtils.remove_entry(@lldb_path) if File.exist?(@lldb_path)
       end
 
       it "should successfully create the symlink" do
         Fastlane::Helper::DynatraceSymlinkHelper.symlink_custom_lldb(@lldb_path, @destination_path)
 
-        puts "Destination-path Dir exists?: #{Dir.exist?(@destination_path)}"
-        puts "Destination-path File exists?: #{File.exist?(@destination_path)}"
-        puts "Destination-path File symlink exists?: #{File.symlink?(@destination_path)}"
-        puts "LLDB-path Dir exists?: #{Dir.exist?(@lldb_path)}"
-        puts "LLDB-path File exists?: #{File.exist?(@lldb_path)}"
-        puts "LLDB-path File symlink exists?: #{File.symlink?(@lldb_path)}"
-
-        symlink = File.join(@destination_path, "LLDB.framework")
-        puts "FULL_PATH = #{symlink}"
-        sleep(10)
         expect(lldb_symlink_exists?(@destination_path)).to eql(true)
       end
     end
@@ -122,10 +110,6 @@ describe Fastlane::Helper::DynatraceSymlinkHelper do
 
       it "should successfully create the symlink" do
         Fastlane::Helper::DynatraceSymlinkHelper.auto_symlink_lldb(@destination_path)
-
-        puts "VD Destination-path Dir exists?: #{Dir.exist?(@destination_path)}"
-        puts "VD Destination-path File exists?: #{File.exist?(@destination_path)}"
-        puts "VD Destination-path File symlink exists?: #{File.symlink?(@destination_path)}"
 
         expect(lldb_symlink_exists?(@destination_path)).to eql(true)
       end
@@ -183,13 +167,12 @@ describe Fastlane::Helper::DynatraceSymlinkHelper do
 
     context "and there is a symlink" do
       before do
-        @lldb_path = "dt-lldb-test"
-        FileUtils.mkpath(@lldb_path)
+        @lldb_path = Dir.mktmpdir
         FileUtils.symlink(@lldb_path, @destination_path)
       end
 
       after do
-        FileUtils.remove_entry(@lldb_path)
+        FileUtils.remove_entry(@lldb_path) if File.exist?(@lldb_path)
       end
 
       it "should delete the symlink" do
@@ -203,9 +186,6 @@ describe Fastlane::Helper::DynatraceSymlinkHelper do
 
   def lldb_symlink_exists?(destination_path)
     symlink = File.join(destination_path, "LLDB.framework")
-    puts "##### Symlink-path Dir exists?: #{Dir.exist?(symlink)}"
-    puts "##### Symlink-path File exists?: #{File.exist?(symlink)}"
-    puts "##### Symlink-path File symlink exists?: #{File.symlink?(symlink)}"
-    return (Dir.exist?(symlink) || File.exist?(symlink)) && File.symlink?(symlink)
+    return File.exist?(symlink) && File.symlink?(symlink)
   end
 end

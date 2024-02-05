@@ -52,11 +52,11 @@ module Fastlane
         end
       end
 
-      def self.symlink(source, destination_path)
-        destination = make_symlink_path_name(destination_path)
-        UI.message "Creating a symlink of #{source} at #{destination}"
-        puts "################ Creating a symlink of #{source} at #{destination}"
-        FileUtils.symlink(source, destination)
+      def self.symlink(source, destination)
+        destination_absolute = File.expand_path(make_symlink_path_name(destination))
+        source_absolute = File.expand_path(source)
+        UI.message "Creating a symlink of #{source_absolute} at #{destination_absolute}"
+        FileUtils.symlink(source_absolute, destination_absolute)
       end
 
       def self.active_lldb_path(xcode_path)
