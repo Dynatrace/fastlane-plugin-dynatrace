@@ -3,8 +3,6 @@ module Fastlane
 
   module Helper
     class DynatraceSymlinkHelper
-      @symlink_pattern = "*LLDB.framework"
-
       def self.path_exists?(path)
         unless path.nil?
           return Dir.exist?(path) || File.exist?(path)
@@ -27,6 +25,15 @@ module Fastlane
         unless active_lldb_path.nil?
           UI.message "LLDB framework found at: #{active_lldb_path}"
           symlink(active_lldb_path, destination_path)
+        end
+      end
+
+      def self.delete_existing_lldb_symlinks(destination)
+        Dir.glob("#{destination}/*LLDB.framework").map do |file|
+          if File.symlink?(file)
+            UI.message "Deleting existing LLDB symlink: #{file}"
+            FileUtils.rm(file)
+          end
         end
       end
 

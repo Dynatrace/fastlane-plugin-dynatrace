@@ -139,6 +139,52 @@ describe Fastlane::Helper::DynatraceSymlinkHelper do
     end
   end
 
+  context "when delete_existing_lldb_symlinks is called" do
+    before do
+      @destination_path = "dt-symlink-helper-test"
+      FileUtils.mkdir(@destination_path)
+    end
+
+    after do
+      FileUtils.remove_entry(@destination_path)
+    end
+
+    context "and there is a file but not a symlink" do
+      before do
+        @file = Tempfile.new("not-a-symlink.txt", @destination_path)
+      end
+
+      after do
+        FileUtils.remove_entry(@file)
+      end
+
+      it "should do nothing" do
+        Fastlane::Helper::DynatraceSymlinkHelper.delete_existing_lldb_symlinks(@destination_path)
+
+        expect(File.exist?(@file)).to eql(true)
+      end
+    end
+
+    context "and there is a symlink which ends with LLDB.framework" do
+      before do
+        @lldb_path = "dt-lldb-test/LLDB.framework"
+        FileUtils.mkpath(@lldb_path)
+        FileUtils.symlink(@lldb_path, @destination_path)
+      end
+
+      after do
+        FileUtils.remove_entry(@lldb_path)
+      end
+
+      it "should delete it" do
+        Fastlane::Helper::DynatraceSymlinkHelper.delete_existing_lldb_symlinks(@destination_path)
+
+        expect_no_symlinks(@destination_path)
+        expect(File.exist?(@lldb_path)).to eql(true)
+      end
+    end
+  end
+
   def expect_symlink(expected_symlink, destination_path)
     symlinks = Dir.glob("#{destination_path}/*").map { |file| File.readlink(file) if File.symlink?(file) }.compact
     expect(symlinks.include? expected_symlink).to eql(true)

@@ -63,7 +63,7 @@ module Fastlane
         dtxDssClientPath = Helper::DynatraceHelper.get_dss_client(params)
         dtxDssClientDir = File.dirname(dtxDssClientPath)
 
-        delete_existing_lldb_symlinks(dtxDssClientDir)
+        Helper::DynatraceSymlinkHelper.delete_existing_lldb_symlinks(dtxDssClientDir)
         customLLDBFrameworkPath = params[:customLLDBFrameworkPath]
         if Helper::DynatraceSymlinkHelper.path_exists?(customLLDBFrameworkPath)
           UI.message "Custom LLDB Framework path found at: #{customLLDBFrameworkPath}"
@@ -240,17 +240,6 @@ module Fastlane
       def self.is_supported?(platform)
          [:ios, :android].include?(platform)
       end
-
-      def self.delete_existing_lldb_symlinks(destination)
-        Dir.glob("#{destination}/#{@symlink_pattern}").map do |file|
-          if File.symlink?(file)
-            UI.message "Deleting existing LLDB symlink: #{file}"
-            FileUtils.rm(file)
-          end
-        end
-      end
-
-      private_class_method :delete_existing_lldb_symlinks
     end
   end
 end
