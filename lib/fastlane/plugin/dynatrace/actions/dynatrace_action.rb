@@ -19,6 +19,8 @@ module Fastlane
         UI.message "Server URL: #{params[:server]}"
         UI.message "Tempdir: #{params[:tempdir]}"
         UI.message "Symbols file path: #{params[:symbolsfile]}"
+        UI.message "Custom LLDB framework path: #{params[:customLLDBFrameworkPath]}"
+        UI.message "Auto symlink LLDB: #{params[:autoSymlinkLLDB]}"
 
         UI.message "Checking AppFile for possible AppID"
         bundleId = CredentialsManager::AppfileConfig.try_fetch_value(:app_identifier)
@@ -56,10 +58,25 @@ module Fastlane
         end
 
         # iOS/tvOS workflow
-        dtxDssClientPath = Helper::DynatraceHelper.get_dss_client(params)
+        unless OS.mac?
+          UI.user_error! "A macOS machine is required to process iOS or tvOS symbols."
+        end
 
-        if !OS.mac?
-          UI.user_error! "A macOS machine is required to process iOS symbols."
+        dtxDssClientPath = Helper::DynatraceHelper.get_dss_client(params)
+        dtxDssClientDir = File.dirname(dtxDssClientPath)
+        Helper::DynatraceSymlinkHelper.delete_existing_lldb_symlinks(dtxDssClientDir)
+
+        customLLDBFrameworkPath = params[:customLLDBFrameworkPath]
+        if not customLLDBFrameworkPath.nil?
+          if Helper::DynatraceSymlinkHelper.path_exists?(customLLDBFrameworkPath)
+            UI.message "Custom LLDB Framework path found at: #{customLLDBFrameworkPath}"
+            Helper::DynatraceSymlinkHelper.symlink_custom_lldb(customLLDBFrameworkPath, dtxDssClientDir)
+          else
+            UI.message "Custom LLDB Framework path set, but the path does not exist: #{customLLDBFrameworkPath}"
+          end
+        elsif params[:autoSymlinkLLDB]
+          UI.message "Automatic LLDB symlink creation enabled"
+          Helper::DynatraceSymlinkHelper.auto_symlink_lldb(dtxDssClientDir)
         end
 
         # start constructing the command that will trigger the DTXDssClient
@@ -175,7 +192,7 @@ module Fastlane
                                        description: "Path to the dSYM or Android mapping file to be processed. Android only: If the file exceeds 10MiB and doesn't end with *.zip it's zipped before uploading. This can be disabled by setting `symbolsfileAutoZip` to false",
                                        verify_block: proc do |value|
                                           UI.user_error!("Please provide a value for the symbol files. Pass using `symbolsfile: 'symbolsfile'`") unless (value and not value.empty?)
-                                      end),
+                                       end),
 
           FastlaneCore::ConfigItem.new(key: :symbolsfileAutoZip,
                                        env_name: "FL_UPLOAD_TO_DYNATRACE_SYM_FILE_AUTO_ZIP",
@@ -206,6 +223,18 @@ module Fastlane
                                        description: "Enable debug logging",
                                        default_value: false,
                                        is_string: false,
+                                       optional: true),
+
+          FastlaneCore::ConfigItem.new(key: :customLLDBFrameworkPath,
+                                       env_name: "FL_UPLOAD_TO_DYNATRACE_LLDB_PATH",
+                                       description: "Custom path to the LLDB framework used as runtime dependency by DTXDssClient",
+                                       optional: true),
+
+          FastlaneCore::ConfigItem.new(key: :autoSymlinkLLDB,
+                                       env_name: "FL_UPLOAD_TO_DYNATRACE_AUTO_LINK_LLDB",
+                                       description: "Automatically find and create a symlink to the LLDB framework into the DTXDssClient's temporary folder",
+                                       type: Boolean,
+                                       default_value: true,
                                        optional: true)
         ]
       end
