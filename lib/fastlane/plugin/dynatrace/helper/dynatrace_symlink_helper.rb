@@ -22,7 +22,9 @@ module Fastlane
         UI.message "Preparing to automatically symlink LLDB framework path to: #{destination_path}"
         current_xcode_path = %x(xcrun xcode-select --print-path).chomp
         active_lldb_path = active_lldb_path(current_xcode_path)
-        unless active_lldb_path.nil?
+        if active_lldb_path.nil?
+          UI.important "Could not find active LLDB framework path!"
+        else
           UI.message "LLDB framework found at: #{active_lldb_path}"
           symlink(active_lldb_path, destination_path)
         end
@@ -61,7 +63,9 @@ module Fastlane
 
       def self.active_lldb_path(xcode_path)
         unless xcode_path.end_with? "/Developer"
-          UI.important "Could not find proper Xcode path. It should end `.../Developer`, but got: #{xcode_path}"
+          UI.important "Could not find proper Xcode path!"
+          UI.important "Output of `xcode-select --print-path` command is `#{xcode_path}`"
+          UI.important "Please make sure your developer path ends with `/Developer`"
           return nil
         end
 
