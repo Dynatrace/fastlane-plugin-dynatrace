@@ -247,7 +247,7 @@ describe Fastlane::Actions::DynatraceProcessSymbolsAction do
 
       def lldb_symlink_exists?(destination_path)
         symlink = File.join(destination_path, "LLDB.framework")
-        return File.exist?(symlink) && File.symlink?(symlink)
+        return File.symlink?(symlink)
       end
     end
   end
