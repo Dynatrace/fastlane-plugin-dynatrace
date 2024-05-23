@@ -12,7 +12,7 @@ module Fastlane
     class DynatraceProcessSymbolsAction < Action
 
       def self.run(params)
-        UI.message "Parameter API Token: #{params[:apitoken]}"
+        UI.message "Parameter API Token: #{params[:apitoken]}" if params[:debugMode] == true
         UI.message "OS: #{params[:os]}"
         UI.message "Version string: #{params[:versionStr]}"
         UI.message "Version: #{params[:version]}"
