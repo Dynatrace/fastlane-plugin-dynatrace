@@ -87,6 +87,7 @@ module Fastlane
         command << "#{dtxDssClientPath}"
         command << "-#{params[:action]}"  #"-upload"
         command << "appid=\"#{params[:appId]}\""
+        command << "apitoken=\"#{params[:apitoken]}\""
         command << "os=#{params[:os]}"
         command << "bundleId=\"#{bundleId}\""
         command << "versionStr=\"#{params[:versionStr]}\""
@@ -97,15 +98,10 @@ module Fastlane
         command << "forced=1" # if the file already exists
         command << "tempdir=\"#{params[:tempdir]}\"" if params[:tempdir]
 
-        print_command = command
-        
-        command << "apitoken=\"#{params[:apitoken]}\""
-        print_command << "apitoken=\"#{params[:apitoken]}\"" if params[:debugMode] == true
-
         # Create the full shell command to trigger the DTXDssClient
         shell_command = command.join(' ')
 
-        UI.message "#{print_command}"
+        UI.message "#{print_command}" if params[:debugMode] == true
 
         Fastlane::Actions.sh("#{shell_command}", log: params[:debugMode] == true, error_callback: ->(result) {
           # ShAction doesn't return any reference to the return value -> parse it from the output
