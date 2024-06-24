@@ -27,7 +27,8 @@ describe Fastlane::Actions::DynatraceProcessSymbolsAction do
     os,
     symbolsfile = Dir.pwd + "/spec/testdata/android-mapping-test.txt",
     customLLDBFrameworkPath: nil,
-    autoSymlinkLLDB: nil
+    autoSymlinkLLDB: nil,
+    debugMode: nil
   )
     dict = {
       :action => "-upload",
@@ -52,6 +53,10 @@ describe Fastlane::Actions::DynatraceProcessSymbolsAction do
 
     unless autoSymlinkLLDB.nil?
       dict[:autoSymlinkLLDB] = autoSymlinkLLDB
+    end
+
+    unless debugMode.nil?
+      dict[:debugMode] = debugMode
     end
 
     return dict
@@ -191,6 +196,13 @@ describe Fastlane::Actions::DynatraceProcessSymbolsAction do
 
         it "should delete it" do
           flhash = FastlaneCore::Configuration.create(mock_config, mock_dict("ios"))
+          Fastlane::Actions::DynatraceProcessSymbolsAction.run(flhash)
+
+          expect(lldb_symlink_exists?(@destination_path)).to eql(false)
+        end
+
+        it "test with debug mode" do
+          flhash = FastlaneCore::Configuration.create(mock_config, mock_dict("ios", debugMode: true))
           Fastlane::Actions::DynatraceProcessSymbolsAction.run(flhash)
 
           expect(lldb_symlink_exists?(@destination_path)).to eql(false)
