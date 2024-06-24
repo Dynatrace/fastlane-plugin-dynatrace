@@ -101,7 +101,7 @@ module Fastlane
         # Create the full shell command to trigger the DTXDssClient
         shell_command = command.join(' ')
 
-        UI.message "#{print_command}" if params[:debugMode] == true
+        UI.message "#{shell_command}" if params[:debugMode] == true
 
         Fastlane::Actions.sh("#{shell_command}", log: params[:debugMode] == true, error_callback: ->(result) {
           # ShAction doesn't return any reference to the return value -> parse it from the output
