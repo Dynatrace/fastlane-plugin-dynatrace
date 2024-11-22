@@ -15,7 +15,7 @@ describe Fastlane::Actions::DynatraceProcessSymbolsAction do
           FastlaneCore::ConfigItem.new(key: :dtxDssClientPath, type: String, optional: false),
           FastlaneCore::ConfigItem.new(key: :appId, type: String, optional: false),
           FastlaneCore::ConfigItem.new(key: :cleanBuildArtifacts, type: Object, optional: true),
-          FastlaneCore::ConfigItem.new(key: :tempdir, type: String, optional: false),
+          FastlaneCore::ConfigItem.new(key: :tempdir, type: String, optional: true),
           FastlaneCore::ConfigItem.new(key: :debugMode, type: Object, optional: true),
           FastlaneCore::ConfigItem.new(key: :symbolsfileAutoZip, type: Object, optional: false),
           FastlaneCore::ConfigItem.new(key: :customLLDBFrameworkPath, type: String, optional: true),

@@ -223,19 +223,19 @@ module Fastlane
 
           FastlaneCore::ConfigItem.new(key: :debugMode,
                                        env_name: "FL_UPLOAD_TO_DYNATRACE_DEBUG_MODE",
-                                       description: "Enable debug logging",
+                                       description: "(OPTIONAL) Enable debug logging",
                                        default_value: false,
                                        is_string: false,
                                        optional: true),
 
           FastlaneCore::ConfigItem.new(key: :customLLDBFrameworkPath,
                                        env_name: "FL_UPLOAD_TO_DYNATRACE_LLDB_PATH",
-                                       description: "Custom path to the LLDB framework used as runtime dependency by DTXDssClient",
+                                       description: "(iOS/tvOS only) (OPTIONAL) Custom path to the LLDB framework used as runtime dependency by DTXDssClient",
                                        optional: true),
 
           FastlaneCore::ConfigItem.new(key: :autoSymlinkLLDB,
                                        env_name: "FL_UPLOAD_TO_DYNATRACE_AUTO_LINK_LLDB",
-                                       description: "Automatically find and create a symlink to the LLDB framework into the DTXDssClient's temporary folder",
+                                       description: "(iOS/tvOS only) (OPTIONAL) Automatically find and create a symlink to the LLDB framework into the DTXDssClient's temporary folder",
                                        type: Boolean,
                                        default_value: true,
                                        optional: true)
