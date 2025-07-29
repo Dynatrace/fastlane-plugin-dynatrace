@@ -19,7 +19,8 @@ describe Fastlane::Actions::DynatraceProcessSymbolsAction do
           FastlaneCore::ConfigItem.new(key: :debugMode, type: Object, optional: true),
           FastlaneCore::ConfigItem.new(key: :symbolsfileAutoZip, type: Object, optional: false),
           FastlaneCore::ConfigItem.new(key: :customLLDBFrameworkPath, type: String, optional: true),
-          FastlaneCore::ConfigItem.new(key: :autoSymlinkLLDB, type: Object, optional: true)
+          FastlaneCore::ConfigItem.new(key: :autoSymlinkLLDB, type: Object, optional: true),
+          FastlaneCore::ConfigItem.new(key: :maxSymbolSize, type: Integer, optional: true, default_value: 5000)
         ]
   end
 
@@ -28,7 +29,8 @@ describe Fastlane::Actions::DynatraceProcessSymbolsAction do
     symbolsfile = Dir.pwd + "/spec/testdata/android-mapping-test.txt",
     customLLDBFrameworkPath: nil,
     autoSymlinkLLDB: nil,
-    debugMode: nil
+    debugMode: nil,
+    maxSymbolSize: nil
   )
     dict = {
       :action => "-upload",
@@ -57,6 +59,10 @@ describe Fastlane::Actions::DynatraceProcessSymbolsAction do
 
     unless debugMode.nil?
       dict[:debugMode] = debugMode
+    end
+
+    unless maxSymbolSize.nil?
+      dict[:maxSymbolSize] = maxSymbolSize
     end
 
     return dict
@@ -260,6 +266,52 @@ describe Fastlane::Actions::DynatraceProcessSymbolsAction do
       def lldb_symlink_exists?(destination_path)
         symlink = File.join(destination_path, "LLDB.framework")
         return File.symlink?(symlink)
+      end
+    end
+
+    context "parameter: maxSymbolSize" do
+      it "includes maxSymbolSize when custom value is specified" do
+        flhash = FastlaneCore::Configuration.create(mock_config(), mock_dict("ios", maxSymbolSize: 3000))
+
+        allow(Fastlane::UI).to receive(:message) # Allow all messages
+        expect(Fastlane::UI).to receive(:message).with(/Maximum symbol size: 3000/).at_least(:once)
+        expect(Fastlane::Actions).to receive(:sh) do |shell_command|
+          expect(shell_command).to include("maxSymbolSize=\"3000\"")
+        end
+
+        Fastlane::Actions::DynatraceProcessSymbolsAction.run(flhash)
+      end
+
+      it "includes default maxSymbolSize when not specified" do
+        flhash = FastlaneCore::Configuration.create(mock_config(), mock_dict("ios"))
+
+        allow(Fastlane::UI).to receive(:message) # Allow all messages
+        expect(Fastlane::UI).to receive(:message).with(/Maximum symbol size: 5000/).at_least(:once)
+        expect(Fastlane::Actions).to receive(:sh) do |shell_command|
+          expect(shell_command).to include("maxSymbolSize=\"5000\"")
+        end
+
+        Fastlane::Actions::DynatraceProcessSymbolsAction.run(flhash)
+      end
+
+      it "includes maxSymbolSize with zero value (unlimited)" do
+        flhash = FastlaneCore::Configuration.create(mock_config(), mock_dict("ios", maxSymbolSize: 0))
+
+        allow(Fastlane::UI).to receive(:message) # Allow all messages
+        expect(Fastlane::UI).to receive(:message).with(/Maximum symbol size: 0/).at_least(:once)
+        expect(Fastlane::Actions).to receive(:sh) do |shell_command|
+          expect(shell_command).to include("maxSymbolSize=\"0\"")
+        end
+
+        Fastlane::Actions::DynatraceProcessSymbolsAction.run(flhash)
+      end
+
+      it "raises error for invalid negative maxSymbolSize" do
+        flhash = FastlaneCore::Configuration.create(mock_config(), mock_dict("ios", maxSymbolSize: -1))
+
+        expect {
+          Fastlane::Actions::DynatraceProcessSymbolsAction.run(flhash)
+        }.to raise_error(FastlaneCore::Interface::FastlaneError, /Invalid value for maxSymbolSize/)
       end
     end
   end
