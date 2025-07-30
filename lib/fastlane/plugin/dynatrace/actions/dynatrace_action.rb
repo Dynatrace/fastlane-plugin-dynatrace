@@ -252,7 +252,7 @@ module Fastlane
 
           FastlaneCore::ConfigItem.new(key: :maxSymbolSize,
                                        env_name: "FL_UPLOAD_TO_DYNATRACE_MAX_SYMBOL_SIZE",
-                                       description: "(iOS/tvOS only) (OPTIONAL) Limits the maximum length (characters) of the demangled symbols (0 means unlimited, default is 5000).",
+                                       description: "(iOS/tvOS only) (OPTIONAL) Limits the maximum length (characters) of the demangled symbols (0 means unlimited, default is 5000)",
                                        default_value: 5000,
                                        optional: true,
                                        type: Integer)
