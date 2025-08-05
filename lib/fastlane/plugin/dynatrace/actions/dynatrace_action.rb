@@ -82,6 +82,15 @@ module Fastlane
           end
         end
 
+        maxSymbolSize = params[:maxSymbolSize]
+        if maxSymbolSize && maxSymbolSize < 0
+            UI.user_error!("Invalid value for maxSymbolSize: must be 0 or greater.")
+        end
+        
+        # Use default 5000 when value is nil, 0 means unlimited
+        effectiveMaxSymbolSize = maxSymbolSize.nil? ? 5000 : maxSymbolSize
+        UI.message "Maximum symbol size: #{effectiveMaxSymbolSize}"
+
         # start constructing the command that will trigger the DTXDssClient
         command = []
         command << "#{dtxDssClientPath}"
@@ -97,6 +106,7 @@ module Fastlane
         command << "DTXLogLevel=ALL -verbose" if params[:debugMode] == true
         command << "forced=1" # if the file already exists
         command << "tempdir=\"#{params[:tempdir]}\"" if params[:tempdir]
+        command << "maxSymbolSize=\"#{effectiveMaxSymbolSize}\""
 
         # Create the full shell command to trigger the DTXDssClient
         shell_command = command.join(' ')
@@ -238,7 +248,15 @@ module Fastlane
                                        description: "(iOS/tvOS only) (OPTIONAL) Automatically find and create a symlink to the LLDB framework into the DTXDssClient's temporary folder",
                                        type: Boolean,
                                        default_value: true,
-                                       optional: true)
+                                       optional: true),
+
+          FastlaneCore::ConfigItem.new(key: :maxSymbolSize,
+                                       env_name: "FL_UPLOAD_TO_DYNATRACE_MAX_SYMBOL_SIZE",
+                                       description: "(iOS/tvOS only) (OPTIONAL) Limits the maximum length (characters) of the demangled symbols (0 means unlimited, default is 5000)",
+                                       default_value: 5000,
+                                       optional: true,
+                                       type: Integer)
+
         ]
       end
 

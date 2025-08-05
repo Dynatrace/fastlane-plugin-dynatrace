@@ -55,6 +55,7 @@ Now, when you run fastlane, the Dynatrace plugin will manage the symbol files of
 | debugMode               | (OPTIONAL) Enable debug logging.                                                                                                                                                                                                | `false`       |
 | customLLDBFrameworkPath | *(iOS/tvOS only)* (OPTIONAL) Custom path to the LLDB framework used as runtime dependency by DTXDssClient (e.g. `/Users/test/Documents/LLDB.framework`).                                                                        |               |
 | autoSymlinkLLDB         | *(iOS/tvOS only)* (OPTIONAL) Automatically find and create a symlink to the LLDB framework into the DTXDssClient's temporary folder.                                                                                            | `true`        |
+| maxSymbolSize	          | *(iOS/tvOS only)* (OPTIONAL) Limits the maximum length (characters) of the demangled symbols. Can be disabled by setting it to 0.                                                                                               | `5000`        |
 
 ## Example
 Try it by cloning the repo, running `fastlane install_plugins` and `bundle exec fastlane test`.
