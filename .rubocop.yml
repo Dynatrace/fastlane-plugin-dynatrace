@@ -1,180 +1,271 @@
----
-Style/MultipleComparison:
-  Enabled: false
-Style/PercentLiteralDelimiters:
-  Enabled: false
-Style/ClassCheck:
-  EnforcedStyle: kind_of?
-Style/FrozenStringLiteralComment:
-  Enabled: false
-Style/SafeNavigation:
-  Enabled: false
-Performance/RegexpMatch:
-  Enabled: false
-Performance/StringReplacement:
-  Enabled: false
-Style/NumericPredicate:
-  Enabled: false
-Metrics/BlockLength:
-  Enabled: false
-Metrics/ModuleLength:
-  Enabled: false
-Style/VariableNumber:
-  Enabled: false
-Style/MethodMissing:
-  Enabled: false
-MultilineBlockChain:
-  Enabled: false
-Style/NumericLiteralPrefix:
-  Enabled: false
-Style/TernaryParentheses:
-  Enabled: false
-Style/EmptyMethod:
-  Enabled: false
-Style/BracesAroundHashParameters:
-  Enabled: false
-Lint/UselessAssignment:
-  Exclude:
-  - "**/spec/**/*"
-Require/MissingRequireStatement:
-  Exclude:
-  - "**/spec/**/*.rb"
-  - "**/spec_helper.rb"
-  - spaceship/lib/spaceship/babosa_fix.rb
-  - "**/Fastfile"
-  - "**/*.gemspec"
-  - rakelib/**/*
-  - "**/*.rake"
-  - "**/Rakefile"
-  - fastlane/**/*
-  - supply/**/*
-Layout/IndentHash:
-  Enabled: false
-Layout/AlignHash:
-  Enabled: false
-Layout/DotPosition:
-  Enabled: false
-Style/DoubleNegation:
-  Enabled: false
-Style/SymbolArray:
-  Enabled: false
-Layout/IndentHeredoc:
-  Enabled: false
-Style/MixinGrouping:
-  Exclude:
-  - "**/spec/**/*"
-Lint/HandleExceptions:
-  Enabled: false
-Lint/UnusedBlockArgument:
-  Enabled: false
-Lint/AmbiguousBlockAssociation:
-  Enabled: false
-Style/GlobalVars:
-  Enabled: false
-Style/ClassAndModuleChildren:
-  Enabled: false
-Style/SpecialGlobalVars:
-  Enabled: false
-Metrics/AbcSize:
-  Enabled: false
-Metrics/MethodLength:
-  Enabled: false
-Metrics/CyclomaticComplexity:
-  Enabled: false
-Style/WordArray:
-  MinSize: 19
-Style/SignalException:
-  Enabled: false
-Style/RedundantReturn:
-  Enabled: false
-Style/IfUnlessModifier:
-  Enabled: false
-Style/AndOr:
-  Enabled: true
-  EnforcedStyle: conditionals
-Metrics/ClassLength:
-  Max: 320
-Metrics/LineLength:
-  Max: 370
-Metrics/ParameterLists:
-  Max: 17
-Metrics/PerceivedComplexity:
-  Max: 18
-Style/GuardClause:
-  Enabled: false
-Style/StringLiterals:
-  Enabled: false
-Style/ConditionalAssignment:
-  Enabled: false
-Style/RedundantSelf:
-  Enabled: false
-Lint/UnusedMethodArgument:
-  Enabled: false
-Lint/ParenthesesAsGroupedExpression:
-  Exclude:
-  - "**/spec/**/*"
-Style/PredicateName:
-  Enabled: false
-Style/PerlBackrefs:
-  Enabled: false
-Layout/SpaceAroundOperators:
-  Exclude:
-  - "**/spec/actions_specs/xcodebuild_spec.rb"
+inherit_mode:
+  merge:
+    - Exclude
+
 AllCops:
   TargetRubyVersion: 2.0
-  Include:
-  - "*/lib/assets/*Template"
-  - "*/lib/assets/*TemplateAndroid"
-  Exclude:
-  - "**/lib/assets/custom_action_template.rb"
-  - "./vendor/**/*"
-  - "**/lib/assets/DefaultFastfileTemplate"
-  - "**/lib/assets/MatchfileTemplate"
-  - "**/spec/fixtures/broken_files/broken_file.rb"
-Style/FileName:
-  Exclude:
-  - "**/Dangerfile"
-  - "**/Brewfile"
-  - "**/Gemfile"
-  - "**/Podfile"
-  - "**/Rakefile"
-  - "**/Fastfile"
-  - "**/Deliverfile"
-  - "**/Snapfile"
-  - "**/*.gemspec"
+  NewCops: enable
+  SuggestExtensions: false
+
+# ── Permanently disabled (by design) ─────────────────────────────────────────
+
+# Not required for a fastlane plugin
 Style/Documentation:
   Enabled: false
-Style/MutableConstant:
+
+# Fastlane config keys use camelCase by convention
+Naming/VariableName:
   Enabled: false
-Style/ZeroLengthPredicate:
+
+Naming/MethodParameterName:
   Enabled: false
+
+Naming/PredicatePrefix:
+  Enabled: false
+
+# Standard for gem plugins; gemspec manages dev deps intentionally
+Gemspec/DevelopmentDependencies:
+  Enabled: false
+
+# .ruby-version and gemspec version may intentionally differ
+Gemspec/RequiredRubyVersion:
+  Enabled: false
+
+# ── Disabled temporarily – enable & fix one by one in follow-up PRs ──────────
+
+Layout/ArrayAlignment:
+  Enabled: false
+
+Layout/BlockAlignment:
+  Enabled: false
+
+Layout/CommentIndentation:
+  Enabled: false
+
+Layout/ConditionPosition:
+  Enabled: false
+
+Layout/ElseAlignment:
+  Enabled: false
+
+Layout/EmptyLineAfterGuardClause:
+  Enabled: false
+
+Layout/EmptyLineBetweenDefs:
+  Enabled: false
+
+Layout/EmptyLines:
+  Enabled: false
+
+Layout/EmptyLinesAroundAccessModifier:
+  Enabled: false
+
+Layout/EmptyLinesAroundBlockBody:
+  Enabled: false
+
+Layout/EmptyLinesAroundClassBody:
+  Enabled: false
+
+Layout/EmptyLinesAroundMethodBody:
+  Enabled: false
+
+Layout/ExtraSpacing:
+  Enabled: false
+
+Layout/FirstArrayElementIndentation:
+  Enabled: false
+
+Layout/FirstHashElementIndentation:
+  Enabled: false
+
+Layout/HashAlignment:
+  Enabled: false
+
+Layout/IndentationConsistency:
+  Enabled: false
+
+Layout/IndentationWidth:
+  Enabled: false
+
+Layout/LeadingCommentSpace:
+  Enabled: false
+
+Layout/LineLength:
+  Enabled: false
+
+Layout/MultilineOperationIndentation:
+  Enabled: false
+
+Layout/SpaceAfterMethodName:
+  Enabled: false
+
+Layout/SpaceAroundOperators:
+  Enabled: false
+
+Layout/SpaceBeforeBlockBraces:
+  Enabled: false
+
+Layout/SpaceInsideHashLiteralBraces:
+  Enabled: false
+
+Layout/SpaceInsideParens:
+  Enabled: false
+
+Layout/TrailingEmptyLines:
+  Enabled: false
+
+Layout/TrailingWhitespace:
+  Enabled: false
+
+Lint/AmbiguousOperatorPrecedence:
+  Enabled: false
+
+Lint/AmbiguousRange:
+  Enabled: false
+
+Lint/AmbiguousRegexpLiteral:
+  Enabled: false
+
+Lint/EmptyConditionalBody:
+  Enabled: false
+
+Lint/NonAtomicFileOperation:
+  Enabled: false
+
+Lint/IneffectiveAccessModifier:
+  Enabled: false
+
+Lint/ParenthesesAsGroupedExpression:
+  Enabled: false
+
+Lint/ShadowedException:
+  Enabled: false
+
+Lint/UselessAccessModifier:
+  Enabled: false
+
+Lint/UselessAssignment:
+  Enabled: false
+
+Metrics/AbcSize:
+  Enabled: false
+
+Metrics/BlockLength:
+  Enabled: false
+
+Metrics/ClassLength:
+  Enabled: false
+
+Metrics/CyclomaticComplexity:
+  Enabled: false
+
+Metrics/MethodLength:
+  Enabled: false
+
+Metrics/ParameterLists:
+  Enabled: false
+
+Metrics/PerceivedComplexity:
+  Enabled: false
+
+Security/IoMethods:
+  Enabled: false
+
+Security/Open:
+  Enabled: false
+
+Style/AndOr:
+  Enabled: false
+
+Style/BlockDelimiters:
+  Enabled: false
+
+Style/ClassCheck:
+  Enabled: false
+
+Style/ColonMethodCall:
+  Enabled: false
+
+Style/CommandLiteral:
+  Enabled: false
+
+Style/DefWithParentheses:
+  Enabled: false
+
+Style/ExpandPathArguments:
+  Enabled: false
+
+Style/FileRead:
+  Enabled: false
+
+Style/FileOpen:
+  Enabled: false
+
+Style/GuardClause:
+  Enabled: false
+
+Style/HashSyntax:
+  Enabled: false
+
 Style/IfInsideElse:
   Enabled: false
-Style/CollectionMethods:
+
+Style/IfUnlessModifier:
   Enabled: false
-CrossPlatform/ForkUsage:
-  Exclude:
-  - "**/plugins/template/**/*"
-Style/MethodCallWithArgsParentheses:
-  Enabled: true
-  IgnoredMethods:
-  - require
-  - require_relative
-  - fastlane_require
-  - gem
-  - program
-  - command
-  - raise
-  - attr_accessor
-  - attr_reader
-  - desc
-  - lane
-  - private_lane
-  - platform
-  - to
-  - describe
-  - it
-  - be
-  - context
-  - before
-  - after
+
+Style/Lambda:
+  Enabled: false
+
+Style/MethodCallWithoutArgsParentheses:
+  Enabled: false
+
+Style/MultipleComparison:
+  Enabled: false
+
+Style/MutableConstant:
+  Enabled: false
+
+Style/NegatedIf:
+  Enabled: false
+
+Style/Not:
+  Enabled: false
+
+Style/ParenthesesAroundCondition:
+  Enabled: false
+
+Style/RedundantFreeze:
+  Enabled: false
+
+Style/RedundantInterpolation:
+  Enabled: false
+
+Style/RedundantParentheses:
+  Enabled: false
+
+Style/RedundantReturn:
+  Enabled: false
+
+Style/RedundantSelf:
+  Enabled: false
+
+Style/SpecialGlobalVars:
+  Enabled: false
+
+Style/StringConcatenation:
+  Enabled: false
+
+Style/StringLiterals:
+  Enabled: false
+
+Style/StringLiteralsInInterpolation:
+  Enabled: false
+
+Style/SymbolArray:
+  Enabled: false
+
+Style/TrailingUnderscoreVariable:
+  Enabled: false
+
+Style/WordArray:
+  Enabled: false
