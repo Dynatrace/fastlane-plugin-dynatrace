@@ -20,7 +20,8 @@ describe Fastlane::Actions::DynatraceProcessSymbolsAction do
           FastlaneCore::ConfigItem.new(key: :symbolsfileAutoZip, type: Object, optional: false),
           FastlaneCore::ConfigItem.new(key: :customLLDBFrameworkPath, type: String, optional: true),
           FastlaneCore::ConfigItem.new(key: :autoSymlinkLLDB, type: Object, optional: true),
-          FastlaneCore::ConfigItem.new(key: :maxSymbolSize, type: Integer, optional: true, default_value: 5000)
+          FastlaneCore::ConfigItem.new(key: :maxSymbolSize, type: Integer, optional: true, default_value: 5000),
+          FastlaneCore::ConfigItem.new(key: :pinned, type: Object, optional: true)
         ]
   end
 
@@ -30,10 +31,12 @@ describe Fastlane::Actions::DynatraceProcessSymbolsAction do
     customLLDBFrameworkPath: nil,
     autoSymlinkLLDB: nil,
     debugMode: nil,
-    maxSymbolSize: nil
+    maxSymbolSize: nil,
+    pinned: nil,
+    action: "-upload"
   )
     dict = {
-      :action => "-upload",
+      :action => action,
       :apitoken => "",
       :os => os,
       :versionStr => "123",
@@ -65,7 +68,19 @@ describe Fastlane::Actions::DynatraceProcessSymbolsAction do
       dict[:maxSymbolSize] = maxSymbolSize
     end
 
+    unless pinned.nil?
+      dict[:pinned] = pinned
+    end
+
     return dict
+  end
+
+  describe ".available_options" do
+    it "can be loaded and contains the pinned option" do
+      options = Fastlane::Actions::DynatraceProcessSymbolsAction.available_options
+
+      expect(options.map(&:key)).to include(:pinned)
+    end
   end
 
   describe ".run" do
@@ -188,6 +203,47 @@ describe Fastlane::Actions::DynatraceProcessSymbolsAction do
 
       after do
         FileUtils.remove_entry(@destination_path) if File.exist?(@destination_path)
+      end
+
+      context "pinning" do
+        it "doesn't send a pinning request when pinned is not set" do
+          flhash = FastlaneCore::Configuration.create(mock_config, mock_dict("ios"))
+
+          expect(Fastlane::Helper::DynatraceHelper).not_to receive(:put_pinning)
+
+          Fastlane::Actions::DynatraceProcessSymbolsAction.run(flhash)
+        end
+
+        [true, false].each do |pinned|
+          it "sends the pinning request with pinned=#{pinned} after the upload" do
+            flhash = FastlaneCore::Configuration.create(mock_config, mock_dict("ios", pinned: pinned, action: "upload"))
+
+            response = Net::HTTPSuccess.new(1.0, '204', 'OK')
+            expect(Fastlane::Helper::DynatraceHelper).to receive(:put_pinning).with(flhash, "com.dynatrace.fastlanetest", pinned).and_return([response, nil])
+
+            Fastlane::Actions::DynatraceProcessSymbolsAction.run(flhash)
+          end
+        end
+
+        it "doesn't send a pinning request when the action is decode" do
+          flhash = FastlaneCore::Configuration.create(mock_config, mock_dict("ios", pinned: true, action: "decode"))
+
+          expect(Fastlane::Helper::DynatraceHelper).not_to receive(:put_pinning)
+
+          Fastlane::Actions::DynatraceProcessSymbolsAction.run(flhash)
+        end
+
+        it "fails if the pinning request has an error" do
+          flhash = FastlaneCore::Configuration.create(mock_config, mock_dict("ios", pinned: true, action: "upload"))
+
+          response = Net::HTTPClientError.new(1.0, '400', 'Bad Request')
+          allow(response).to receive(:body).and_return('{ "error": { "message": "invalid" } }')
+          expect(Fastlane::Helper::DynatraceHelper).to receive(:put_pinning).and_return([response, nil])
+
+          expect{
+            Fastlane::Actions::DynatraceProcessSymbolsAction.run(flhash)
+          }.to raise_error(FastlaneCore::Interface::FastlaneError)
+        end
       end
 
       context "when there is already an existing symlink for LLDB framework" do
