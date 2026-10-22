@@ -609,6 +609,41 @@ describe Fastlane::Helper::DynatraceHelper do
         } 
   end
 
+  describe ".put_pinning" do
+    [["ios", "IOS"], ["tvos", "TVOS"]].each do |os, os_path|
+      it "generates the correct saas request for #{os}" do
+        response = Net::HTTPSuccess.new(1.0, '204', 'OK')
+        expect_any_instance_of(Net::HTTP).to receive(:request) { response }
+
+        _response, request = Fastlane::Helper::DynatraceHelper.put_pinning(mock_dict(os), "com.dynatrace.fastlanetest", true)
+
+        expect(request['Content-Type']).to eql('application/json')
+        expect(request['Authorization']).to eql('Api-Token')
+        expect(request.path).to eql("/api/config/v1/symfiles/abcdefg/com.dynatrace.fastlanetest/#{os_path}/456/123/pinning")
+        expect(request.body).to eql('{"pinned":true}')
+      end
+    end
+
+    it "sends pinned=false to unpin" do
+      response = Net::HTTPSuccess.new(1.0, '204', 'OK')
+      expect_any_instance_of(Net::HTTP).to receive(:request) { response }
+
+      _response, request = Fastlane::Helper::DynatraceHelper.put_pinning(mock_dict("ios"), "com.dynatrace.fastlanetest", false)
+
+      expect(request.body).to eql('{"pinned":false}')
+    end
+
+    it "prepends the path of a managed server url" do
+      response = Net::HTTPSuccess.new(1.0, '204', 'OK')
+      expect_any_instance_of(Net::HTTP).to receive(:request) { response }
+
+      params = mock_dict("ios").merge(:server => "https://managed.dynatrace.com/e/env-id")
+      _response, request = Fastlane::Helper::DynatraceHelper.put_pinning(params, "com.dynatrace.fastlanetest", true)
+
+      expect(request.path).to eql('/e/env-id/api/config/v1/symfiles/abcdefg/com.dynatrace.fastlanetest/IOS/456/123/pinning')
+    end
+  end
+
   describe ".put_android_symbols" do
     context "regular saas request without zip" do
       it "generates the correct request" do

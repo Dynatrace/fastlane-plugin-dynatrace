@@ -137,6 +137,33 @@ module Fastlane
         end
       end
 
+      # if path points to dynatrace managed, we need to prepend the path component from the server (/e/{your-environment-id})
+      def self.with_managed_prefix(params, path)
+        if params[:server].include? '/e/'
+          uri = URI.split(params[:server])
+          if uri[5].nil?
+            UI.user_error! "The path component of your managed Dynatrace URL is empty. Does the server URL follow the correct pattern (https://{your-domain}/e/{your-environment-id})?"
+          end
+          path = self.without_trailing_slash(uri[5]) + path
+        end
+        return path
+      end
+
+      def self.put_pinning(params, bundleId, pinned)
+        path = self.with_managed_prefix(params, "/api/config/v1/symfiles/#{params[:appId]}/#{bundleId}/#{params[:os].upcase}/#{params[:version]}/#{params[:versionStr]}/pinning")
+
+        request = Net::HTTP::Put.new(path, initheader = { 'Content-Type' => 'application/json',
+                                                      'Authorization' => "Api-Token #{params[:apitoken]}"} )
+
+        request.body = { pinned: pinned }.to_json
+        port = URI.split(params[:server])[3]
+        http = Net::HTTP.new(self.get_host_name(params), port.nil? ? 443 : port.to_i)
+        http.use_ssl = true
+        response = http.request(request)
+
+        return [response, request]
+      end
+
       def self.put_android_symbols(params, bundleId, symbolspath)
         path = "/api/config/v1/symfiles/#{params[:appId]}/#{bundleId}/ANDROID/#{params[:version]}/#{params[:versionStr]}"
 
