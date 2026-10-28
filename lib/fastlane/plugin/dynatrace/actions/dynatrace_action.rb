@@ -34,20 +34,8 @@ module Fastlane
           response, request = Helper::DynatraceHelper.put_android_symbols(params, bundleId, symbols_path)
 
           # https://www.dynatrace.com/support/help/dynatrace-api/configuration-api/mobile-symbolication-api/put-files-app-version
-          if response.code == '204'
-            UI.success "API response: Success."
-          else
-            message = nil
-            if response.class.body_permitted? and not response.body.nil?
-              message = JSON.parse(response.body)["error"]["message"]
-            end
-
-            if message.nil?
-              UI.user_error! "API response: #{response.code}. Please try again in a few minutes or contact Dynatrace support (https://support.dynatrace.com)." 
-            else
-              UI.user_error! "API response: #{message} (Response code: #{response.code})" 
-            end
-          end
+          self.check_response(response)
+          UI.success "API response: Success."
           return
         end
 
@@ -128,6 +116,7 @@ module Fastlane
         })
 
         self.pin_if_requested(params, bundleId) if params[:action] == "upload"
+        UI.important "Pinning is only done after an upload, skipping it because the action is \"#{params[:action]}\"" if params[:action] != "upload" && !params[:pinned].nil?
 
         if params[:cleanBuildArtifacts]
           UI.message "Cleaning build artifacts"

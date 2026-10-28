@@ -137,36 +137,8 @@ module Fastlane
         end
       end
 
-      # if path points to dynatrace managed, we need to prepend the path component from the server (/e/{your-environment-id})
-      def self.with_managed_prefix(params, path)
-        if params[:server].include? '/e/'
-          uri = URI.split(params[:server])
-          if uri[5].nil?
-            UI.user_error! "The path component of your managed Dynatrace URL is empty. Does the server URL follow the correct pattern (https://{your-domain}/e/{your-environment-id})?"
-          end
-          path = self.without_trailing_slash(uri[5]) + path
-        end
-        return path
-      end
-
-      def self.put_pinning(params, bundleId, pinned)
-        path = self.with_managed_prefix(params, "/api/config/v1/symfiles/#{params[:appId]}/#{bundleId}/#{params[:os].upcase}/#{params[:version]}/#{params[:versionStr]}/pinning")
-
-        request = Net::HTTP::Put.new(path, initheader = { 'Content-Type' => 'application/json',
-                                                      'Authorization' => "Api-Token #{params[:apitoken]}"} )
-
-        request.body = { pinned: pinned }.to_json
-        port = URI.split(params[:server])[3]
-        http = Net::HTTP.new(self.get_host_name(params), port.nil? ? 443 : port.to_i)
-        http.use_ssl = true
-        response = http.request(request)
-
-        return [response, request]
-      end
-
-      def self.put_android_symbols(params, bundleId, symbolspath)
-        path = "/api/config/v1/symfiles/#{params[:appId]}/#{bundleId}/ANDROID/#{params[:version]}/#{params[:versionStr]}"
-
+      # sends a PUT request to the symbolication API of the configured server
+      def self.put_symfiles_request(params, path, content_type, body, port = 443)
         # if path points to dynatrace managed, we need to prepend the path component from the server (/e/{your-environment-id})
         if params[:server].include? '/e/'
           uri = URI.split(params[:server])
@@ -176,17 +148,32 @@ module Fastlane
           path = self.without_trailing_slash(uri[5]) + path
         end
 
-        is_symbolsfile_zip = symbolspath.end_with?(".zip")
-
-        request = Net::HTTP::Put.new(path, initheader = { 'Content-Type' => is_symbolsfile_zip ? 'application/zip' : 'text/plain',
+        request = Net::HTTP::Put.new(path, initheader = { 'Content-Type' => content_type,
                                                       'Authorization' => "Api-Token #{params[:apitoken]}"} )
 
-        request.body = IO.read(symbolspath)
-        http = Net::HTTP.new(self.get_host_name(params), 443)
+        request.body = body
+        http = Net::HTTP.new(self.get_host_name(params), port)
         http.use_ssl = true
         response = http.request(request)
 
         return [response, request]
+      end
+
+      def self.put_pinning(params, bundleId, pinned)
+        path = "/api/config/v1/symfiles/#{params[:appId]}/#{bundleId}/#{params[:os].upcase}/#{params[:version]}/#{params[:versionStr]}/pinning"
+
+        # environment ActiveGate urls contain a port (e.g. 9999), saas urls don't
+        port = URI.split(params[:server])[3]
+
+        return self.put_symfiles_request(params, path, 'application/json', { pinned: pinned }.to_json, port.nil? ? 443 : port.to_i)
+      end
+
+      def self.put_android_symbols(params, bundleId, symbolspath)
+        path = "/api/config/v1/symfiles/#{params[:appId]}/#{bundleId}/ANDROID/#{params[:version]}/#{params[:versionStr]}"
+
+        is_symbolsfile_zip = symbolspath.end_with?(".zip")
+
+        return self.put_symfiles_request(params, path, is_symbolsfile_zip ? 'application/zip' : 'text/plain', IO.read(symbolspath))
       end
 
       def self.zip_if_required(params)
