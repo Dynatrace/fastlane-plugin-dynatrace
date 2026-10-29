@@ -75,9 +75,11 @@ module Fastlane
 
           begin
             UI.message "Unzipping fetched file with MD5 hash: #{Digest::MD5.new << IO.read(zipped_tmp)}"
-            Zip::InputStream.open(zipped_tmp) do |unzipped|
-              entry = unzipped.get_next_entry
-              if (entry.name == dtxDssClientBin)
+            Zip::File.open(zipped_tmp) do |unzipped|
+              entry = unzipped.find_entry(dtxDssClientBin)
+              if entry
+                client_data = entry.get_input_stream(&:read)
+
                 # remove old client
                 UI.message "Found a different remote #{dtxDssClientBin} client. Removing local version and updating."
                 File.delete(versionFilePath) if File.exist?(versionFilePath)
@@ -85,19 +87,12 @@ module Fastlane
 
                 # write new client
                 File.write(versionFilePath, remoteClientUrl)
-                IO.copy_stream(entry.get_input_stream, dtxDssClientPath)
+                IO.copy_stream(StringIO.new(client_data), dtxDssClientPath)
                 FileUtils.chmod("+x", dtxDssClientPath)
                 updatedClient = true
               end
             end
-          rescue Zip::DecompressionError, 
-                 Zip::DestinationFileExistsError, 
-                 Zip::EntryExistsError, 
-                 Zip::EntryNameError, 
-                 Zip::EntrySizeError, 
-                 Zip::GPFBit3Error, 
-                 Zip::InternalError,
-                 Zip::CompressionMethodError 
+          rescue Zip::Error
             error_msg = "Could not update/extract #{dtxDssClientBin}, please try again."
             self.check_fallback_or_raise(dtxDssClientPath, error_msg)
             return dtxDssClientPath
