@@ -115,8 +115,11 @@ module Fastlane
           end
         })
 
-        self.pin_if_requested(params, bundleId) if params[:action] == "upload"
-        UI.important "Pinning is only done after an upload, skipping it because the action is \"#{params[:action]}\"" if params[:action] != "upload" && !params[:pinned].nil?
+        if params[:action] == "upload"
+          self.pin_if_requested(params, bundleId)
+        elsif !params[:pinned].nil?
+          UI.important "Option `pinned` is only applied for the `upload` action. Ignoring it for action `#{params[:action]}`."
+        end
 
         if params[:cleanBuildArtifacts]
           UI.message "Cleaning build artifacts"

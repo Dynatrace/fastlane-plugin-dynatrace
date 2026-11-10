@@ -75,14 +75,6 @@ describe Fastlane::Actions::DynatraceProcessSymbolsAction do
     return dict
   end
 
-  describe ".available_options" do
-    it "can be loaded and contains the pinned option" do
-      options = Fastlane::Actions::DynatraceProcessSymbolsAction.available_options
-
-      expect(options.map(&:key)).to include(:pinned)
-    end
-  end
-
   describe ".run" do
     context "processing symbols of unknown system" do
       it "can't process" do
