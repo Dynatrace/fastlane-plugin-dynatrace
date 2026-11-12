@@ -117,8 +117,8 @@ module Fastlane
 
         if params[:action] == "upload"
           self.pin_if_requested(params, bundleId)
-        elsif !params[:pinned].nil?
-          UI.important "Option `pinned` is only applied for the `upload` action. Ignoring it for action `#{params[:action]}`."
+        elsif !params[:pinning].nil?
+          UI.important "Option `pinning` is only applied for the `upload` action. Ignoring it for action `#{params[:action]}`."
         end
 
         if params[:cleanBuildArtifacts]
@@ -145,12 +145,12 @@ module Fastlane
       # Pinning is per app version and applies to all its symbol files, it's sent after the upload.
       # https://docs.dynatrace.com/docs/dynatrace-api/configuration-api/mobile-symbolication-api/put-files-app-version-pin
       def self.pin_if_requested(params, bundleId)
-        return if params[:pinned].nil?
+        return if params[:pinning].nil?
 
-        UI.message "#{params[:pinned] ? 'Pinning' : 'Unpinning'} symbol files of the app version"
-        response, _request = Helper::DynatraceHelper.put_pinning(params, bundleId, params[:pinned])
+        UI.message "#{params[:pinning] ? 'Pinning' : 'Unpinning'} symbol files of the app version"
+        response, _request = Helper::DynatraceHelper.put_pinning(params, bundleId, params[:pinning])
         self.check_response(response)
-        UI.success "Symbol files #{params[:pinned] ? 'pinned' : 'unpinned'}"
+        UI.success "Symbol files #{params[:pinning] ? 'pinned' : 'unpinned'}"
       end
 
       def self.description
@@ -277,8 +277,8 @@ module Fastlane
                                        optional: true,
                                        type: Integer),
 
-          FastlaneCore::ConfigItem.new(key: :pinned,
-                                       env_name: "FL_UPLOAD_TO_DYNATRACE_PINNED",
+          FastlaneCore::ConfigItem.new(key: :pinning,
+                                       env_name: "FL_UPLOAD_TO_DYNATRACE_PINNING",
                                        description: "(OPTIONAL) Pins (true) or unpins (false) all symbol files of the app version after the upload. If not set, the pinning state isn't changed",
                                        optional: true,
                                        type: Boolean)

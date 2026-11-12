@@ -21,7 +21,7 @@ describe Fastlane::Actions::DynatraceProcessSymbolsAction do
           FastlaneCore::ConfigItem.new(key: :customLLDBFrameworkPath, type: String, optional: true),
           FastlaneCore::ConfigItem.new(key: :autoSymlinkLLDB, type: Object, optional: true),
           FastlaneCore::ConfigItem.new(key: :maxSymbolSize, type: Integer, optional: true, default_value: 5000),
-          FastlaneCore::ConfigItem.new(key: :pinned, type: Object, optional: true)
+          FastlaneCore::ConfigItem.new(key: :pinning, type: Object, optional: true)
         ]
   end
 
@@ -32,7 +32,7 @@ describe Fastlane::Actions::DynatraceProcessSymbolsAction do
     autoSymlinkLLDB: nil,
     debugMode: nil,
     maxSymbolSize: nil,
-    pinned: nil,
+    pinning: nil,
     action: "-upload"
   )
     dict = {
@@ -68,8 +68,8 @@ describe Fastlane::Actions::DynatraceProcessSymbolsAction do
       dict[:maxSymbolSize] = maxSymbolSize
     end
 
-    unless pinned.nil?
-      dict[:pinned] = pinned
+    unless pinning.nil?
+      dict[:pinning] = pinning
     end
 
     return dict
@@ -198,7 +198,7 @@ describe Fastlane::Actions::DynatraceProcessSymbolsAction do
       end
 
       context "pinning" do
-        it "doesn't send a pinning request when pinned is not set" do
+        it "doesn't send a pinning request when pinning is not set" do
           flhash = FastlaneCore::Configuration.create(mock_config, mock_dict("ios"))
 
           expect(Fastlane::Helper::DynatraceHelper).not_to receive(:put_pinning)
@@ -206,19 +206,19 @@ describe Fastlane::Actions::DynatraceProcessSymbolsAction do
           Fastlane::Actions::DynatraceProcessSymbolsAction.run(flhash)
         end
 
-        [true, false].each do |pinned|
-          it "sends the pinning request with pinned=#{pinned} after the upload" do
-            flhash = FastlaneCore::Configuration.create(mock_config, mock_dict("ios", pinned: pinned, action: "upload"))
+        [true, false].each do |pinning|
+          it "sends the pinning request with pinning=#{pinning} after the upload" do
+            flhash = FastlaneCore::Configuration.create(mock_config, mock_dict("ios", pinning: pinning, action: "upload"))
 
             response = Net::HTTPSuccess.new(1.0, '204', 'OK')
-            expect(Fastlane::Helper::DynatraceHelper).to receive(:put_pinning).with(flhash, "com.dynatrace.fastlanetest", pinned).and_return([response, nil])
+            expect(Fastlane::Helper::DynatraceHelper).to receive(:put_pinning).with(flhash, "com.dynatrace.fastlanetest", pinning).and_return([response, nil])
 
             Fastlane::Actions::DynatraceProcessSymbolsAction.run(flhash)
           end
         end
 
         it "doesn't send a pinning request when the action is decode" do
-          flhash = FastlaneCore::Configuration.create(mock_config, mock_dict("ios", pinned: true, action: "decode"))
+          flhash = FastlaneCore::Configuration.create(mock_config, mock_dict("ios", pinning: true, action: "decode"))
 
           expect(Fastlane::Helper::DynatraceHelper).not_to receive(:put_pinning)
 
@@ -226,7 +226,7 @@ describe Fastlane::Actions::DynatraceProcessSymbolsAction do
         end
 
         it "fails if the pinning request has an error" do
-          flhash = FastlaneCore::Configuration.create(mock_config, mock_dict("ios", pinned: true, action: "upload"))
+          flhash = FastlaneCore::Configuration.create(mock_config, mock_dict("ios", pinning: true, action: "upload"))
 
           response = Net::HTTPClientError.new(1.0, '400', 'Bad Request')
           allow(response).to receive(:body).and_return('{ "error": { "message": "invalid" } }')
