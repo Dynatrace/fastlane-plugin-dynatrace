@@ -34,20 +34,8 @@ module Fastlane
           response, request = Helper::DynatraceHelper.put_android_symbols(params, bundleId, symbols_path)
 
           # https://www.dynatrace.com/support/help/dynatrace-api/configuration-api/mobile-symbolication-api/put-files-app-version
-          if response.code == '204'
-            UI.success "API response: Success."
-          else
-            message = nil
-            if response.class.body_permitted? and not response.body.nil?
-              message = JSON.parse(response.body)["error"]["message"]
-            end
-
-            if message.nil?
-              UI.user_error! "API response: #{response.code}. Please try again in a few minutes or contact Dynatrace support (https://support.dynatrace.com)." 
-            else
-              UI.user_error! "API response: #{message} (Response code: #{response.code})" 
-            end
-          end
+          self.check_response(response)
+          UI.success "API response: Success."
           return
         end
 
@@ -127,10 +115,42 @@ module Fastlane
           end
         })
 
+        if params[:action] == "upload"
+          self.pin_if_requested(params, bundleId)
+        elsif !params[:pinning].nil?
+          UI.important "Option `pinning` is only applied for the `upload` action. Ignoring it for action `#{params[:action]}`."
+        end
+
         if params[:cleanBuildArtifacts]
           UI.message "Cleaning build artifacts"
           Fastlane::Actions::CleanBuildArtifactsAction.run(exclude_pattern: nil)
         end
+      end
+
+      def self.check_response(response)
+        unless response.code == '204'
+          message = nil
+          if response.class.body_permitted? and not response.body.nil?
+            message = JSON.parse(response.body)["error"]["message"]
+          end
+
+          if message.nil?
+            UI.user_error! "API response: #{response.code}. Please try again in a few minutes or contact Dynatrace support (https://support.dynatrace.com)."
+          else
+            UI.user_error! "API response: #{message} (Response code: #{response.code})"
+          end
+        end
+      end
+
+      # Pinning is per app version and applies to all its symbol files, it's sent after the upload.
+      # https://docs.dynatrace.com/docs/dynatrace-api/configuration-api/mobile-symbolication-api/put-files-app-version-pin
+      def self.pin_if_requested(params, bundleId)
+        return if params[:pinning].nil?
+
+        UI.message "#{params[:pinning] ? 'Pinning' : 'Unpinning'} symbol files of the app version"
+        response, _request = Helper::DynatraceHelper.put_pinning(params, bundleId, params[:pinning])
+        self.check_response(response)
+        UI.success "Symbol files #{params[:pinning] ? 'pinned' : 'unpinned'}"
       end
 
       def self.description
@@ -255,7 +275,13 @@ module Fastlane
                                        description: "(iOS/tvOS only) (OPTIONAL) Limits the maximum length (characters) of the demangled symbols (0 means unlimited, default is 5000)",
                                        default_value: 5000,
                                        optional: true,
-                                       type: Integer)
+                                       type: Integer),
+
+          FastlaneCore::ConfigItem.new(key: :pinning,
+                                       env_name: "FL_UPLOAD_TO_DYNATRACE_PINNING",
+                                       description: "(OPTIONAL) Pins (true) or unpins (false) all symbol files of the app version after the upload. If not set, the pinning state isn't changed",
+                                       optional: true,
+                                       type: Boolean)
 
         ]
       end

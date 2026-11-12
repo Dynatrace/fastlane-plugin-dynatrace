@@ -75,9 +75,11 @@ module Fastlane
 
           begin
             UI.message "Unzipping fetched file with MD5 hash: #{Digest::MD5.new << IO.read(zipped_tmp)}"
-            Zip::InputStream.open(zipped_tmp) do |unzipped|
-              entry = unzipped.get_next_entry
-              if (entry.name == dtxDssClientBin)
+            Zip::File.open(zipped_tmp) do |unzipped|
+              entry = unzipped.find_entry(dtxDssClientBin)
+              if entry
+                client_data = entry.get_input_stream(&:read)
+
                 # remove old client
                 UI.message "Found a different remote #{dtxDssClientBin} client. Removing local version and updating."
                 File.delete(versionFilePath) if File.exist?(versionFilePath)
@@ -85,19 +87,12 @@ module Fastlane
 
                 # write new client
                 File.write(versionFilePath, remoteClientUrl)
-                IO.copy_stream(entry.get_input_stream, dtxDssClientPath)
+                IO.copy_stream(StringIO.new(client_data), dtxDssClientPath)
                 FileUtils.chmod("+x", dtxDssClientPath)
                 updatedClient = true
               end
             end
-          rescue Zip::DecompressionError, 
-                 Zip::DestinationFileExistsError, 
-                 Zip::EntryExistsError, 
-                 Zip::EntryNameError, 
-                 Zip::EntrySizeError, 
-                 Zip::GPFBit3Error, 
-                 Zip::InternalError,
-                 Zip::CompressionMethodError 
+          rescue Zip::Error
             error_msg = "Could not update/extract #{dtxDssClientBin}, please try again."
             self.check_fallback_or_raise(dtxDssClientPath, error_msg)
             return dtxDssClientPath
@@ -137,9 +132,8 @@ module Fastlane
         end
       end
 
-      def self.put_android_symbols(params, bundleId, symbolspath)
-        path = "/api/config/v1/symfiles/#{params[:appId]}/#{bundleId}/ANDROID/#{params[:version]}/#{params[:versionStr]}"
-
+      # sends a PUT request to the symbolication API of the configured server
+      def self.put_symfiles_request(params, path, content_type, body, port = 443)
         # if path points to dynatrace managed, we need to prepend the path component from the server (/e/{your-environment-id})
         if params[:server].include? '/e/'
           uri = URI.split(params[:server])
@@ -149,17 +143,32 @@ module Fastlane
           path = self.without_trailing_slash(uri[5]) + path
         end
 
-        is_symbolsfile_zip = symbolspath.end_with?(".zip")
-
-        request = Net::HTTP::Put.new(path, initheader = { 'Content-Type' => is_symbolsfile_zip ? 'application/zip' : 'text/plain',
+        request = Net::HTTP::Put.new(path, initheader = { 'Content-Type' => content_type,
                                                       'Authorization' => "Api-Token #{params[:apitoken]}"} )
 
-        request.body = IO.read(symbolspath)
-        http = Net::HTTP.new(self.get_host_name(params), 443)
+        request.body = body
+        http = Net::HTTP.new(self.get_host_name(params), port)
         http.use_ssl = true
         response = http.request(request)
 
         return [response, request]
+      end
+
+      def self.put_pinning(params, bundleId, pinned)
+        path = "/api/config/v1/symfiles/#{params[:appId]}/#{bundleId}/#{params[:os].upcase}/#{params[:version]}/#{params[:versionStr]}/pinning"
+
+        # environment ActiveGate urls contain a port (e.g. 9999), saas urls don't
+        port = URI.split(params[:server])[3]
+
+        return self.put_symfiles_request(params, path, 'application/json', { pinned: pinned }.to_json, port.nil? ? 443 : port.to_i)
+      end
+
+      def self.put_android_symbols(params, bundleId, symbolspath)
+        path = "/api/config/v1/symfiles/#{params[:appId]}/#{bundleId}/ANDROID/#{params[:version]}/#{params[:versionStr]}"
+
+        is_symbolsfile_zip = symbolspath.end_with?(".zip")
+
+        return self.put_symfiles_request(params, path, is_symbolsfile_zip ? 'application/zip' : 'text/plain', IO.read(symbolspath))
       end
 
       def self.zip_if_required(params)
